@@ -28,29 +28,29 @@ data2 = data2.replace("&#039;", "'")
 
 data2 = data2[:data2.rfind("<div class=\"_4t5o\">")]
 
+taglist = [["<video src", "</video>", "video"], 
+           ["<a href=\"", "</a>", "link"], 
+           ["<img alt=\"", "/>", "image"]]
 
-r = 1
-i = 1000000
-while r > 0:
-    r = data2.find("<video src")
-    if(r > i):
-        i += 1000000
-        print(r)
-    if(r > 0):
-        r1 = data2[r:].find("</video>")
-        data2 = data2[:r] + data2[r + r1:]
-    
-print("-----------------video done-------------------")
+for t in taglist:
+    r = 1
+    i = 1000000
+    start = t[0]
+    stop = t[1]
+    name = t[2]
+    offset = len(stop)
+    print("----------------- " + name + " started -------------------")
+    while r > 0:
+        r = data2.find(start)
+        if(r > i):
+            i += 1000000
+            print(r)
+        if(r > 0):
+            r1 = data2[r:].find(stop)
+            data2 = data2[:r] + "//" + name + "//" + data2[r + r1 + offset:]
+        
+    print("----------------- " + name + " done -------------------")
 
-r = 1
-i = 1000000
-while r > 0:
-    if(r > i):
-        i += 1000000
-        print(r)
-    r = data2.find("<a href=\"")
-    if(r > 0):
-        r1 = data2[r:].find("</a>")
-        data2 = data2[:r] + data2[r + r1:]
-    
-print("-----------------links done-------------------")
+
+
+
