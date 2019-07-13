@@ -39,10 +39,11 @@ r = data.rfind("_3-94 _2lem\">")
 drString = data[r + 13: r +data[r:].find("<")]
 com = drString.find(", ")
 drString = drString[:com + drString[com + 1:].find(", ") + 1]
-
+print("Start From: " + drString)
 for i, mon in enumerate(months):
     if not i == 0:
         drString = drString.replace(mon, str(i))
+
 drString = drString.replace(",", "").replace("to ", "")
 numdate = drString.split(" ")
 
@@ -55,10 +56,11 @@ r = r + data[r + 1:].find("_3-94 _2lem\">")
 drString = data[r + 13: r +data[r:].find("<")]
 com = drString.find(", ")
 drString = drString[1:com + drString[com + 1:].find(", ") + 1]
-
+print("Ends On: " + drString)
 for i, mon in enumerate(months):
     if not i == 0:
         drString = drString.replace(mon, str(i))
+
 drString = drString.replace(",", "").replace("to ", "")
 numdate = drString.split(" ")
 
@@ -82,25 +84,36 @@ tmp.extend(namelist)
 tmp.append("Total Messages")
 date_result = [tmp]
 temp_old = ""
+initialFlag = True
 while(not(y == y1 and m == m1 and d == d1)):
     stop = data[:start].rfind(date_new)
-    if stop == -1:
-        print("No messages on this day: " + date_new)
+    if stop == -1 and initialFlag:
+        date_old = date_new
+    elif stop == -1 and not initialFlag:
+        print("No messages on: " + date_new)
         tmp = [date_new]
         tmp.extend([0] * (len(namelist) + 1))
         date_result.append(tmp)
-        temp_old = date_old        
+        if len(temp_old)==0:
+             temp_old = date_old        
     else:
-        if len(temp_old)!=0:
-            tmp = [temp_old]
-            temp_old = ""
-        else:
+        if initialFlag:
+            initialFlag = False
+            print("Conversation Started at: " +  date_new)
             tmp = [date_old]
-        for name in namelist:
-            tmp.append(data[stop:start].count(">" + name + "<"))
-        tmp.append(data[stop:start].count("_3-96 _2let"))
-        date_result.append(tmp)
-        start = stop
+            tmp.extend([0] * (len(namelist) + 1))
+            date_result.append(tmp)
+        else:
+            if len(temp_old)!=0:
+                tmp = [temp_old]
+                temp_old = ""
+            else:
+                tmp = [date_old]
+            for name in namelist:
+                tmp.append(data[stop:start].count(">" + name + "<"))
+            tmp.append(data[stop:start].count("_3-96 _2let"))
+            date_result.append(tmp)
+            start = stop
     date_old = date_new
 
     d += 1
