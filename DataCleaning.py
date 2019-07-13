@@ -27,3 +27,30 @@ data2 = data2.replace("<div class=\"_3-96 _2pio _2lek _2lel\">", "\n")
 data2 = data2.replace("&#039;", "'")
 
 data2 = data2[:data2.rfind("<div class=\"_4t5o\">")]
+
+
+r = 1
+i = 1000000
+while r > 0:
+    r = data2.find("<video src")
+    if(r > i):
+        i += 1000000
+        print(r)
+    if(r > 0):
+        r1 = data2[r:].find("</video>")
+        data2 = data2[:r] + data2[r + r1:]
+    
+print("-----------------video done-------------------")
+
+r = 1
+i = 1000000
+while r > 0:
+    if(r > i):
+        i += 1000000
+        print(r)
+    r = data2.find("<a href=\"")
+    if(r > 0):
+        r1 = data2[r:].find("</a>")
+        data2 = data2[:r] + data2[r + r1:]
+    
+print("-----------------links done-------------------")
