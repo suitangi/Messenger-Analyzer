@@ -1,0 +1,16 @@
+{
+  "name": "messenger-analyzer",
+  "version": "1.0.0",
+  "description": "Messenger analysis tool desktop app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Ignatius Liu",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^8.1.1",
+    "electron-packager": "^14.2.1",
+    "utf8": "^3.0.0"
+  }
+}

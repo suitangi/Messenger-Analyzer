@@ -1,0 +1,8 @@
+#ignore all zip files
+*.zip
+
+#ignore all files in the local folder
+local/
+
+#ignore node_moules
+node_modules/
