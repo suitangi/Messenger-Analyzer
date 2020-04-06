@@ -49,7 +49,9 @@ function indexOfMin(arr) {
 
 // scrolls up a section
 function scrollUp() {
-  if (window.currentSection != undefined && window.currentSection != '#begin') {
+  if (window.currentSection == '#sec1') {
+    scrollTo('#begin');
+  } else if (window.currentSection != undefined && window.currentSection != '#begin') {
     scrollTo('#' + $(window.currentSection).prev().attr('id'));
   }
 
@@ -57,7 +59,9 @@ function scrollUp() {
 
 //scrolls down a section
 function scrollDown() {
-  if (window.currentSection != undefined && window.currentSection != window.lastSection) {
+  if (window.currentSection == '#begin') {
+    scrollTo('#sec1');
+  } else if (window.currentSection != undefined && window.currentSection != window.lastSection) {
     scrollTo('#' + $(window.currentSection).next().attr('id'));
   }
 }
@@ -242,6 +246,10 @@ function loadDirectory() {
 
 //load in all the interesting facts
 function loadFacts() {
+  $('.thisYear').each(function(i, el) {
+    el.innerText = data_2019.year;
+  });
+
   $('#msg_total').attr('data-number', data_2019.messageCount);
   $('#rcd_total').attr('data-number', data_2019.receivedCount);
   $('#rct_total').attr('data-number', data_2019.reactCount);
@@ -344,9 +352,9 @@ function loadFacts() {
   $('#lost2').text(data_2019.lostConnections[1].name);
   $('#lost3').text(data_2019.lostConnections[2].name);
   $('#lost1-1').text(data_2019.lostConnections[0].name);
-  $('#lostCount').attr('data-number', data_2019.lostConnections[0].difference);
+  $('#lostCount').attr('data-number', data_2019.lostConnections[0].percentage);
 
-  //lost contacts
+  //new friends
   $('#friend1').text(data_2019.newFriends[0].name);
   $('#friend2').text(data_2019.newFriends[1].name);
   $('#friend3').text(data_2019.newFriends[2].name);
@@ -367,8 +375,8 @@ $(document).ready(function() {
 
   // assuming $ is jQuery
   $(document).on('click', 'a[href^="http"]', function(event) {
-      event.preventDefault();
-      shell.openExternal(this.href);
+    event.preventDefault();
+    shell.openExternal(this.href);
   });
 
   //listeners for arrow keys

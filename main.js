@@ -57,7 +57,17 @@ app.on('ready', function() {
   });
 });
 
+//escape a string for html
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
+//process data for a year
 function processData(year) {
 
   mainWindow.webContents.send('loading', 'parsing');
@@ -92,26 +102,16 @@ function processData(year) {
     },
     tempTalk = [],
     lastYearCount,
-    lostConnections = [{
-        difference: 0
-      },
-      {
-        difference: 0
-      },
-      {
-        difference: 0
-      }
-    ],
-    newFriends = [{
-        difference: 0
-      },
-      {
-        difference: 0
-      },
-      {
-        difference: 0
-      }
-    ];
+    lostConnections = [],
+    newFriends = [];
+  for (i = 0; i < 10; i++) {
+    lostConnections.push({
+      difference: 0
+    });
+    newFriends.push({
+      difference: 0
+    });
+  }
 
   messagesData['year_' + year] = {};
 
@@ -228,11 +228,11 @@ function processData(year) {
     }
 
     //lost connections
-    tempIndex = 3;
+    tempIndex = 10;
     while (tempIndex > 0 && lastYearCount - (receivedCount - tempCountIn + privateCount - tempCountOut) > lostConnections[tempIndex - 1].difference) {
       tempIndex -= 1;
     }
-    if (tempIndex != 3) {
+    if (tempIndex != 10) {
       lostConnections.splice(tempIndex, 0, {
         difference: lastYearCount - (receivedCount - tempCountIn + privateCount - tempCountOut),
         name: messagesData.private[i].title,
@@ -346,7 +346,68 @@ function processData(year) {
       topGroupIn.name = messagesData.group[i].title;
     }
   }
+
+  //find the top 3 percentage lost connections and new friends
+  let topPercentageLost = [{
+      percentage: 0
+    }, {
+      percentage: 0
+    }, {
+      percentage: 0
+    }],
+    topPercentageGain = [{
+      percentage: 0
+    }, {
+      percentage: 0
+    }, {
+      percentage: 0
+    }];
+  for (i = 0; i < 10; i++) {
+    lostConnections[i].percentage = Math.floor((lostConnections[i].difference / lostConnections[i].lastCount) * 100);
+    newFriends[i].percentage = Math.floor((newFriends[i].difference / (newFriends[i].lastCount + newFriends[i].difference)) * 100);
+
+    //top merging for lost connection
+    tempIndex = 3;
+    while (tempIndex > 0 && lostConnections[i].percentage > topPercentageLost[tempIndex - 1].percentage) {
+      tempIndex -= 1;
+    }
+    if (tempIndex != 3) {
+      topPercentageLost.splice(tempIndex, 0, {
+        difference: lostConnections[i].difference,
+        name: lostConnections[i].name,
+        count: lostConnections[i].count,
+        lastCount: lostConnections[i].lastCount,
+        percentage: lostConnections[i].percentage
+      });
+      topPercentageLost.pop();
+    }
+
+    //top merging for new friends
+    tempIndex = 3;
+    while (tempIndex > 0 && newFriends[i].percentage > topPercentageGain[tempIndex - 1].percentage) {
+      tempIndex -= 1;
+    }
+    if (tempIndex != 3) {
+      topPercentageGain.splice(tempIndex, 0, {
+        difference: newFriends[i].difference,
+        name: newFriends[i].name,
+        count: newFriends[i].count,
+        lastCount: newFriends[i].lastCount,
+        percentage: newFriends[i].percentage
+      });
+      topPercentageGain.pop();
+    }
+  }
+
+  // escape messages for html
+  for (i = 0; i < deepTalk.messages.length; i++) {
+    if (deepTalk.messages[i].content != undefined) {
+      deepTalk.messages[i].content = escapeHtml(deepTalk.messages[i].content);
+    }
+  }
+
   console.log('Done parsing group conversations');
+  messagesData['year_' + year].year = year;
   messagesData['year_' + year].privateCount = privateCount;
   messagesData['year_' + year].groupCount = groupCount;
   messagesData['year_' + year].messageCount = privateCount + groupCount;
@@ -362,9 +423,8 @@ function processData(year) {
   messagesData['year_' + year].receivedCountPrivate = receivedCountPrivate;
   messagesData['year_' + year].reactCount = reactType.reduce((a, b) => a + b, 0);
   messagesData['year_' + year].deepTalk = deepTalk;
-  messagesData['year_' + year].lostConnections = lostConnections;
+  messagesData['year_' + year].lostConnections = topPercentageLost;
   messagesData['year_' + year].newFriends = newFriends;
-
 }
 
 

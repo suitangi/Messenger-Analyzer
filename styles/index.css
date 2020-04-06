@@ -60,7 +60,7 @@ body::-webkit-scrollbar {
 }
 
 #optionWrapper:hover .option {
-  opacity: 0.4;
+  opacity: 0.6;
   transition: opacity .25s;
 }
 
@@ -92,6 +92,10 @@ body::-webkit-scrollbar {
 }
 
 /* section control styling */
+#year-review {
+  display: inline;
+}
+
 #control {
   position: fixed;
   width: 1vh;
