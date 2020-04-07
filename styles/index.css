@@ -209,6 +209,11 @@ body::-webkit-scrollbar {
   background: linear-gradient(#e0de00, #8ae000);
 }
 
+#sec12 {
+  background: #8ae000;
+  background: linear-gradient(#8ae000, #00e08e);
+}
+
 .maintitle {
   font-size: calc(36px + 1.2vw);
   text-align: center;
@@ -358,9 +363,28 @@ body::-webkit-scrollbar {
   background: #eee;
   padding: 8px 12px 8px 12px;
   position: relative;
+  max-width: 45vw;
+  overflow-wrap: break-word;
+}
+
+#messages li img {
+  max-width: 30vw;
+  border-radius: 1.5vw;
 }
 
 #messages li span:before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  bottom: -8px;
+  right: -8px;
+  border: 8px solid white;
+  border-radius: 25px;
+  pointer-events: none;
+}
+
+#messages li img:before {
   content: '';
   position: absolute;
   left: -8px;

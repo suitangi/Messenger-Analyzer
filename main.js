@@ -67,6 +67,9 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+//function processData
+
+
 //process data for a year
 function processData(year) {
 
@@ -141,8 +144,8 @@ function processData(year) {
       else if (d.getYear() + 1900 == year) {
 
         //for deepTalk
-        while (tempTalk.length != 0 && message.timestamp_ms - tempTalk[0].timestamp_ms > 7200000) {
-          tempTalk.splice(0, 1);
+        if (tempTalk.length != 0 && message.timestamp_ms - tempTalk[tempTalk.length - 1].timestamp_ms > 1800000) {
+          tempTalk = [];
         }
         if (tempTalk.length > deepTalk.count) {
           deepTalk.messages = Array.from(tempTalk);
@@ -434,7 +437,7 @@ function processData(year) {
     }
   }
 
-  //sort final wordcount list and get top 150
+  //sort final wordcount list and get top 100
   var finalWordsArray = [];
   finalWordsArray = Object.keys(wordCount).map(function (key) {
     return {
@@ -445,8 +448,9 @@ function processData(year) {
   finalWordsArray.sort(function (a, b) {
     return b.size - a.size;
   });
- finalWordsArray.length = 150;
+ finalWordsArray.length = 100;
 
+ deepTalk.timeElapsed = ((deepTalk.messages[deepTalk.messages.length - 1].timestamp_ms - deepTalk.messages[0].timestamp_ms)/3600000).toFixed(2);
 
   console.log('Done parsing group conversations');
   messagesData['year_' + year].year = year;

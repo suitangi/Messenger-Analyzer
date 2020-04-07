@@ -59,188 +59,198 @@
     </div>
   </div>
 
-<div id="year-review">
-  <div id="loading" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div id="loadingsign" class="maintitle">
-        Loading Messages
-      </div>
-      <div class="sk-folding-cube">
-        <div class="sk-cube1 sk-cube"></div>
-        <div class="sk-cube2 sk-cube"></div>
-        <div class="sk-cube4 sk-cube"></div>
-        <div class="sk-cube3 sk-cube"></div>
-      </div>
-      <br><br><br><br><br><br>
-      <div class="suppText" id="loadAlert">
-        This may take some time
-      </div>
+  <div id="year-review">
+    <div id="loading" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div id="loadingsign" class="maintitle">
+          Loading Messages
+        </div>
+        <div class="sk-folding-cube">
+          <div class="sk-cube1 sk-cube"></div>
+          <div class="sk-cube2 sk-cube"></div>
+          <div class="sk-cube4 sk-cube"></div>
+          <div class="sk-cube3 sk-cube"></div>
+        </div>
+        <br><br><br><br><br><br>
+        <div class="suppText" id="loadAlert">
+          This may take some time
+        </div>
 
-    </div>
-  </div>
-
-
-  <div id="sec1" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle to-animate" data-anime="fade-top">
-        In <span class="thisYear">2019</span>, you sent <span id="msg_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
-        <img src="img/mail.png" style="width: 1em; height: 1em;"><br>
-        and received <span id="rcd_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
-        <img src="img/mailbox.png" style="width: 1em; height: 1em;">
       </div>
     </div>
-  </div>
 
-  <div id="sec2" class="section">
-    <br><br><br>
-    <div class="maintitle to-animate" data-anime="fade-top">
-      You reacted <span id="rct_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> times,<br>
-      of which <span id="rct_max" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% were
-      <img id="mostRct" src="img/thumbsup.png" style="width: 1em; height: 1em;">
-    </div>
-    <div class="bigChart">
-      <canvas id="reactChart" class="to-animate" data-anime="chart"></canvas>
-    </div>
-  </div>
 
-  <div id="sec3" class="section">
-    <br><br><br>
-    <div class="maintitle to-animate" data-anime="fade-top">
-      Not all messages are created equal, <br>
-      <span id="msgType_max" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of yours were
-      <span id="mostMsgType"></span>
-    </div>
-    <div class="bigChart">
-      <canvas id="typeChart" class="to-animate" data-anime="chart"></canvas>
-    </div>
-  </div>
-
-  <div id="sec4" class="section">
-    <br><br><br><br>
-    <div class="maintitle to-animate" data-anime="fade-top">
-      You were the most active from <span id="mostActiveTime"></span>,<br>
-      and didn't talk much from <span id="leastActiveTime"></span>
-    </div>
-    <div class="bigChart">
-      <canvas id="hourChart" class="to-animate" data-anime="chart"></canvas>
-    </div>
-  </div>
-
-  <div id="sec5" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle to-animate" data-anime="fade-top">
-        You sent the most messages to <strong><span id="topContact"></span></strong>,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        with <span id="topContactMsgCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        that's <span id="topContactPercent" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of your sent DM's!
+    <div id="sec1" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          In <span class="thisYear">2019</span>, you sent <span id="msg_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
+          <img src="img/mail.png" style="width: 1em; height: 1em;"><br>
+          and received <span id="rcd_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
+          <img src="img/mailbox.png" style="width: 1em; height: 1em;">
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="sec6" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+    <div id="sec2" class="section">
+      <br><br><br>
       <div class="maintitle to-animate" data-anime="fade-top">
-        You <span id="also" style="display: none;">also</span> receieved the most messages from
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        <strong><span id="topContactIn"></span></strong>. At <span id="topContactInMsgCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages, they account
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        for <span id="topContactInPercent" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of DM's you received this year!
+        You reacted <span id="rct_total" class="odometer to-animate" data-anime="odo" data-number="0">0</span> times,<br>
+        of which <span id="rct_max" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% were
+        <img id="mostRct" src="img/thumbsup.png" style="width: 1em; height: 1em;">
+      </div>
+      <div class="bigChart">
+        <canvas id="reactChart" class="to-animate" data-anime="chart"></canvas>
       </div>
     </div>
-  </div>
 
-  <div id="sec7" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+    <div id="sec3" class="section">
+      <br><br><br>
       <div class="maintitle to-animate" data-anime="fade-top">
-        Your top group<span id="multigroup0">s were</span>
-        <strong><span id="topGroup1"></span></strong>
-        <span id="multigroup"><br>and
-          <strong><span id="topGroup2"></span></strong>
-        </span>
-      </div><br><br><br><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        You sent <span id="topGroupOutCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
-        <span id="multigroup1"> to the former</span>
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        and received <span id="topGroupInCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span>
-        <span id="multigroup2"> from the latter</span>
+        Not all messages are created equal, <br>
+        <span id="msgType_max" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of yours were
+        <span id="mostMsgType"></span>
+      </div>
+      <div class="bigChart">
+        <canvas id="typeChart" class="to-animate" data-anime="chart"></canvas>
       </div>
     </div>
-  </div>
 
-  <div id="sec8" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+    <div id="sec4" class="section">
+      <br><br><br><br>
       <div class="maintitle to-animate" data-anime="fade-top">
-        You seem to have had a deep conversation
-        <br> with <strong><span id="deepTalkName"></span></strong> on
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        <strong><span id="deepTalkDate"></span></strong> at <strong><span id="deepTalkTime"></span></strong>
-      </div><br><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        You two sent <span id="deepTalkCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
-        <br> to each other within <span class="odometer to-animate" data-anime="odo" data-number="2">0</span> hours
+        You were the most active from <span id="mostActiveTime"></span>,<br>
+        and didn't talk much from <span id="leastActiveTime"></span>
       </div>
-      <button id="convoButton" class="to-animate button" onclick="openConvo()" data-anime="fade-bottom">
-        Read this conversation
-      </button>
-    </div>
-    <div id="messagesContainer" style='display: none;'>
-      <ol id="messages">
-      </ol>
-    </div>
-  </div>
-
-  <div id="sec9" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle to-animate" data-anime="fade-top">
-        Maybe you lost contact, maybe you drifted apart,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        but this year, you talked a lot less to
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        <strong><span id="lost1"></span></strong>, <strong><span id="lost2"></span></strong> and <strong><span id="lost3"></span></strong>,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        with <span id="lostCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% less messages sent to <strong><span id="lost1-1"></span></strong>.
+      <div class="bigChart">
+        <canvas id="hourChart" class="to-animate" data-anime="chart"></canvas>
       </div>
     </div>
-  </div>
 
-  <div id="sec10" class="section">
-    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle to-animate" data-anime="fade-top">
-        On the other hand, you made some new friends,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        with <span id="friendCount1" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more messages sent to <strong><span id="friend1"></span></strong>,
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        <span id="friendCount2" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more to <strong><span id="friend2"></span></strong>
-      </div><br>
-      <div class="maintitle to-animate" data-anime="fade-top">
-        and <span id="friendCount3" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more to <strong><span id="friend3"></span></strong>
+    <div id="sec5" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          You sent the most messages to <strong><span id="topContact"></span></strong>,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          with <span id="topContactMsgCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          that's <span id="topContactPercent" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of your sent DM's!
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="sec11" class="section">
-    <div style="position:relative; top:10%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle to-animate" data-anime="fade-top">
-        These are your favorite words this year
+    <div id="sec6" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          You <span id="also" style="display: none;">also</span> receieved the most messages from
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          <strong><span id="topContactIn"></span></strong>. At <span id="topContactInMsgCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages, they account
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          for <span id="topContactInPercent" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% of DM's you received this year!
+        </div>
       </div>
-  </div>
-  <div style="position: relative; bottom: 0%; left: 10%; height: 80vh; width: 80vw;">
-    <div id="wordCloud" class="to-animate" data-anime="cloud" style="width: 80vw; height: 70vh; top: 15%"></div>
-  </div>
-</div>
+    </div>
+
+    <div id="sec7" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          Your top group<span id="multigroup0">s were</span>
+          <strong><span id="topGroup1"></span></strong>
+          <span id="multigroup"><br>and
+            <strong><span id="topGroup2"></span></strong>
+          </span>
+        </div><br><br><br><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          You sent <span id="topGroupOutCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
+          <span id="multigroup1"> to the former</span>
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          and received <span id="topGroupInCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span>
+          <span id="multigroup2"> from the latter</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec8" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          You seem to have had a deep conversation
+          <br> with <strong><span id="deepTalkName"></span></strong> on
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          <strong><span id="deepTalkDate"></span></strong> at <strong><span id="deepTalkTime"></span></strong>
+        </div><br><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          You two sent <span id="deepTalkCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span> messages
+          <br> to each other within <span id="deepTalkHours" class="odometer to-animate" data-anime="odo" data-number="2">0</span> hour<span id="hoursPlural">s</span>
+        </div>
+        <button id="convoButton" class="to-animate button" onclick="openConvo()" data-anime="fade-bottom">
+          Read this conversation
+        </button>
+      </div>
+      <div id="messagesContainer" style='display: none;'>
+        <ol id="messages">
+        </ol>
+      </div>
+    </div>
+
+    <div id="sec9" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          Maybe you lost contact, maybe you drifted apart,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          but this year, you talked a lot less to
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          <strong><span id="lost1"></span></strong>, <strong><span id="lost2"></span></strong> and <strong><span id="lost3"></span></strong>,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          with <span id="lostCount" class="odometer to-animate" data-anime="odo" data-number="0">0</span>% less messages sent to <strong><span id="lost1-1"></span></strong>.
+        </div>
+      </div>
+    </div>
+
+    <div id="sec10" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          On the other hand, you made some new friends,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          with <span id="friendCount1" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more messages sent to <strong><span id="friend1"></span></strong>,
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          <span id="friendCount2" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more to <strong><span id="friend2"></span></strong>
+        </div><br>
+        <div class="maintitle to-animate" data-anime="fade-top">
+          and <span id="friendCount3" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more to <strong><span id="friend3"></span></strong>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec11" class="section">
+      <div style="position:relative; top:10%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          Some of your favorite words this year
+        </div>
+      </div>
+      <div style="position: relative; bottom: 0%; left: 10%; height: 80vh; width: 80vw;">
+        <div id="wordCloud" class="to-animate" data-anime="cloud" style="width: 80vw; height: 70vh; top: 15%"></div>
+      </div>
+    </div>
+
+    <div id="sec12" class="section">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle to-animate" data-anime="fade-top">
+          This is it for your Messenger <span class="odometer to-animate" data-anime="odo" data-number="2019">0</span> journey.<br>
+          What will next year bring? <br><br><br>
+          <span style="font-size: calc(30px + 1vw);">If you would like more data analytics,<br> feel free to go to the data dashboard.</span>
+        </div>
+      </div>
+    </div>
 
 </body>
 

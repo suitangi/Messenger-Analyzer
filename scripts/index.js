@@ -109,7 +109,9 @@ function updateAnimates() {
         } else if (el.attr("data-anime") == "odo") {
           el.text(el.attr("data-number"));
         } else if (el.attr("data-anime") == "cloud") {
-          wordCloud(data_2019.wordCount);
+          setTimeout(function() {
+            wordCloud(data_2019.wordCount);
+          }, 800);
         } else if (el.attr("data-anime") == "chart") {
           //different charts need to be initialized accordingly
           switch (el.attr('id')) {
@@ -323,6 +325,10 @@ function loadFacts() {
   $('#deepTalkDate').text(tempD.toDateString());
   $('#deepTalkTime').text(tempD.toLocaleTimeString());
   $('#deepTalkCount').attr('data-number', data_2019.deepTalk.count);
+  $('#deepTalkHours').attr('data-number', Math.ceil(data_2019.deepTalk.timeElapsed));
+  if (Math.ceil(data_2019.deepTalk.timeElapsed) == 1) {
+    $('#hoursPlural').attr('style', 'display: none;');
+  }
 
   //load the messages into the convo
   let htmlStr = "",
@@ -395,7 +401,7 @@ function loadFacts() {
 $(document).ready(function() {
   updateAnimates();
 
-  window.lastSection = "#sec11";
+  window.lastSection = "#sec12";
 
   setTimeout(function() {
     document.getElementById("year_text").innerHTML = 2019;
