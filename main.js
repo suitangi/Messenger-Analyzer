@@ -80,7 +80,7 @@ function processData(year) {
     receivedCount = 0,
     reactType = [0, 0, 0, 0, 0, 0, 0, 0], // [😍 ❤ 😆 😮 😢 😠 👍 👎 ] [\u00f0\u009f\u0098\u008d, \u00e2\u009d\u00a4, \u00f0\u009f\u0098\u0086, \u00f0\u009f\u0098\u00ae, \u00f0\u009f\u0098\u00a2, \u00f0\u009f\u0098\u00a0, \u00f0\u009f\u0091\u008d, \u00f0\u009f\u0091\u008e]
     hourCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    typeCount = [0, 0, 0, 0, 0], //text, image, link, gif, video
+    typeCount = [0, 0, 0, 0, 0, 0], //text, image, link, gif, video, sticker
     i, j, k, d, message, name,
     tempCountIn,
     tempCountOut,
@@ -103,7 +103,8 @@ function processData(year) {
     tempTalk = [],
     lastYearCount,
     lostConnections = [],
-    newFriends = [];
+    newFriends = [],
+    wordCount = {};
   for (i = 0; i < 10; i++) {
     lostConnections.push({
       difference: 0
@@ -163,6 +164,8 @@ function processData(year) {
               typeCount[3] += 1;
             } else if (message.videos != undefined) {
               typeCount[4] += 1;
+            } else if (message.sticker != undefined) {
+              typeCount[5] += 1;
             } else {
               typeCount[0] += 1;
             }
@@ -178,6 +181,17 @@ function processData(year) {
         //encode all the emojis
         if (message.content != undefined && message.content.length != 0) {
           message.content = utf8.decode(message.content);
+          //add to wordCount
+          if (message.sender_name == name) {
+            message.content.split(/\s+/).forEach(function(word){
+              word = word.toUpperCase();
+              if (wordCount[word] != undefined) {
+                wordCount[word] += 1;
+              } else {
+                wordCount[word] = 1;
+              }
+            });
+          }
         }
 
         //for reactions
@@ -284,6 +298,8 @@ function processData(year) {
               typeCount[3] += 1;
             } else if (message.videos != undefined) {
               typeCount[4] += 1;
+            } else if (message.sticker != undefined) {
+              typeCount[5] += 1;
             } else {
               typeCount[0] += 1;
             }
@@ -297,6 +313,18 @@ function processData(year) {
         //encode all the emojis
         if (message.content != undefined && message.content.length != 0) {
           message.content = utf8.decode(message.content);
+
+          //add to wordCount
+          if (message.sender_name == name) {
+            message.content.split(/\s+/).forEach(function(word){
+              word = word.toUpperCase();
+              if (wordCount[word] != undefined) {
+                wordCount[word] += 1;
+              } else {
+                wordCount[word] = 1;
+              }
+            });
+          }
         }
 
         if (message.reactions != undefined) {
@@ -406,6 +434,20 @@ function processData(year) {
     }
   }
 
+  //sort final wordcount list and get top 150
+  var finalWordsArray = [];
+  finalWordsArray = Object.keys(wordCount).map(function (key) {
+    return {
+      text: key,
+      size: wordCount[key]
+    };
+  });
+  finalWordsArray.sort(function (a, b) {
+    return b.size - a.size;
+  });
+ finalWordsArray.length = 150;
+
+
   console.log('Done parsing group conversations');
   messagesData['year_' + year].year = year;
   messagesData['year_' + year].privateCount = privateCount;
@@ -425,6 +467,7 @@ function processData(year) {
   messagesData['year_' + year].deepTalk = deepTalk;
   messagesData['year_' + year].lostConnections = topPercentageLost;
   messagesData['year_' + year].newFriends = newFriends;
+  messagesData['year_' + year].wordCount = finalWordsArray;
 }
 
 

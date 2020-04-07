@@ -21,9 +21,10 @@
 
   <script type="text/javascript" src="scripts/jquery-3.1.1.min.js"></script>
   <script type="text/javascript" src="scripts/jquery-plugins.min.js"></script>
-  <script type="text/javascript" src="scripts/index.js"></script>
   <script type="text/javascript" src="scripts/odometer.js"></script>
   <script type="text/javascript" src="scripts/chart.js"></script>
+  <script type="text/javascript" src="scripts/wordcloud2.js"></script>
+  <script type="text/javascript" src="scripts/index.js"></script>
 
   <script>
     if (window.module) module = window.module;
@@ -228,6 +229,16 @@
         and <span id="friendCount3" class="odometer to-animate" data-anime="odo" data-number="0">0</span> more to <strong><span id="friend3"></span></strong>
       </div>
     </div>
+  </div>
+
+  <div id="sec11" class="section">
+    <div style="position:relative; top:10%; left:50%; transform:translate(-50%, -50%);">
+      <div class="maintitle to-animate" data-anime="fade-top">
+        These are your favorite words this year
+      </div>
+  </div>
+  <div style="position: relative; bottom: 0%; left: 10%; height: 80vh; width: 80vw;">
+    <div id="wordCloud" class="to-animate" data-anime="cloud" style="width: 80vw; height: 70vh; top: 15%"></div>
   </div>
 </div>
 

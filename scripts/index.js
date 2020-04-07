@@ -108,6 +108,8 @@ function updateAnimates() {
           el.addClass("fade-in-bottom");
         } else if (el.attr("data-anime") == "odo") {
           el.text(el.attr("data-number"));
+        } else if (el.attr("data-anime") == "cloud") {
+          wordCloud(data_2019.wordCount);
         } else if (el.attr("data-anime") == "chart") {
           //different charts need to be initialized accordingly
           switch (el.attr('id')) {
@@ -115,7 +117,7 @@ function updateAnimates() {
               hourChart(el.get(), data_2019.hourlyCount);
               break;
             case 'typeChart':
-              typeChart(el.get(), data_2019.typeCount, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos']);
+              typeChart(el.get(), data_2019.typeCount, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
               break;
             case 'reactChart':
               typeChart(el.get(), data_2019.reactType, ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'])
@@ -129,6 +131,8 @@ function updateAnimates() {
         } else if (el.attr("data-anime") == "fade-bottom") {
           el.removeClass("fade-in-bottom");
           el.addClass('to-animate');
+        } else if (el.attr("data-anime") == "cloud") {
+          document.getElementById("wordCloud").innerHTML = "";
         } else if (el.attr("data-anime") == "odo") {
           el.text('0');
           el.addClass('to-animate');
@@ -195,6 +199,24 @@ function typeChart(ctx, data, label) {
   });
 }
 
+//function for the wordcloud
+function wordCloud(words) {
+  let wordlist = [];
+  for (var i = 0; i < words.length; i++) {
+    wordlist.push([words[i].text, words[i].size / 20]);
+  }
+  WordCloud(document.getElementById('wordCloud'), {
+    list: wordlist,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    fontFamily: 'Times, serif',
+    wait: 10,
+    gridSize: 15,
+    rotateRatio: 0.2,
+    rotationSteps: 2,
+    shuffle: true
+  });
+}
 
 //fucntion to open the conversation modal
 function openConvo() {
@@ -319,6 +341,8 @@ function loadFacts() {
         htmlStr += messages[m].sender_name + " sent " + ((messages[m].videos.length == 1) ? 'a video.</span></li>' : messages[m].videos.length + ' videos.</span></li>');
       } else if (messages[m].photos != undefined) {
         htmlStr += messages[m].sender_name + " sent a gif.</span></li>"
+      } else if (messages[m].sticker != undefined) {
+        htmlStr += messages[m].sender_name + " sent a sticker.</span></li>"
       }
     } else if (messages[m].type == 'Share') {
       tempD = new Date(data_2019.deepTalk.messages[m].timestamp_ms);
@@ -361,13 +385,17 @@ function loadFacts() {
   $('#friendCount1').attr('data-number', data_2019.newFriends[0].difference);
   $('#friendCount2').attr('data-number', data_2019.newFriends[1].difference);
   $('#friendCount3').attr('data-number', data_2019.newFriends[2].difference);
+
+
+  //load wordCloud
+  // wordCloud(data_2019.wordCount);
 }
 
 //doc start scripting
 $(document).ready(function() {
   updateAnimates();
 
-  window.lastSection = "#sec10";
+  window.lastSection = "#sec11";
 
   setTimeout(function() {
     document.getElementById("year_text").innerHTML = 2019;

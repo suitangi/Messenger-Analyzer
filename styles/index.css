@@ -204,6 +204,11 @@ body::-webkit-scrollbar {
   background: linear-gradient(#e0009f, #e0de00);
 }
 
+#sec11 {
+  background: #e0de00;
+  background: linear-gradient(#e0de00, #8ae000);
+}
+
 .maintitle {
   font-size: calc(36px + 1.2vw);
   text-align: center;
@@ -274,6 +279,9 @@ body::-webkit-scrollbar {
   outline: none;
 }
 
+#wordCloud span {
+  user-select: none;
+}
 
 /* Conversation styles */
 #messagesContainer {
@@ -411,8 +419,8 @@ body::-webkit-scrollbar {
 }
 
 .scale-out-center {
-	-webkit-animation: scale-out-center 0.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
-	        animation: scale-out-center 0.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+	-webkit-animation: scale-out-center 0.3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+	        animation: scale-out-center 0.3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
 }
 
 .tracking-in-expand {
