@@ -51,7 +51,7 @@ function indexOfMin(arr) {
 function scrollUp() {
   if (window.currentSection == '#sec1') {
     scrollTo('#begin');
-  } else if (window.currentSection != undefined && window.currentSection != '#begin') {
+  } else if (window.currentSection != undefined && window.currentSection != '#begin' && window.currentSection != "#data-dashboard") {
     scrollTo('#' + $(window.currentSection).prev().attr('id'));
   }
 
@@ -61,7 +61,7 @@ function scrollUp() {
 function scrollDown() {
   if (window.currentSection == '#begin') {
     scrollTo('#sec1');
-  } else if (window.currentSection != undefined && window.currentSection != window.lastSection) {
+  } else if (window.currentSection != undefined && window.currentSection != window.lastSection && window.currentSection != "#data-dashboard") {
     scrollTo('#' + $(window.currentSection).next().attr('id'));
   }
 }
@@ -72,17 +72,20 @@ function scrollTo(element) {
   $('html, body').animate({
     scrollTop: $(element).offset().top
   }, 1000, "easeInOutExpo", function() {
-    document.getElementsByTagName("body")[0].style = "overflow:hidden;";
+    if (element != '#data-dashboard') {
+      document.getElementsByTagName("body")[0].style = "overflow:hidden;";
+    }
   });
   window.currentSection = element;
   if (element == '#begin' || element == '#loading') {
     document.getElementById('control').style = "opacity: 0;";
-    setTimeout(function() {
+    window.hideControl = setTimeout(function() {
       document.getElementById('control').style = "display: none;";
     }, 1000);
   } else if (element == window.lastSection) {
     document.getElementById('downarrow').style = "opacity: 0; cursor: default;";
   } else {
+    clearTimeout(window.hideControl);
     document.getElementById('downarrow').style = "";
     document.getElementById('control').style = "opacity: 0";
     setTimeout(function() {
@@ -109,6 +112,7 @@ function updateAnimates() {
         } else if (el.attr("data-anime") == "odo") {
           el.text(el.attr("data-number"));
         } else if (el.attr("data-anime") == "cloud") {
+          document.getElementById("wordCloud").innerHTML = "";
           setTimeout(function() {
             wordCloud(data_2019.wordCount);
           }, 800);
@@ -392,9 +396,36 @@ function loadFacts() {
   $('#friendCount2').attr('data-number', data_2019.newFriends[1].difference);
   $('#friendCount3').attr('data-number', data_2019.newFriends[2].difference);
 
+}
 
-  //load wordCloud
-  // wordCloud(data_2019.wordCount);
+//function to go to dashbord
+function startDashboard() {
+  scrollTo('#data-dashboard');
+  setTimeout(function(){
+    $('#year-review').css('display', 'none');
+    $('#begin').css('display', 'none');
+  }, 1000);
+}
+
+//function to update convo seaerch
+function updateConvoSearch() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('convoSearch');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("convoList");
+  li = ul.getElementsByTagName('li');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+    a = li[i].getElementsByTagName("a")[0];
+    txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
 }
 
 //doc start scripting
@@ -438,6 +469,31 @@ $(document).ready(function() {
     event.preventDefault();
     let link = event.target.href;
     require("electron").shell.openExternal(link);
+  });
+
+
+  //sets the date range picker for data dashboard
+  $('#dateRange').daterangepicker({
+    "showDropdowns": true,
+    "minYear": 2000,
+    "timePicker": true,
+    "linkedCalendars": false,
+    "showCustomRangeLabel": false,
+    "opens": "center",
+    "autoUpdateInput": false,
+    "locale": {
+      "cancelLabel": 'Clear'
+    }
+  }, function(start, end, label) {
+    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+  });
+
+  $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+  });
+
+  $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
   });
 
   //listens for done loading signal

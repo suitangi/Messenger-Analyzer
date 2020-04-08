@@ -7,6 +7,7 @@
   <link href="styles/index.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Muli:300,400|Source+Sans+Pro&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/odometer-theme.css" />
+  <link rel="stylesheet" href="styles/daterangepicker.css" />
 
   <script>
     if (typeof module === 'object') {
@@ -24,6 +25,8 @@
   <script type="text/javascript" src="scripts/odometer.js"></script>
   <script type="text/javascript" src="scripts/chart.js"></script>
   <script type="text/javascript" src="scripts/wordcloud2.js"></script>
+  <script type="text/javascript" src="scripts/moment.min.js"></script>
+  <script type="text/javascript" src="scripts/daterangepicker.min.js"></script>
   <script type="text/javascript" src="scripts/index.js"></script>
 
   <script>
@@ -246,12 +249,51 @@
       <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
         <div class="maintitle to-animate" data-anime="fade-top">
           This is it for your Messenger <span class="odometer to-animate" data-anime="odo" data-number="2019">0</span> journey.<br>
-          What will next year bring? <br><br><br>
-          <span style="font-size: calc(30px + 1vw);">If you would like more data analytics,<br> feel free to go to the data dashboard.</span>
+          What will next year bring? <br><br>
+          <span style="font-size: calc(20px + 1vw);">For more advanced data analytics,<br> continue to the data dashboard.</span>
         </div>
+        <button id="dashButton" class="to-animate button" onclick="startDashboard()" data-anime="fade-bottom">
+          Data Dashboard
+        </button>
       </div>
     </div>
 
+  </div> <!-- end of year-in-review -->
+
+  <div id="data-dashboard">
+    <div id="dashboard-header">
+      <input type="text" id="convoSearch" onkeyup="updateConvoSearch()" placeholder=" Search for conversations">
+      <ul id="convoList">
+        <li><a href="#">Adele</a></li>
+        <li><a href="#">Agnes</a></li>
+        <li><a href="#">Billy</a></li>
+        <li><a href="#">Bob</a></li>
+        <li><a href="#">Calvin</a></li>
+        <li><a href="#">Christina</a></li>
+        <li><a href="#">Cindy</a></li>
+      </ul>
+
+      <input type="text" id="dateRange" placeholder="Select date range" />
+    </div>
+
+    <div class="grid-container">
+      <div class="item1">1</div>
+      <div class="item2">2</div>
+      <div class="item3">3</div>
+      <div class="item4">4</div>
+      <div class="item5">5</div>
+      <div class="item6">6</div>
+      <div class="item7">7</div>
+      <div class="item8">8</div>
+      <div class="item9">9</div>
+      <div class="item10">10</div>
+      <div class="item11">11</div>
+      <div class="item12">12</div>
+      <div class="item13">13</div>
+      <div class="item14">14</div>
+      <div class="item15">15</div>
+    </div>
+  </div>
 </body>
 
 </html>

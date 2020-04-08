@@ -67,13 +67,46 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
-//function processData
+//function process data
+function processData() {
+  mainWindow.webContents.send('loading', 'parsing');
+  let i, j, message;
 
+
+  //iterate through private conversations
+  for (i = 0; i < messagesData.private.length; i++) {
+
+    //sort the messages list
+    messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+    //iterate through each message
+    for (j = 0; j < messagesData.private[i].messages.length; j++) {
+
+      message = messagesData.private[i].messages[j];
+      //encode all emojis
+      if (message.content != undefined && message.content.length != 0) {
+        message.content = utf8.decode(message.content);
+      }
+    }
+  }
+
+  //iterate through group conversations
+  for (i = 0; i < messagesData.group.length; i++) {
+
+    //sort the messages list
+    messagesData.group[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+    //iterate through each message
+    for (j = 0; j < messagesData.group[i].messages.length; j++) {
+      message = messagesData.group[i].messages[j];
+      //encode all emojis
+      if (message.content != undefined && message.content.length != 0) {
+        message.content = utf8.decode(message.content);
+      }
+    }
+  }
+}
 
 //process data for a year
-function processData(year) {
-
-  mainWindow.webContents.send('loading', 'parsing');
+function processYear(year) {
 
   //initialize variabless
   let privateCount = 0,
@@ -130,10 +163,6 @@ function processData(year) {
     tempCountOut = privateCount;
     lastYearCount = 0;
 
-    //sort the messages list
-    messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1)
-
-
     for (j = 0; j < messagesData.private[i].messages.length; j++) {
       message = messagesData.private[i].messages[j];
       d = new Date(message.timestamp_ms)
@@ -181,12 +210,10 @@ function processData(year) {
           receivedCount += 1;
         }
 
-        //encode all the emojis
+        //add to wordCount
         if (message.content != undefined && message.content.length != 0) {
-          message.content = utf8.decode(message.content);
-          //add to wordCount
           if (message.sender_name == name) {
-            message.content.split(/\s+/).forEach(function(word){
+            message.content.split(/\s+/).forEach(function(word) {
               word = word.toUpperCase();
               if (wordCount[word] != undefined) {
                 wordCount[word] += 1;
@@ -237,7 +264,6 @@ function processData(year) {
     if (privateCount - tempCountOut > topPrivateOut.count) {
       topPrivateOut.count = privateCount - tempCountOut;
       topPrivateOut.name = messagesData.private[i].title;
-
     }
     if (receivedCount - tempCountIn > topPrivateIn.count) {
       topPrivateIn.count = receivedCount - tempCountIn;
@@ -282,8 +308,7 @@ function processData(year) {
     tempCountIn = receivedCount;
     tempCountOut = groupCount;
 
-    //sort the messages list
-    messagesData.group[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1)
+
 
     for (j = 0; j < messagesData.group[i].messages.length; j++) {
       message = messagesData.group[i].messages[j];
@@ -313,13 +338,10 @@ function processData(year) {
           receivedCount += 1;
         }
 
-        //encode all the emojis
+        //add to wordCount
         if (message.content != undefined && message.content.length != 0) {
-          message.content = utf8.decode(message.content);
-
-          //add to wordCount
           if (message.sender_name == name) {
-            message.content.split(/\s+/).forEach(function(word){
+            message.content.split(/\s+/).forEach(function(word) {
               word = word.toUpperCase();
               if (wordCount[word] != undefined) {
                 wordCount[word] += 1;
@@ -439,18 +461,18 @@ function processData(year) {
 
   //sort final wordcount list and get top 100
   var finalWordsArray = [];
-  finalWordsArray = Object.keys(wordCount).map(function (key) {
+  finalWordsArray = Object.keys(wordCount).map(function(key) {
     return {
       text: key,
       size: wordCount[key]
     };
   });
-  finalWordsArray.sort(function (a, b) {
+  finalWordsArray.sort(function(a, b) {
     return b.size - a.size;
   });
- finalWordsArray.length = 100;
+  finalWordsArray.length = 100;
 
- deepTalk.timeElapsed = ((deepTalk.messages[deepTalk.messages.length - 1].timestamp_ms - deepTalk.messages[0].timestamp_ms)/3600000).toFixed(2);
+  deepTalk.timeElapsed = ((deepTalk.messages[deepTalk.messages.length - 1].timestamp_ms - deepTalk.messages[0].timestamp_ms) / 3600000).toFixed(2);
 
   console.log('Done parsing group conversations');
   messagesData['year_' + year].year = year;
@@ -535,7 +557,8 @@ function setupMessages(startPath) {
             cbCount -= 1;
             if (cbCount == 0) {
               console.log('Done loading files');
-              processData(2019);
+              processData();
+              processYear(2019);
               ready();
             }
           });
