@@ -27,6 +27,7 @@
   <script type="text/javascript" src="scripts/wordcloud2.js"></script>
   <script type="text/javascript" src="scripts/moment.min.js"></script>
   <script type="text/javascript" src="scripts/daterangepicker.min.js"></script>
+  <script type="text/javascript" src="scripts/dashboard.js"></script>
   <script type="text/javascript" src="scripts/index.js"></script>
 
   <script>
@@ -263,27 +264,32 @@
   <div id="data-dashboard">
     <div id="dashboard-header">
       <input type="text" id="convoSearch" onkeyup="updateConvoSearch()" placeholder=" Search for conversations">
-      <ul id="convoList">
-        <li><a href="#">Adele</a></li>
-        <li><a href="#">Agnes</a></li>
-        <li><a href="#">Billy</a></li>
-        <li><a href="#">Bob</a></li>
-        <li><a href="#">Calvin</a></li>
-        <li><a href="#">Christina</a></li>
-        <li><a href="#">Cindy</a></li>
+      <ul id="convoList" style="display: none;">
       </ul>
 
       <input type="text" id="dateRange" placeholder="Select date range" />
+
+      <button id="convoSearchButton" class="button"><img src="img/search.svg"></button>
     </div>
 
     <div class="grid-container">
-      <div class="item1">1</div>
-      <div class="item2">2</div>
-      <div class="item3">3</div>
-      <div class="item4">4</div>
-      <div class="item5">5</div>
-      <div class="item6">6</div>
-      <div class="item7">7</div>
+      <div class="item1">
+        Messages Sent
+        <div class="dashChart">
+          <canvas id="msgSentPie"></canvas>
+        </div>
+      </div>
+      <div class="item2">
+        Message Type
+        <div class="dashChart">
+          <canvas id="msgTypePie"></canvas>
+        </div>
+      </div>
+      <div class="item3">Details</div>
+      <div class="item4">Participants</div>
+      <div class="item5">Messages over Time</div>
+      <div class="item6">% Messages over Time</div>
+      <div class="item7">Rank</div>
       <div class="item8">8</div>
       <div class="item9">9</div>
       <div class="item10">10</div>

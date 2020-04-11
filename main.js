@@ -105,6 +105,39 @@ function processData() {
   }
 }
 
+//function to get contact list
+function contactList() {
+  let cList = [],
+      i;
+  //iterate through private conversations
+  for (i = 0; i < messagesData.private.length; i++) {
+    cList.push({
+      name: utf8.decode(messagesData.private[i].title),
+      type: 'dm'
+    });
+  }
+  //iterate through group conversations
+  for (i = 0; i < messagesData.group.length; i++) {
+    cList.push({
+      name: utf8.decode(messagesData.group[i].title),
+      type: 'group'
+    });
+  }
+  console.log("Contact list loaded");
+  return cList.sort((a, b) => (a.name > b.name) ? 1 : -1)
+}
+
+
+//function to setup the inital dashboard
+function dashBoard() {
+  
+}
+
+//process request for data
+function getData(contact, startTime, endTime) {
+
+}
+
 //process data for a year
 function processYear(year) {
 
@@ -499,6 +532,7 @@ function processYear(year) {
 
 function ready() {
   mainWindow.webContents.send('2019data', messagesData.year_2019);
+  mainWindow.webContents.send('contacts', contactList());
   mainWindow.webContents.send('loading', 'done');
 }
 

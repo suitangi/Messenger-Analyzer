@@ -415,17 +415,40 @@ body::-webkit-scrollbar {
 #data-dashboard {
   background-color: #eeeeee;
   width: 100%;
-  height: 400%;
+  height: 100%;
+  overflow-y: overlay;
+  overflow-x: hidden;
 }
 
 #dashboard-header {
   position: sticky;
   top: 0;
-  width: 100vw;
-  height: 150px;
+  width: 100%;
+  height: 120px;
   z-index: 6;
   background-color: #5f94c9;
   background: linear-gradient(180deg, rgba(95, 148, 201, 1) 0%, rgba(238, 238, 238, 1) 100%);
+}
+
+#data-dashboard::-webkit-scrollbar {
+  width: 6px;
+  background: linear-gradient(180deg, rgba(95, 148, 201, 1) 0%, rgba(238, 238, 238, 1) 100%);
+  background-size: auto 120px;
+  background-repeat: no-repeat;
+}
+
+#data-dashboard:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+#data-dashboard::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0);
+  border-radius: 4px;
+}
+
+#data-dashboard::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
 }
 
 #convoSearch {
@@ -440,17 +463,29 @@ body::-webkit-scrollbar {
   font-family: 'Muli', sans-serif;
 }
 
-#convoSearch:focus~ul {
-  display: initial !important;
-}
-
 #convoSearch:focus,
 #dateRange:focus {
   outline: none;
 }
 
+#convoSearchButton {
+  position: absolute;
+  top: 50px;
+  left: calc(40vw + 110px);
+  padding: 5px 23px;
+  background-color: #65aaeb;
+}
+
+#convoSearchButton:hover {
+  background-color: #3878b5;
+}
+
+#convoSearchButton img {
+  position: relative;
+  top: 2px;
+}
+
 #convoList {
-  display: none;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -480,6 +515,15 @@ body::-webkit-scrollbar {
 
 #convoList li a:hover:not(.header) {
   background-color: #eee;
+}
+
+#convoList .dmTag {
+  font-size: 10px;
+  color: #999;
+  font-family: 'Muli', sans-serif;
+  position: absolute;
+  right: 5px;
+  transform: translateY(-30px);
 }
 
 #dateRange {
@@ -537,23 +581,53 @@ body::-webkit-scrollbar {
 
 .grid-container {
   display: grid;
-  grid-template-columns: auto auto auto auto auto;
+  grid-template-columns: repeat(5, 1fr);
   grid-gap: 10px;
-  background-color: #2196F3;
+  background-color: #eee;
+  heigth: 400%;
   padding: 10px;
 }
 
-.grid-container > div {
+.grid-container>div {
   background-color: rgba(255, 255, 255, 0.8);
   text-align: center;
   padding: 20px 0;
-  font-size: 30px;
-  height: 40vh;
+  font-size: 20px;
+  height: 12vw;
+  border-radius: 1vw;
+  font-family: 'Muli', sans-serif;
 }
 
-
 .item1 {
-  grid-column: 1 / 5;
+  grid-area: 1 / 1 / 3 / 3;
+  height: calc(24vw + 50px) !important;
+}
+
+.item2 {
+  grid-area: 1 / 3 / 3 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
+.item5 {
+  grid-area: 3 / 1 / 5 / 3;
+  height: calc(24vw + 50px) !important;
+}
+
+.item6 {
+  grid-area: 3 / 3 / 5 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
+.item7 {
+  grid-area: 3 / 5 / 5 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
+.dashChart {
+  width: calc(2*(100vw - 60px)/5 + 10px);
+  position: relative;
+  margin-top: 50px;
+  margin-right: 0px;
 }
 
 /* animations */

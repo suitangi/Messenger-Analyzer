@@ -46,6 +46,28 @@ function indexOfMin(arr) {
   return minIndex;
 }
 
+//escape a string for html
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+//escape a string for javascript
+function escapeJs(unsafe) {
+  return unsafe
+    .replace(/\\/g, "\\")
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'");
+}
+
+
+//End Helpers
+//-----------------
+
 
 // scrolls up a section
 function scrollUp() {
@@ -72,9 +94,7 @@ function scrollTo(element) {
   $('html, body').animate({
     scrollTop: $(element).offset().top
   }, 1000, "easeInOutExpo", function() {
-    if (element != '#data-dashboard') {
-      document.getElementsByTagName("body")[0].style = "overflow:hidden;";
-    }
+    document.getElementsByTagName("body")[0].style = "overflow:hidden;";
   });
   window.currentSection = element;
   if (element == '#begin' || element == '#loading') {
@@ -401,10 +421,21 @@ function loadFacts() {
 //function to go to dashbord
 function startDashboard() {
   scrollTo('#data-dashboard');
-  setTimeout(function(){
+  Chart.defaults.scale.gridLines.display = true;
+  Chart.defaults.scale.ticks.display = true;
+  setTimeout(function() {
     $('#year-review').css('display', 'none');
     $('#begin').css('display', 'none');
   }, 1000);
+  document.getElementById('convoSearch').addEventListener('focus', function() {
+    document.getElementById('convoList').style = "";
+  });
+  document.getElementById('convoSearch').addEventListener('blur', function() {
+    setTimeout(function() {
+      document.getElementById('convoList').style = "display: none";
+    }, 100);
+  });
+  dashGraphs();
 }
 
 //function to update convo seaerch
@@ -426,6 +457,12 @@ function updateConvoSearch() {
       li[i].style.display = "none";
     }
   }
+}
+
+// function handler for clicking on convo list
+function convoClick(contact) {
+  console.log("Convo clicked: " + contact);
+  $('#convoSearch').val(contact);
 }
 
 //doc start scripting
@@ -476,7 +513,6 @@ $(document).ready(function() {
   $('#dateRange').daterangepicker({
     "showDropdowns": true,
     "minYear": 2000,
-    "timePicker": true,
     "linkedCalendars": false,
     "showCustomRangeLabel": false,
     "opens": "center",
@@ -485,7 +521,11 @@ $(document).ready(function() {
       "cancelLabel": 'Clear'
     }
   }, function(start, end, label) {
-    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+    console.log('New date range selected: ' + start + ' to ' + end);
+    window.date = {
+      start: start,
+      end: end
+    };
   });
 
   $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
@@ -524,7 +564,27 @@ $(document).ready(function() {
     console.log("Done loading");
     console.log(arg);
     loadFacts();
-  })
+  });
+  ipcRenderer.on('contacts', (event, arg) => {
+    console.log(arg);
+    let htmlStr = '',
+      i, name;
+    for (i = 0; i < arg.length; i++) {
+      name = arg[i].name;
+      if (name != '') {
+        htmlStr += '<li><a href="#" onclick="convoClick(\'' +
+          escapeJs(name) +
+          '\');">' +
+          name +
+          '</a>';
+        if (arg[i].type == 'dm') {
+          htmlStr += '<div class="dmTag">DM</div>'
+        }
+        htmlStr += '</li>';
+      }
+    }
+    document.getElementById('convoList').innerHTML = htmlStr;
+  });
 
 
   Chart.defaults.scale.gridLines.display = false;
