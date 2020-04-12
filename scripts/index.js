@@ -193,6 +193,11 @@ function hourChart(ctx, data) {
         bodyFontSize: 16,
         bodyAlign: 'center',
         bodySpacing: 4
+      },
+      plugins: {
+        datalabels: {
+          display: false,
+        }
       }
     }
   });
@@ -220,6 +225,11 @@ function typeChart(ctx, data, label) {
         bodyFontSize: 16,
         bodyAlign: 'center',
         bodySpacing: 4
+      },
+      plugins: {
+        datalabels: {
+          display: false,
+        }
       }
     }
   });

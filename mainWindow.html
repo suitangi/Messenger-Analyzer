@@ -21,9 +21,9 @@
   </script>
 
   <script type="text/javascript" src="scripts/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="scripts/jquery-plugins.min.js"></script>
-  <script type="text/javascript" src="scripts/odometer.js"></script>
   <script type="text/javascript" src="scripts/chart.js"></script>
+  <script type="text/javascript" src="scripts/plugins.min.js"></script>
+  <script type="text/javascript" src="scripts/odometer.js"></script>
   <script type="text/javascript" src="scripts/wordcloud2.js"></script>
   <script type="text/javascript" src="scripts/moment.min.js"></script>
   <script type="text/javascript" src="scripts/daterangepicker.min.js"></script>
@@ -287,8 +287,18 @@
       </div>
       <div class="item3">Details</div>
       <div class="item4">Participants</div>
-      <div class="item5">Messages over Time</div>
-      <div class="item6">% Messages over Time</div>
+      <div class="item5">
+        Messages over Time
+        <div class="dashChart">
+          <canvas id="msgLine"></canvas>
+        </div>
+      </div>
+      <div class="item6">
+        % Messages over Time
+        <div class="dashChart">
+          <canvas id="msgPctLine"></canvas>
+        </div>
+      </div>
       <div class="item7">Rank</div>
       <div class="item8">8</div>
       <div class="item9">9</div>
