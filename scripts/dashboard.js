@@ -30,12 +30,12 @@ function hexToRgb(hex, alpha) {
 
 function dashGraphs(data) {
   let i,
-      msgTime = [],
-      msgSent = [],
-      msgPct = [],
-      names = [];
+    msgTime = [],
+    msgSent = [],
+    msgPct = [],
+    names = [];
 
-  for (i = 0; i < data.participants.length; i++ ) {
+  for (i = 0; i < data.participants.length; i++) {
 
     names.push(data.participants[i].name);
     msgTime.push({
@@ -75,6 +75,7 @@ function loadContact() {
 }
 
 function lineChart(ctx, data, label, stack) {
+  let timeFormat = 'MM-DD-YYYY'
   let chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -83,9 +84,19 @@ function lineChart(ctx, data, label, stack) {
     },
     options: {
       scales: {
-            yAxes: [{
-                stacked: stack
-            }]
+        xAxes: [{
+          type: "time",
+          time: {
+            format: timeFormat
+          },
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          }
+        }],
+        yAxes: [{
+          stacked: stack
+        }]
       },
       legend: {
         display: true,

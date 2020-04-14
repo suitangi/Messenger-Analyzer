@@ -259,7 +259,7 @@ function getData(contact, startTime, endTime) {
     }
 
     data.details.title = foundConvo.title;
-    data.details.type = foundConvo.participants.length == 2? 'DM' : 'Group';
+    data.details.type = foundConvo.participants.length == 2 ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
       data.participants.push({
         name: foundConvo.participants[j].name,
@@ -282,9 +282,9 @@ function getData(contact, startTime, endTime) {
 
   tempDate = new Date(startTime);
   tempDate2 = new Date(endTime);
-  data.details.range = (tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900)
-    + " to "
-    + (tempDate2.getMonth() + 1) + '-' + tempDate2.getDate() + '-' + (tempDate2.getYear() + 1900);
+  data.details.range = (tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900) +
+    " to " +
+    (tempDate2.getMonth() + 1) + '-' + tempDate2.getDate() + '-' + (tempDate2.getYear() + 1900);
 
   messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
   timeUnit = 60000; // < 1 day: 1 min
@@ -307,7 +307,7 @@ function getData(contact, startTime, endTime) {
   }
 
   let messageIndex = 0,
-      end = true;
+    end = true;
   for (cTime = startTime; end; cTime += timeUnit) {
     if (cTime >= endTime && end) {
       end = false;
@@ -318,14 +318,18 @@ function getData(contact, startTime, endTime) {
     }
     tempDate = new Date(cTime);
     if (tempDate.getHours() == 0 && tempDate.getMinutes() == 0) {
-      data.timeLabel.push((tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900));
+      data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
+        '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
+        '-' + (tempDate.getYear() + 1900));
     } else {
       if (timeUnit < 3600000) {
         data.timeLabel.push(tempDate.getHours() + ':' + ((tempDate.getMinutes() < 10) ? ('0' + tempDate.getMinutes()) : tempDate.getMinutes()));
       } else if (timeUnit == 3600000) {
         data.timeLabel.push(tempDate.getHours() + ':00');
       } else {
-        data.timeLabel.push((tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900));
+        data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
+          '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
+          '-' + (tempDate.getYear() + 1900));
       }
     }
     while (messageIndex < messages.length && messages[messageIndex].timestamp_ms < cTime) {
@@ -370,14 +374,14 @@ function getData(contact, startTime, endTime) {
 
     //calculate the % of messages in this time period for each participant
     for (i = 0; i < data.participants.length; i++) {
-      if(msgCount == 0) {
+      if (msgCount == 0) {
         data.participants[i].msgPct.push(0);
       } else {
         data.participants[i].msgPct.push(Math.floor(100 * data.participants[i].msgTime[data.participants[i].msgTime.length - 1] / msgCount));
       }
     }
   }
-
+  console.log("Dashboard data loaded for: " + contact + ", " + startTime + ", " + endTime);
   return data;
 }
 
