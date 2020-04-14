@@ -608,6 +608,12 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
+.item3 ol {
+  list-style-type: none;
+  text-align: left;
+  font-size: 16px;
+}
+
 .item5 {
   grid-area: 3 / 1 / 5 / 3;
   height: calc(24vw + 50px) !important;

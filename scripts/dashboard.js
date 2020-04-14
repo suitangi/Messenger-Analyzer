@@ -23,19 +23,25 @@ window.graphColors = [
   '#e2e2e2'
 ]
 
-function dashGraphs() {
+function dashGraphs(data) {
+  let i,
+      msgTime = [];
+
+  for (i = 0; i < data.participants.length; i++ ) {
+    msgTime.push({
+      label: data.participants[i].name,
+      data: data.participants[i].msgTime,
+      borderColor: window.graphColors[i],
+      pointBackgroundColor: window.graphColors[i],
+      backgroundColor: "rgba(255,255,255, 0)",
+      borderWidth: 1,
+      pointRadius: 1
+    });
+  }
+  console.log(msgTime);
   pieChart(document.getElementById('msgSentPie'), [20, 120], ['Sent', 'Received']);
   pieChart(document.getElementById('msgTypePie'), [200, 20, 23, 22, 65, 9], ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
-  lineChart(document.getElementById('msgLine'), [{
-    t: new Date(),
-    y: 20
-  }, {
-    t: new Date(1580308126011),
-    y: 40
-  }, {
-    t: new Date(1580307841960),
-    y: 30
-  }], ['Name']);
+  lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel);
 }
 
 function loadContact() {
@@ -43,24 +49,18 @@ function loadContact() {
 }
 
 function lineChart(ctx, data, label) {
-  let dataSets = [];
-
+  console.log(data);
+  console.log(label);
   let chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['4/4/2019', '5/5/2019', '6/6/2019'],
-      datasets: [{
-        label: "testName",
-        data: [20, 40, 60],
-        borderColor: window.graphColors[0],
-        pointBackgroundColor: window.graphColors[0],
-        backgroundColor: "rgba(255,255,255, 0)"
-      }],
+      labels: label,
+      datasets: data,
     },
     options: {
       legend: {
         display: true,
-        position: 'right',
+        position: 'bottom',
         boxWidth: 30,
         padding: 20
       },

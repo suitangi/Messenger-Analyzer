@@ -445,7 +445,7 @@ function startDashboard() {
       document.getElementById('convoList').style = "display: none";
     }, 100);
   });
-  dashGraphs();
+  dashGraphs(window.dashoData);
 }
 
 //function to update convo seaerch
@@ -470,7 +470,15 @@ function updateConvoSearch() {
 }
 
 // function handler for clicking on convo list
-function convoClick(contact) {
+function convoClick(contactId) {
+  let contact;
+  for(var i = 0; i < window.contactList.length; i++) {
+    if (contactId == window.contactList[i].id){
+      window.dashConvo = window.contactList[i];
+      break;
+    }
+  }
+  contact = window.dashConvo.name;
   console.log("Convo clicked: " + contact);
   $('#convoSearch').val(contact);
 }
@@ -575,15 +583,19 @@ $(document).ready(function() {
     console.log(arg);
     loadFacts();
   });
-  ipcRenderer.on('contacts', (event, arg) => {
+  ipcRenderer.on('dashboard', (event, arg) => {
     console.log(arg);
+    window.dashoData = arg;
+  });
+  ipcRenderer.on('contacts', (event, arg) => {
+    window.contactList = arg;
     let htmlStr = '',
       i, name;
     for (i = 0; i < arg.length; i++) {
       name = arg[i].name;
       if (name != '') {
         htmlStr += '<li><a href="#" onclick="convoClick(\'' +
-          escapeJs(name) +
+          escapeJs(arg[i].id) +
           '\');">' +
           name +
           '</a>';

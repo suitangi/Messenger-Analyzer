@@ -13,6 +13,20 @@ const {
 
 let mainWindow;
 
+const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+];
 
 // Listen for app to be ready
 app.on('ready', function() {
@@ -70,14 +84,32 @@ function escapeHtml(unsafe) {
 //function process data
 function processData() {
   mainWindow.webContents.send('loading', 'parsing');
-  let i, j, message;
-
+  let i, j, message,
+    firstMsg = {
+      timestamp_ms: 9999999999999
+    },
+    lastMsg = {
+      timestamp_ms: -1
+    };
 
   //iterate through private conversations
   for (i = 0; i < messagesData.private.length; i++) {
 
     //sort the messages list
     messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+
+    //find earliest and latest message
+    if (messagesData.private[i].messages[0].timestamp_ms < firstMsg.timestamp_ms) {
+      firstMsg = Object.assign({}, messagesData.private[i].messages[0]);
+      firstMsg.title = messagesData.private[i].title;
+    }
+    if (messagesData.private[i].messages[messagesData.private[i].messages.length - 1].timestamp_ms > lastMsg.timestamp_ms) {
+      lastMsg = {
+        ...messagesData.private[i].messages[messagesData.private[i].messages.length - 1]
+      };
+      lastMsg.title = messagesData.private[i].title;
+    }
+
     //iterate through each message
     for (j = 0; j < messagesData.private[i].messages.length; j++) {
 
@@ -94,6 +126,19 @@ function processData() {
 
     //sort the messages list
     messagesData.group[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+
+    //find earliest and latest message
+    if (messagesData.group[i].messages[0].timestamp_ms < firstMsg.timestamp_ms) {
+      firstMsg = Object.assign({}, messagesData.group[i].messages[0]);
+      firstMsg.title = messagesData.group[i].title;
+    }
+    if (messagesData.group[i].messages[messagesData.group[i].messages.length - 1].timestamp_ms > lastMsg.timestamp_ms) {
+      lastMsg = {
+        ...messagesData.group[i].messages[messagesData.group[i].messages.length - 1]
+      };
+      lastMsg.title = messagesData.group[i].title;
+    }
+
     //iterate through each message
     for (j = 0; j < messagesData.group[i].messages.length; j++) {
       message = messagesData.group[i].messages[j];
@@ -103,24 +148,29 @@ function processData() {
       }
     }
   }
+  messagesData.firstMsg = firstMsg;
+  messagesData.lastMsg = lastMsg;
+  console.log("Data Processed");
 }
 
 //function to get contact list
 function contactList() {
   let cList = [],
-      i;
+    i;
   //iterate through private conversations
   for (i = 0; i < messagesData.private.length; i++) {
     cList.push({
       name: utf8.decode(messagesData.private[i].title),
-      type: 'dm'
+      type: 'dm',
+      id: messagesData.private[i].thread_path
     });
   }
   //iterate through group conversations
   for (i = 0; i < messagesData.group.length; i++) {
     cList.push({
       name: utf8.decode(messagesData.group[i].title),
-      type: 'group'
+      type: 'group',
+      id: messagesData.group[i].thread_path
     });
   }
   console.log("Contact list loaded");
@@ -130,12 +180,175 @@ function contactList() {
 
 //function to setup the inital dashboard
 function dashBoard() {
-  
+
 }
 
 //process request for data
 function getData(contact, startTime, endTime) {
+  let messages = [],
+    timeLabel = [],
+    i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person,
+    msgSentTime = [],
+    msgSent = [],
+    data = {
+      participants: [],
+      timeLabel: []
+    };
 
+  //get the name of the user
+  name = (messagesData.private[0].participants[1] != undefined) ? messagesData.private[0].participants[1].name :
+    messagesData.private[1].participants[1];
+
+  if (contact == "") { //process for all contacts
+    if (startTime == 0 && endTime == 0) { //if date range is all time find the first and last message
+      tempDate = new Date(messagesData.firstMsg.timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      startTime = tempDate2.getTime();
+      tempDate = new Date(messagesData.lastMsg.timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      endTime = tempDate2.getTime() + 86399999; //inclusive day
+    }
+    data.participants.push({
+      name: name,
+      msgTime: [],
+      msgType: [0, 0, 0, 0, 0, 0],
+      msgCount: 0,
+      rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+    });
+    data.participants.push({
+      name: 'Received',
+      msgTime: [],
+      msgType: [0, 0, 0, 0, 0, 0],
+      msgCount: 0,
+      rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+    });
+    //get the messages and add them to the messages list
+    for (i = 0; i < messagesData.private.length; i++) {
+      for (j = 0; j < messagesData.private[i].messages.length; j++) {
+        if (messagesData.private[i].messages[j].timestamp_ms > startTime &&
+          messagesData.private[i].messages[j].timestamp_ms < endTime) {
+          messages.push(messagesData.private[i].messages[j]);
+        }
+      }
+    }
+    for (i = 0; i < messagesData.group.length; i++) {
+      for (j = 0; j < messagesData.group[i].messages.length; j++) {
+        if (messagesData.group[i].messages[j].timestamp_ms > startTime &&
+          messagesData.group[i].messages[j].timestamp_ms < endTime) {
+          messages.push(messagesData.group[i].messages[j]);
+        }
+      }
+    }
+  } else { //process for just the requested conversation
+    //find the conversation and add participants to list
+    let foundConvo;
+    for (i = 0; i < messagesData.private.length; i++) {
+      if (messagesData.private[i].thread_path == contact) {
+        foundConvo = messagesData.private[i];
+      }
+    }
+    for (i = 0; i < messagesData.group.length; i++) {
+      if (messagesData.group[i].thread_path == contact) {
+        foundConvo = messagesData.group[i];
+      }
+    }
+    for (j = 0; j < foundConvo.participants.length; j++) {
+      data.participants.push({
+        name: foundConvo.participants[j].name,
+        msgTime: [],
+        msgType: [0, 0, 0, 0, 0, 0],
+        msgCount: 0,
+        rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+      });
+    }
+    if (startTime == 0 && endTime == 0) {
+      tempDate = new Date(foundConvo.messages[0].timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      startTime = tempDate2.getTime();
+      tempDate = new Date(foundConvo.messages[foundConvo.messages.length - 1].timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      endTime = tempDate2.getTime() + 86399999; //inclusive day
+    }
+  }
+
+  messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+  timeUnit = 60000; // < 1 day: 1 min
+  if (endTime - startTime >= 441797328000) { // > 14 years: weeks
+    timeUnit = 604800000;
+  } else if (endTime - startTime >= 347126472000) { // > 11 years: 4 days
+    timeUnit = 345600000;
+  } else if (endTime - startTime >= 252455616000) { // > 8 years: 3 days
+    timeUnit = 259200000;
+  } else if (endTime - startTime >= 126227808000) { // > 4 years: 2 days
+    timeUnit = 172800000;
+  } else if (endTime - startTime >= 5259492000) { // > 2 month: 1 day
+    timeUnit = 86400000;
+  } else if (endTime - startTime >= 604800000) { // > 1 week: 1 hour
+    timeUnit = 3600000;
+  } else if (endTime - startTime >= 259200000) { // > 3 days: 10 min
+    timeUnit = 600000;
+  } else if (endTime - startTime >= 86400000) { // > 1 day: 5 min
+    timeUnit = 300000;
+  }
+
+  let messageIndex = 0;
+  for (cTime = startTime; cTime < endTime; cTime += timeUnit) {
+    for (i = 0; i < data.participants.length; i++) {
+      data.participants[i].msgTime.push(0);
+    }
+    tempDate = new Date(cTime);
+    if (tempDate.getHours() == 0 && tempDate.getMinutes() == 0) {
+      data.timeLabel.push((tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900));
+    } else {
+      if (timeUnit < 3600000) {
+        data.timeLabel.push(tempDate.getHours() + ':' + ((tempDate.getMinutes() < 10) ? ('0' + tempDate.getMinutes()) : tempDate.getMinutes()));
+      } else if (timeUnit == 3600000) {
+        data.timeLabel.push(tempDate.getHours() + ':00');
+      } else {
+        data.timeLabel.push((tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900));
+      }
+    }
+    while (messageIndex < messages.length && messages[messageIndex].timestamp_ms < cTime) {
+      message = messages[messageIndex];
+      messageIndex++;
+      if (message.sender_name == name) {
+        person = data.participants[0];
+      } else {
+        if (contact == "") {
+          person = data.participants[1];
+        } else {
+          for (i = 0; i < data.participants.length; i++) {
+            if (message.sender_name == data.participants[i].name) {
+              person = data.participants[i];
+              break;
+            }
+          }
+        }
+      }
+
+      person.msgCount += 1;
+      person.msgTime[person.msgTime.length - 1] += 1;
+      if (message.type == "Generic") {
+        if (message.photos != undefined) {
+          person.msgType[1] += message.photos.length;
+        } else if (message.gifs != undefined) {
+          person.msgType[3] += 1;
+        } else if (message.videos != undefined) {
+          person.msgType[4] += 1;
+        } else if (message.sticker != undefined) {
+          person.msgType[5] += 1;
+        } else {
+          person.msgType[0] += 1;
+        }
+      } else if (message.type == "Share" && message.share != undefined) {
+        if (message.share.link != undefined) {
+          person.msgType[2] += 1;
+        }
+      }
+    }
+  }
+
+  return data;
 }
 
 //process data for a year
@@ -221,7 +434,7 @@ function processYear(year) {
           privateCount += 1;
           hourCount[d.getHours()] += 1;
 
-          //get messaage type
+          //get message type
           if (message.type == "Generic") {
             if (message.photos != undefined) {
               typeCount[1] += message.photos.length;
@@ -533,6 +746,7 @@ function processYear(year) {
 function ready() {
   mainWindow.webContents.send('2019data', messagesData.year_2019);
   mainWindow.webContents.send('contacts', contactList());
+  mainWindow.webContents.send('dashboard', getData('', 0, 0));
   mainWindow.webContents.send('loading', 'done');
 }
 
