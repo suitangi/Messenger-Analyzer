@@ -192,7 +192,8 @@ function getData(contact, startTime, endTime) {
     msgSent = [],
     data = {
       participants: [],
-      timeLabel: []
+      timeLabel: [],
+      details: {}
     };
 
   //get the name of the user
@@ -200,6 +201,8 @@ function getData(contact, startTime, endTime) {
     messagesData.private[1].participants[1];
 
   if (contact == "") { //process for all contacts
+    data.details.title = "All conversaions";
+    data.details.type = "N/A";
     if (startTime == 0 && endTime == 0) { //if date range is all time find the first and last message
       tempDate = new Date(messagesData.firstMsg.timestamp_ms);
       tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
@@ -211,6 +214,7 @@ function getData(contact, startTime, endTime) {
     data.participants.push({
       name: name,
       msgTime: [],
+      msgPct: [],
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
       rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
@@ -218,6 +222,7 @@ function getData(contact, startTime, endTime) {
     data.participants.push({
       name: 'Received',
       msgTime: [],
+      msgPct: [],
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
       rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
@@ -252,10 +257,14 @@ function getData(contact, startTime, endTime) {
         foundConvo = messagesData.group[i];
       }
     }
+
+    data.details.title = foundConvo.title;
+    data.details.type = foundConvo.participants.length == 2? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
       data.participants.push({
         name: foundConvo.participants[j].name,
         msgTime: [],
+        msgPct: [],
         msgType: [0, 0, 0, 0, 0, 0],
         msgCount: 0,
         rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
@@ -270,6 +279,12 @@ function getData(contact, startTime, endTime) {
       endTime = tempDate2.getTime() + 86399999; //inclusive day
     }
   }
+
+  tempDate = new Date(startTime);
+  tempDate2 = new Date(endTime);
+  data.details.range = (tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900)
+    + " to "
+    + (tempDate2.getMonth() + 1) + '-' + tempDate2.getDate() + '-' + (tempDate2.getYear() + 1900);
 
   messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
   timeUnit = 60000; // < 1 day: 1 min
@@ -291,8 +306,13 @@ function getData(contact, startTime, endTime) {
     timeUnit = 300000;
   }
 
-  let messageIndex = 0;
-  for (cTime = startTime; cTime < endTime; cTime += timeUnit) {
+  let messageIndex = 0,
+      end = true;
+  for (cTime = startTime; end; cTime += timeUnit) {
+    if (cTime >= endTime && end) {
+      end = false;
+    }
+    msgCount = 0;
     for (i = 0; i < data.participants.length; i++) {
       data.participants[i].msgTime.push(0);
     }
@@ -326,6 +346,7 @@ function getData(contact, startTime, endTime) {
         }
       }
 
+      msgCount += 1;
       person.msgCount += 1;
       person.msgTime[person.msgTime.length - 1] += 1;
       if (message.type == "Generic") {
@@ -344,6 +365,15 @@ function getData(contact, startTime, endTime) {
         if (message.share.link != undefined) {
           person.msgType[2] += 1;
         }
+      }
+    }
+
+    //calculate the % of messages in this time period for each participant
+    for (i = 0; i < data.participants.length; i++) {
+      if(msgCount == 0) {
+        data.participants[i].msgPct.push(0);
+      } else {
+        data.participants[i].msgPct.push(Math.floor(100 * data.participants[i].msgTime[data.participants[i].msgTime.length - 1] / msgCount));
       }
     }
   }

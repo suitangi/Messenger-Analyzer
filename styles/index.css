@@ -611,7 +611,8 @@ body::-webkit-scrollbar {
 .item3 ol {
   list-style-type: none;
   text-align: left;
-  font-size: 16px;
+  font-size: 14px;
+  padding-left: 15px;
 }
 
 .item5 {

@@ -445,7 +445,9 @@ function startDashboard() {
       document.getElementById('convoList').style = "display: none";
     }, 100);
   });
-  dashGraphs(window.dashoData);
+  setTimeout(function() {
+    dashGraphs(window.dashData);
+  }, 1000);
 }
 
 //function to update convo seaerch
@@ -585,7 +587,7 @@ $(document).ready(function() {
   });
   ipcRenderer.on('dashboard', (event, arg) => {
     console.log(arg);
-    window.dashoData = arg;
+    window.dashData = arg;
   });
   ipcRenderer.on('contacts', (event, arg) => {
     window.contactList = arg;
