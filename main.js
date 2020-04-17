@@ -194,12 +194,16 @@ function getData(contact, startTime, endTime) {
     i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person,
     msgSentTime = [],
     msgSent = [],
+    activeTime = new Array(1440);
+    activeTime.fill(0);
     data = {
       participants: [],
       timeLabel: [],
       msgTotal: [],
+      activeTotal: [...activeTime],
       details: {}
     };
+
 
   //get the name of the user
   name = (messagesData.private[0].participants[1] != undefined) ? messagesData.private[0].participants[1].name :
@@ -223,7 +227,8 @@ function getData(contact, startTime, endTime) {
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
       rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-      active: true
+      active: true,
+      hourCount: [...activeTime]
     });
     data.participants.push({
       name: 'Received',
@@ -232,7 +237,8 @@ function getData(contact, startTime, endTime) {
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
       rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-      active: true
+      active: true,
+      hourCount: [...activeTime]
     });
     //get the messages and add them to the messages list
     for (i = 0; i < messagesData.private.length; i++) {
@@ -275,7 +281,8 @@ function getData(contact, startTime, endTime) {
         msgType: [0, 0, 0, 0, 0, 0],
         msgCount: 0,
         rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-        active: true
+        active: true,
+        hourCount: [...activeTime]
       });
     }
     if (startTime == 0 && endTime == 0) {
@@ -379,7 +386,8 @@ function getData(contact, startTime, endTime) {
             msgType: [0, 0, 0, 0, 0, 0],
             msgCount: 0,
             rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-            active: false
+            active: false,
+            hourCount: [...activeTime]
           });
           person = data.participants[data.participants.length - 1];
         }
@@ -387,6 +395,8 @@ function getData(contact, startTime, endTime) {
 
       person.msgCount += 1;
       person.msgTime[person.msgTime.length - 1] += 1;
+
+      //message type
       if (message.type == "Generic") {
         if (message.photos != undefined) {
           person.msgType[1] += message.photos.length;
@@ -404,7 +414,13 @@ function getData(contact, startTime, endTime) {
           person.msgType[2] += 1;
         }
       }
-    }
+
+      //get the time active
+      d = new Date(message.timestamp_ms)
+      person.hourCount[d.getHours() * 60 + d.getMinutes()] += 1;
+      data.activeTotal[d.getHours() * 60 + d.getMinutes()] += 1;
+
+    } //end while loop
 
     //calculate the % of messages in this time period for each participant
     msgCount = 0;

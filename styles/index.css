@@ -630,6 +630,11 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
+.item8 {
+  grid-area: 5 / 1 / 5 / 3;
+  height: calc(24vw + 50px) !important;
+}
+
 .dashChart {
   width: calc(2*(100vw - 60px)/5 + 10px);
   position: relative;
@@ -637,7 +642,7 @@ body::-webkit-scrollbar {
   margin-right: 0px;
 }
 
-#messageTypeSelect {
+.dashSelect {
   font-size: 16px;
   font-family: 'Muli', sans-serif;
   border-color: #eee;

@@ -274,7 +274,7 @@
 
     <div class="grid-container">
       <div class="item1">
-        Messages Sent 
+        Messages Sent
         <span id="msgTotal"></span>
         <div class="dashChart">
           <canvas id="msgSentPie"></canvas>
@@ -282,7 +282,7 @@
       </div>
       <div class="item2">
         Message Types for
-        <select id="messageTypeSelect" onchange="msgTypeSelect(this.selectedIndex);">
+        <select id="messageTypeSelect" class="dashSelect" onchange="msgTypeSelect(this.selectedIndex);">
         </select>
         <div class="dashChart">
           <canvas id="msgTypePie"></canvas>
@@ -312,8 +312,17 @@
           <canvas id="msgPctLine"></canvas>
         </div>
       </div>
-      <div class="item7">Rank</div>
-      <div class="item8">8</div>
+      <div class="item7">Stats</div>
+      <div class="item8">
+        Active Time in a Day by
+        <select id="messageActiveSelect" class="dashSelect" onchange="msgActiveSelect(this.selectedIndex);">
+          <option value=0>Absolute Count</option>
+          <option value=1>Deviation from Avg</option>
+        </select>
+        <div class="dashChart">
+          <canvas id="msgActiveTime"></canvas>
+        </div>
+      </div>
       <div class="item9">9</div>
       <div class="item10">10</div>
       <div class="item11">11</div>
