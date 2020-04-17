@@ -269,18 +269,21 @@
 
       <input type="text" id="dateRange" placeholder="Select date range" />
 
-      <button id="convoSearchButton" class="button"><img src="img/search.svg"></button>
+      <button id="convoSearchButton" class="button" onclick="dashSubmit()"><img src="img/search.svg"></button>
     </div>
 
     <div class="grid-container">
       <div class="item1">
-        Messages Sent
+        Messages Sent 
+        <span id="msgTotal"></span>
         <div class="dashChart">
           <canvas id="msgSentPie"></canvas>
         </div>
       </div>
       <div class="item2">
-        Message Type
+        Message Types for
+        <select id="messageTypeSelect" onchange="msgTypeSelect(this.selectedIndex);">
+        </select>
         <div class="dashChart">
           <canvas id="msgTypePie"></canvas>
         </div>
@@ -292,7 +295,11 @@
           <li><strong>Chat Type: </strong><span id='chatType'></span></li>
           <li><strong>Date Range: </strong><span id='detailDRange'></span></li>
       </div>
-      <div class="item4">Participants</div>
+      <div class="item4">
+        Participants
+        <ul id="participantList">
+        </ul>
+      </div>
       <div class="item5">
         Messages over Time
         <div class="dashChart">

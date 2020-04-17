@@ -437,6 +437,10 @@ function startDashboard() {
     $('#year-review').css('display', 'none');
     $('#begin').css('display', 'none');
   }, 1000);
+  document.getElementById('control').style = "opacity: 0;";
+  window.hideControl = setTimeout(function() {
+    document.getElementById('control').style = "display: none;";
+  }, 1000);
   document.getElementById('convoSearch').addEventListener('focus', function() {
     document.getElementById('convoList').style = "";
   });
@@ -474,8 +478,8 @@ function updateConvoSearch() {
 // function handler for clicking on convo list
 function convoClick(contactId) {
   let contact;
-  for(var i = 0; i < window.contactList.length; i++) {
-    if (contactId == window.contactList[i].id){
+  for (var i = 0; i < window.contactList.length; i++) {
+    if (contactId == window.contactList[i].id) {
       window.dashConvo = window.contactList[i];
       break;
     }
@@ -485,11 +489,39 @@ function convoClick(contactId) {
   $('#convoSearch').val(contact);
 }
 
+//function submit the dashboard search form
+function dashSubmit() {
+  if ($('#convoSearch').val() == "") {
+    window.dashConvo = "";
+    ipcRenderer.send('dashboard', ['', window.date.start, window.date.end]);
+  } else {
+    if (window.dashConvo == "") {
+      for (var i = 0; i < window.contactList.length; i++) {
+        if ($('#convoSearch').val() == window.contactList[i].name) {
+          window.dashConvo = window.contactList[i];
+          break;
+        }
+      }
+    }
+    if (window.dashConvo == "") {
+      window.alert('No such conversation found, please check your inputs');
+      return;
+    } else {
+      ipcRenderer.send('dashboard', [window.dashConvo.id, window.date.start, window.date.end]);
+    }
+  }
+}
+
 //doc start scripting
 $(document).ready(function() {
   updateAnimates();
 
   window.lastSection = "#sec12";
+  window.dashConvo = "";
+  window.date = {
+    start: 0,
+    end: 0
+  };
 
   setTimeout(function() {
     document.getElementById("year_text").innerHTML = 2019;
@@ -543,8 +575,8 @@ $(document).ready(function() {
   }, function(start, end, label) {
     console.log('New date range selected: ' + start + ' to ' + end);
     window.date = {
-      start: start,
-      end: end
+      start: start._d.getTime(),
+      end: end._d.getTime()
     };
   });
 
@@ -554,6 +586,10 @@ $(document).ready(function() {
 
   $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
     $(this).val('');
+    window.date = {
+      start: 0,
+      end: 0
+    };
   });
 
   //listens for done loading signal
@@ -585,9 +621,14 @@ $(document).ready(function() {
     console.log(arg);
     loadFacts();
   });
+  ipcRenderer.on('dashboardStart', (event, arg) => {
+    console.log(arg);
+    window.dashData = arg;
+  });
   ipcRenderer.on('dashboard', (event, arg) => {
     console.log(arg);
     window.dashData = arg;
+    dashGraphs(arg);
   });
   ipcRenderer.on('contacts', (event, arg) => {
     window.contactList = arg;

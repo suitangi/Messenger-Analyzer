@@ -56,6 +56,9 @@ app.on('ready', function() {
   ipcMain.on('load-directory', (event, arg) => {
     setupMessages(arg);
   });
+  ipcMain.on('dashboard', (event, arg) => {
+    mainWindow.webContents.send('dashboard', getData(arg[0], arg[1], arg[2]));
+  });
   ipcMain.on('close-me', (evt, arg) => {
     app.quit();
   });
@@ -185,6 +188,7 @@ function dashBoard() {
 
 //process request for data
 function getData(contact, startTime, endTime) {
+  console.log("Loading data for: " + contact + ", " + startTime + ", " + endTime);
   let messages = [],
     timeLabel = [],
     i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person,
@@ -193,6 +197,7 @@ function getData(contact, startTime, endTime) {
     data = {
       participants: [],
       timeLabel: [],
+      msgTotal: [],
       details: {}
     };
 
@@ -217,7 +222,8 @@ function getData(contact, startTime, endTime) {
       msgPct: [],
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
-      rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+      rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+      active: true
     });
     data.participants.push({
       name: 'Received',
@@ -225,7 +231,8 @@ function getData(contact, startTime, endTime) {
       msgPct: [],
       msgType: [0, 0, 0, 0, 0, 0],
       msgCount: 0,
-      rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+      rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+      active: true
     });
     //get the messages and add them to the messages list
     for (i = 0; i < messagesData.private.length; i++) {
@@ -258,7 +265,7 @@ function getData(contact, startTime, endTime) {
       }
     }
 
-    data.details.title = foundConvo.title;
+    data.details.title = utf8.decode(foundConvo.title);
     data.details.type = foundConvo.participants.length == 2 ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
       data.participants.push({
@@ -267,7 +274,8 @@ function getData(contact, startTime, endTime) {
         msgPct: [],
         msgType: [0, 0, 0, 0, 0, 0],
         msgCount: 0,
-        rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+        rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+        active: true
       });
     }
     if (startTime == 0 && endTime == 0) {
@@ -278,79 +286,105 @@ function getData(contact, startTime, endTime) {
       tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
       endTime = tempDate2.getTime() + 86399999; //inclusive day
     }
+    for (j = 0; j < foundConvo.messages.length; j++) {
+      if (foundConvo.messages[j].timestamp_ms > startTime &&
+        foundConvo.messages[j].timestamp_ms < endTime) {
+        messages.push(foundConvo.messages[j]);
+      }
+    }
   }
 
   tempDate = new Date(startTime);
   tempDate2 = new Date(endTime);
-  data.details.range = (tempDate.getMonth() + 1) + '-' + tempDate.getDate() + '-' + (tempDate.getYear() + 1900) +
+  data.details.range = (tempDate.getMonth() + 1) + '/' + tempDate.getDate() + '/' + (tempDate.getYear() + 1900) +
     " to " +
-    (tempDate2.getMonth() + 1) + '-' + tempDate2.getDate() + '-' + (tempDate2.getYear() + 1900);
+    (tempDate2.getMonth() + 1) + '/' + tempDate2.getDate() + '/' + (tempDate2.getYear() + 1900);
 
   messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
   timeUnit = 60000; // < 1 day: 1 min
+  data.dateUnit = 'hour';
   if (endTime - startTime >= 441797328000) { // > 14 years: weeks
     timeUnit = 604800000;
+    data.dateUnit = 'month';
   } else if (endTime - startTime >= 347126472000) { // > 11 years: 4 days
     timeUnit = 345600000;
+    data.dateUnit = 'month';
   } else if (endTime - startTime >= 252455616000) { // > 8 years: 3 days
     timeUnit = 259200000;
+    data.dateUnit = 'month';
   } else if (endTime - startTime >= 126227808000) { // > 4 years: 2 days
     timeUnit = 172800000;
+    data.dateUnit = 'month';
   } else if (endTime - startTime >= 5259492000) { // > 2 month: 1 day
     timeUnit = 86400000;
+    data.dateUnit = 'month';
   } else if (endTime - startTime >= 604800000) { // > 1 week: 1 hour
     timeUnit = 3600000;
+    data.dateUnit = 'day';
   } else if (endTime - startTime >= 259200000) { // > 3 days: 10 min
     timeUnit = 600000;
+    data.dateUnit = 'hour';
   } else if (endTime - startTime >= 86400000) { // > 1 day: 5 min
     timeUnit = 300000;
+    data.dateUnit = 'hour';
   }
 
   let messageIndex = 0,
-    end = true;
+    end = true,
+    arr;
   for (cTime = startTime; end; cTime += timeUnit) {
     if (cTime >= endTime && end) {
       end = false;
     }
-    msgCount = 0;
     for (i = 0; i < data.participants.length; i++) {
       data.participants[i].msgTime.push(0);
     }
     tempDate = new Date(cTime);
-    if (tempDate.getHours() == 0 && tempDate.getMinutes() == 0) {
+    if (timeUnit < 3600000) {
+      data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
+        '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
+        '-' + (tempDate.getYear() + 1900) + ' ' + tempDate.getHours() + ':' + ((tempDate.getMinutes() < 10) ? ('0' + tempDate.getMinutes()) : tempDate.getMinutes()));
+    } else if (timeUnit == 3600000) {
+      data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
+        '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
+        '-' + (tempDate.getYear() + 1900) + ' ' + tempDate.getHours() + ':00');
+    } else {
       data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
         '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
         '-' + (tempDate.getYear() + 1900));
-    } else {
-      if (timeUnit < 3600000) {
-        data.timeLabel.push(tempDate.getHours() + ':' + ((tempDate.getMinutes() < 10) ? ('0' + tempDate.getMinutes()) : tempDate.getMinutes()));
-      } else if (timeUnit == 3600000) {
-        data.timeLabel.push(tempDate.getHours() + ':00');
-      } else {
-        data.timeLabel.push(((tempDate.getMonth() + 1 < 10) ? ('0' + (tempDate.getMonth() + 1)) : (tempDate.getMonth() + 1)) +
-          '-' + ((tempDate.getDate() < 10) ? ('0' + tempDate.getDate()) : tempDate.getDate()) +
-          '-' + (tempDate.getYear() + 1900));
-      }
     }
     while (messageIndex < messages.length && messages[messageIndex].timestamp_ms < cTime) {
+      person = undefined;
       message = messages[messageIndex];
       messageIndex++;
-      if (message.sender_name == name) {
-        person = data.participants[0];
-      } else {
-        if (contact == "") {
-          person = data.participants[1];
+      if (contact == "") {
+        if (message.sender_name == name) {
+          person = data.participants[0];
         } else {
-          for (i = 0; i < data.participants.length; i++) {
-            if (message.sender_name == data.participants[i].name) {
-              person = data.participants[i];
-              break;
-            }
+          person = data.participants[1];
+        }
+      } else {
+        for (i = 0; i < data.participants.length; i++) {
+          if (message.sender_name == data.participants[i].name) {
+            person = data.participants[i];
           }
+        }
+        if (person == undefined) {
+          arr = new Array(data.participants[0].msgTime.length - 1);
+          arr.fill(0);
+          data.participants.push({
+            name: message.sender_name,
+            msgTime: [...arr, 0],
+            msgPct: [...arr],
+            msgType: [0, 0, 0, 0, 0, 0],
+            msgCount: 0,
+            rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+            active: false
+          });
+          person = data.participants[data.participants.length - 1];
         }
       }
 
-      msgCount += 1;
       person.msgCount += 1;
       person.msgTime[person.msgTime.length - 1] += 1;
       if (message.type == "Generic") {
@@ -373,11 +407,16 @@ function getData(contact, startTime, endTime) {
     }
 
     //calculate the % of messages in this time period for each participant
+    msgCount = 0;
+    for (i = 0; i < data.participants.length; i++) {
+      msgCount += data.participants[i].msgTime[data.participants[i].msgTime.length - 1];
+    }
+    data.msgTotal.push(msgCount);
     for (i = 0; i < data.participants.length; i++) {
       if (msgCount == 0) {
         data.participants[i].msgPct.push(0);
       } else {
-        data.participants[i].msgPct.push(Math.floor(100 * data.participants[i].msgTime[data.participants[i].msgTime.length - 1] / msgCount));
+        data.participants[i].msgPct.push(Math.round(10000 * data.participants[i].msgTime[data.participants[i].msgTime.length - 1] / msgCount) / 100);
       }
     }
   }
@@ -780,7 +819,7 @@ function processYear(year) {
 function ready() {
   mainWindow.webContents.send('2019data', messagesData.year_2019);
   mainWindow.webContents.send('contacts', contactList());
-  mainWindow.webContents.send('dashboard', getData('', 0, 0));
+  mainWindow.webContents.send('dashboardStart', getData('', 0, 0));
   mainWindow.webContents.send('loading', 'done');
 }
 

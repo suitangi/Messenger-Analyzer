@@ -1,6 +1,5 @@
 window.graphColors = [
   '#214f91',
-  '#4d3296',
   '#6b5899',
   '#9b629a',
   '#c17297',
@@ -33,9 +32,18 @@ function dashGraphs(data) {
     msgTime = [],
     msgSent = [],
     msgPct = [],
-    names = [];
+    names = [],
+    msgTotal = 0,
+    msgTypeListHtml = '',
+    partiListHtml = '';
+
+
 
   for (i = 0; i < data.participants.length; i++) {
+
+    msgTypeListHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+    partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active)? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
+    msgTotal += data.participants[i].msgCount;
 
     names.push(data.participants[i].name);
     msgTime.push({
@@ -45,38 +53,66 @@ function dashGraphs(data) {
       pointBackgroundColor: window.graphColors[i],
       backgroundColor: "rgba(255,255,255, 0)",
       borderWidth: 1,
-      pointRadius: 1
+      pointRadius: 1,
+      hidden: true
     });
     msgPct.push({
       label: data.participants[i].name,
       data: data.participants[i].msgPct,
       borderColor: window.graphColors[i],
       pointBackgroundColor: window.graphColors[i],
-      backgroundColor: "rgba(255,255,255, 0)",
+      backgroundColor: window.graphColors[i],
       borderWidth: 1,
       pointRadius: 1
     });
     msgSent.push(data.participants[i].msgCount);
   }
 
+  msgTime.unshift({
+    label: "Total",
+    data: data.msgTotal,
+    borderColor: "#92d0de",
+    pointBackgroundColor: "#92d0de",
+    backgroundColor: "rgba(255,255,255, 0)",
+    borderWidth: 1,
+    pointRadius: 1
+  });
 
-  pieChart(document.getElementById('msgSentPie'), msgSent, names);
-  pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
-  lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false);
-  lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true);
+  if(window.msgSent){
+    window.msgSent.destroy();
+    window.msgType.destroy();
+    window.msgTime.destroy();
+    window.msgPct.destroy();
+  }
+  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, names);
+  window.msgType = pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
+  window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
+  window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
 
+  document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
+  document.getElementById('messageTypeSelect').innerHTML = msgTypeListHtml;
+  document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
   document.getElementById('chatType').innerText = data.details.type;
   document.getElementById('detailDRange').innerText = data.details.range;
-}
-
-function loadContact() {
 
 }
 
-function lineChart(ctx, data, label, stack) {
-  let timeFormat = 'MM-DD-YYYY'
-  let chart = new Chart(ctx, {
+
+function msgTypeSelect(index) {
+  window.msgType.destroy();
+  window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
+}
+
+function lineChart(ctx, data, label, stack, dateUnit) {
+  if (dateUnit == "month") {
+    timeFormat = 'MM-DD-YYYY'
+  } else if (dateUnit == "day") {
+    timeFormat = 'MM-DD-YYYY HH:mm'
+  } else if (dateUnit == "hour") {
+    timeFormat = 'MM-DD-YYYY HH:mm'
+  }
+  return new Chart(ctx, {
     type: 'line',
     data: {
       labels: label,
@@ -87,27 +123,41 @@ function lineChart(ctx, data, label, stack) {
         xAxes: [{
           type: "time",
           time: {
-            format: timeFormat
+            format: timeFormat,
+            unit: dateUnit
           },
           scaleLabel: {
             display: true,
-            labelString: 'Date'
+            labelString: "Time"
           }
         }],
         yAxes: [{
-          stacked: stack
+          stacked: stack,
+          ticks: {
+            min: stack? 0: undefined,
+            max: stack? 100: undefined
+          }
         }]
       },
+      animation: {
+        duration: 0 // general animation time
+      },
+      hover: {
+        animationDuration: 0 // duration of animations when hovering an item
+      },
+      responsiveAnimationDuration: 0, // animation duration after a resize
       legend: {
         display: true,
         position: 'bottom',
-        boxWidth: 30,
+        labels: {
+          boxWidth: 12
+        },
         padding: 20
       },
       tooltips: {
         displayColors: true,
         bodyFontFamily: "'Muli', sans-serif",
-        bodyFontSize: 16,
+        bodyFontSize: 12,
         bodyAlign: 'center',
         bodySpacing: 4
       },
@@ -121,7 +171,7 @@ function lineChart(ctx, data, label, stack) {
 }
 
 function pieChart(ctx, data, label) {
-  let chart = new Chart(ctx, {
+  return new Chart(ctx, {
     type: 'pie',
     data: {
       labels: label,
@@ -132,16 +182,25 @@ function pieChart(ctx, data, label) {
       }],
     },
     options: {
+      animation: {
+        duration: 0 // general animation time
+      },
+      hover: {
+        animationDuration: 0 // duration of animations when hovering an item
+      },
+      responsiveAnimationDuration: 0, // animation duration after a resize
       legend: {
         display: true,
         position: 'right',
-        boxWidth: 30,
+        labels: {
+          boxWidth: 12
+        },
         padding: 20
       },
       tooltips: {
         displayColors: true,
         bodyFontFamily: "'Muli', sans-serif",
-        bodyFontSize: 16,
+        bodyFontSize: 12,
         bodyAlign: 'center',
         bodySpacing: 4
       },
