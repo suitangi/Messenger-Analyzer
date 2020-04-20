@@ -195,11 +195,20 @@ function dashGraphs(data) {
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), data.participants[0].proxAvg, allButOne(window.activeNames, 0), 'Proximity');
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
-    document.getElementById('msgProxTitle').innerText = "Response Time";
+    document.getElementById('msgProxTitle').innerText = "Average Response Time";
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), [
-      data.participants[0].responseTime.sum / data.participants[0].responseTime.count / 1000,
-      data.participants[1].responseTime.sum / data.participants[1].responseTime.count / 1000,
-    ], window.names, 'Response Time (s)');
+      Math.round((data.participants[0].responseTime.sum / data.participants[0].responseTime.count / 1000 + Number.EPSILON) * 100) / 100,
+      Math.round((data.participants[1].responseTime.sum / data.participants[1].responseTime.count / 1000 + Number.EPSILON) * 100) / 100,
+    ], window.names, 'Average Response Time (s)');
+  } else {
+    document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
+    document.getElementById('messageProxSelect').innerHTML = msgTypeListHtml;
+    let distCount = [], distNames = [];
+    for (i = 0; i < data.participants[0].dist.length; i++) {
+      distCount.push(data.participants[0].dist[i].count);
+      distNames.push(data.participants[0].dist[i].title);
+    }
+    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames);
   }
 
 }
@@ -212,13 +221,20 @@ function msgTypeSelect(index) {
 
 function msgProxSelect(index) {
   window.msgProx.destroy();
+  console.log("test");
   if (window.dashData.details.type == 'Group') {
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), window.dashData.participants[index].proxAvg, allButOne(window.activeNames, index), 'Proximity');
+  } else {
+    let distCount = [], distNames = [];
+    for (var i = 0; i < window.dashData.participants[index].dist.length; i++) {
+      distCount.push(window.dashData.participants[index].dist[i].count);
+      distNames.push(window.dashData.participants[index].dist[i].title);
+    }
+    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames);
   }
 }
 
 function msgActiveSelect(index) {
-  console.log('tet');
   window.msgActive.destroy();
   if (index == 1) {
     window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeDeviation, window.activeLabel, 'Std. Deviation');
@@ -239,7 +255,7 @@ function timeChart(ctx, data, label, yAxis) {
         xAxes: [{
           type: "time",
           time: {
-            format: 'HH:mm',
+            parser: 'HH:mm',
             unit: 'hour'
           },
           scaleLabel: {
@@ -304,7 +320,7 @@ function lineChart(ctx, data, label, stack, dateUnit) {
         xAxes: [{
           type: "time",
           time: {
-            format: timeFormat,
+            parser: timeFormat,
             unit: dateUnit
           },
           scaleLabel: {

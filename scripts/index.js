@@ -491,6 +491,12 @@ function convoClick(contactId) {
 
 //function submit the dashboard search form
 function dashSubmit() {
+  if ($('#dateRange').val() == "") {
+    window.date = {
+      start: 0,
+      end: 0
+    };
+  }
   if ($('#convoSearch').val() == "") {
     window.dashConvo = "";
     ipcRenderer.send('dashboard', ['', window.date.start, window.date.end]);

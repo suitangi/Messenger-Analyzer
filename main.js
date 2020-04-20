@@ -214,32 +214,28 @@ function getData(contact, startTime, endTime) {
       tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
       endTime = tempDate2.getTime() + 86399999; //inclusive day
     }
-    data.participants.push({
-      name: name,
-      msgTime: [],
-      msgPct: [],
-      msgType: [0, 0, 0, 0, 0, 0],
-      msgCount: 0,
-      rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-      active: true,
-      hourCount: [...activeTime]
-    });
-    data.participants.push({
-      name: 'Received',
-      msgTime: [],
-      msgPct: [],
-      msgType: [0, 0, 0, 0, 0, 0],
-      msgCount: 0,
-      rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-      active: true,
-      hourCount: [...activeTime]
-    });
+    let parts = ['Sent (DM)', 'Received (DM)', 'Sent (Group)', 'Received (Group)'];
+    for (i = 0; i < parts.length; i++) {
+      data.participants.push({
+        name: parts[i],
+        msgTime: [],
+        msgPct: [],
+        msgType: [0, 0, 0, 0, 0, 0],
+        msgCount: 0,
+        rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+        active: true,
+        hourCount: [...activeTime],
+        dist: {}
+      });
+    }
     //get the messages and add them to the messages list
     for (i = 0; i < messagesData.private.length; i++) {
       for (j = 0; j < messagesData.private[i].messages.length; j++) {
         if (messagesData.private[i].messages[j].timestamp_ms > startTime &&
           messagesData.private[i].messages[j].timestamp_ms < endTime) {
           messages.push(messagesData.private[i].messages[j]);
+          messages[messages.length - 1].fromTitle = messagesData.private[i].title;
+          messages[messages.length - 1].fromType = 'DM';
         }
       }
     }
@@ -248,6 +244,8 @@ function getData(contact, startTime, endTime) {
         if (messagesData.group[i].messages[j].timestamp_ms > startTime &&
           messagesData.group[i].messages[j].timestamp_ms < endTime) {
           messages.push(messagesData.group[i].messages[j]);
+          messages[messages.length - 1].fromTitle = messagesData.group[i].title;
+          messages[messages.length - 1].fromType = 'Group';
         }
       }
     }
@@ -322,7 +320,7 @@ function getData(contact, startTime, endTime) {
         });
       }
     }
-  } else if (contact != ''){ //set up response time for DM's
+  } else if (contact != '') { //set up response time for DM's
     for (i = 0; i < data.participants.length; i++) {
       data.participants[i].responseTime = {
         sum: 0,
@@ -370,7 +368,9 @@ function getData(contact, startTime, endTime) {
     end = true,
     arr, foundIndex,
     lastMessage;
+
   for (cTime = startTime; end; cTime += timeUnit) {
+
     if (cTime >= endTime && end) {
       end = false;
     }
@@ -398,15 +398,24 @@ function getData(contact, startTime, endTime) {
 
       if (contact == "") {
         if (message.sender_name == name) {
-          person = data.participants[0];
+          if (message.fromType == 'DM') {
+            person = data.participants[0];
+          } else {
+            person = data.participants[2];
+          }
         } else {
-          person = data.participants[1];
+          if (message.fromType == 'DM') {
+            person = data.participants[1];
+          } else {
+            person = data.participants[3];
+          }
         }
       } else {
         for (i = 0; i < data.participants.length; i++) {
           if (message.sender_name == data.participants[i].name) {
             person = data.participants[i];
             foundIndex = i;
+            break;
           }
         }
         if (person == undefined) {
@@ -426,6 +435,17 @@ function getData(contact, startTime, endTime) {
         }
       }
 
+      //get distribution if contact == ""
+      if (contact == "") {
+        if (person.dist[message.fromTitle] == undefined) {
+          person.dist[message.fromTitle] = {
+            title: utf8.decode(message.fromTitle),
+            count: 1
+          };
+        } else {
+          person.dist[message.fromTitle].count += 1;
+        }
+      }
 
       //if group and active contact, calculate message proximity
       if (data.details.type == 'Group' && person.active) {
@@ -506,6 +526,24 @@ function getData(contact, startTime, endTime) {
       }
     }
   }
+
+  //format data for message distribution
+  let distList = []
+  if (contact == "") {
+    for (i = 0; i < data.participants.length; i++) {
+      distList = Object.values(data.participants[i].dist);
+      data.participants[i].dist = distList;
+      data.participants[i].dist.sort((a, b) => (a.count < b.count) ? 1 : -1);
+      if (data.participants[i].dist.length > 15){
+        for (j = 15; j < data.participants[i].dist.length; j++) {
+          data.participants[i].dist[14].count += data.participants[i].dist[j].count;
+        }
+        data.participants[i].dist.length = 15;
+        data.participants[i].dist[14].title = "Others";
+      }
+    }
+  }
+
   console.log("Dashboard data loaded for: " + contact + ", " + startTime + ", " + endTime);
   return data;
 }
