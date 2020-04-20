@@ -32,13 +32,15 @@ function dashGraphs(data) {
     msgTime = [],
     msgSent = [],
     msgPct = [],
-    names = [],
     dev = [],
     avg, std,
     msgTotal = 0,
     msgTypeListHtml = '',
+    activeHtml = '',
     partiListHtml = '';
 
+  window.names = [];
+  window.activeNames = [];
   window.activeLabel = [];
   window.activeTime = [];
   window.activeDeviation = [];
@@ -58,7 +60,11 @@ function dashGraphs(data) {
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
 
-    names.push(data.participants[i].name);
+    window.names.push(data.participants[i].name);
+    if (i < data.activeLength) {
+      window.activeNames.push(data.participants[i].name);
+      activeHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+    }
     msgTime.push({
       label: data.participants[i].name,
       data: data.participants[i].msgTime,
@@ -108,6 +114,17 @@ function dashGraphs(data) {
     });
     msgSent.push(data.participants[i].msgCount);
 
+    if (data.details.type == 'Group') {
+      if (data.participants[i].proximity != undefined) {
+        data.participants[i].proxAvg = [];
+        for (j = 0; j < data.participants[i].proximity.length; j++) {
+          if (i != j) {
+            data.participants[i].proxAvg.push(1 / (data.participants[i].proximity[j].sum / data.participants[i].proximity[j].count) + Number.EPSILON);
+          }
+        }
+      }
+    }
+
   } //end for loop
 
   msgTime.unshift({
@@ -153,18 +170,37 @@ function dashGraphs(data) {
     window.msgPct.destroy();
     window.msgActive.destroy();
   }
-  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, names);
+  if (window.msgProx) {
+    window.msgProx.destroy();
+  }
+  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names);
   window.msgType = pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
   window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
   window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
-  window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, false, 'hour');
+  window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Message Count');
+
   document.getElementById("messageActiveSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = msgTypeListHtml;
+
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
   document.getElementById('chatType').innerText = data.details.type;
   document.getElementById('detailDRange').innerText = data.details.range;
+
+  if (data.details.type == 'Group') {
+    document.getElementById('messageProxSelect').innerHTML = activeHtml;
+    document.getElementById('messageProxSelect').style = "";
+    document.getElementById('msgProxTitle').innerText = "Message Proximity for ";
+    window.msgProx = vertBarChart(document.getElementById('msgProxResp'), data.participants[0].proxAvg, allButOne(window.activeNames, 0), 'Proximity');
+  } else if (data.details.type == 'DM') {
+    document.getElementById('messageProxSelect').style = "Display: none";
+    document.getElementById('msgProxTitle').innerText = "Response Time";
+    window.msgProx = vertBarChart(document.getElementById('msgProxResp'), [
+      data.participants[0].responseTime.sum / data.participants[0].responseTime.count / 1000,
+      data.participants[1].responseTime.sum / data.participants[1].responseTime.count / 1000,
+    ], window.names, 'Response Time (s)');
+  }
 
 }
 
@@ -174,17 +210,24 @@ function msgTypeSelect(index) {
   window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
 }
 
+function msgProxSelect(index) {
+  window.msgProx.destroy();
+  if (window.dashData.details.type == 'Group') {
+    window.msgProx = vertBarChart(document.getElementById('msgProxResp'), window.dashData.participants[index].proxAvg, allButOne(window.activeNames, index), 'Proximity');
+  }
+}
+
 function msgActiveSelect(index) {
   console.log('tet');
   window.msgActive.destroy();
   if (index == 1) {
-    window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeDeviation, window.activeLabel, false, 'hour');
+    window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeDeviation, window.activeLabel, 'Std. Deviation');
   } else {
-    window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, false, 'hour');
+    window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Messages Count');
   }
 }
 
-function timeChart(ctx, data, label) {
+function timeChart(ctx, data, label, yAxis) {
   return new Chart(ctx, {
     type: 'line',
     data: {
@@ -202,6 +245,12 @@ function timeChart(ctx, data, label) {
           scaleLabel: {
             display: true,
             labelString: "Time"
+          }
+        }],
+        yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: yAxis
           }
         }]
       },
@@ -268,6 +317,10 @@ function lineChart(ctx, data, label, stack, dateUnit) {
           ticks: {
             min: stack ? 0 : undefined,
             max: stack ? 100 : undefined
+          },
+          scaleLabel: {
+            display: true,
+            labelString: stack ? "Percent" : "Message Count"
           }
         }]
       },
@@ -280,6 +333,59 @@ function lineChart(ctx, data, label, stack, dateUnit) {
       responsiveAnimationDuration: 0, // animation duration after a resize
       legend: {
         display: true,
+        position: 'bottom',
+        labels: {
+          boxWidth: 12
+        },
+        padding: 20
+      },
+      tooltips: {
+        displayColors: true,
+        bodyFontFamily: "'Muli', sans-serif",
+        bodyFontSize: 12,
+        bodyAlign: 'center',
+        bodySpacing: 4
+      },
+      plugins: {
+        datalabels: {
+          display: false,
+        }
+      }
+    }
+  });
+}
+
+function vertBarChart(ctx, data, label, yAxis) {
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: label,
+      datasets: [{
+        data: data,
+        backgroundColor: window.graphColors
+      }],
+    },
+    options: {
+      animation: {
+        duration: 0 // general animation time
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            min: 0
+          },
+          scaleLabel: {
+            display: true,
+            labelString: yAxis
+          }
+        }]
+      },
+      hover: {
+        animationDuration: 0 // duration of animations when hovering an item
+      },
+      responsiveAnimationDuration: 0, // animation duration after a resize
+      legend: {
+        display: false,
         position: 'bottom',
         labels: {
           boxWidth: 12
@@ -351,5 +457,11 @@ function pieChart(ctx, data, label) {
         }
       }
     }
+  });
+}
+
+function allButOne(arr, index) {
+  return arr.filter(function(value, arrIndex) {
+    return index !== arrIndex;
   });
 }

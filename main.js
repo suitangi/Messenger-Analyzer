@@ -180,29 +180,23 @@ function contactList() {
   return cList.sort((a, b) => (a.name > b.name) ? 1 : -1)
 }
 
-
-//function to setup the inital dashboard
-function dashBoard() {
-
-}
-
 //process request for data
 function getData(contact, startTime, endTime) {
   console.log("Loading data for: " + contact + ", " + startTime + ", " + endTime);
   let messages = [],
     timeLabel = [],
-    i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person,
-    msgSentTime = [],
+    i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person, activeLength
+  msgSentTime = [],
     msgSent = [],
     activeTime = new Array(1440);
-    activeTime.fill(0);
-    data = {
-      participants: [],
-      timeLabel: [],
-      msgTotal: [],
-      activeTotal: [...activeTime],
-      details: {}
-    };
+  activeTime.fill(0);
+  data = {
+    participants: [],
+    timeLabel: [],
+    msgTotal: [],
+    activeTotal: [...activeTime],
+    details: {}
+  };
 
 
   //get the name of the user
@@ -274,16 +268,29 @@ function getData(contact, startTime, endTime) {
     data.details.title = utf8.decode(foundConvo.title);
     data.details.type = foundConvo.participants.length == 2 ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
-      data.participants.push({
-        name: foundConvo.participants[j].name,
-        msgTime: [],
-        msgPct: [],
-        msgType: [0, 0, 0, 0, 0, 0],
-        msgCount: 0,
-        rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-        active: true,
-        hourCount: [...activeTime]
-      });
+      if (foundConvo.participants[j].name == name) {
+        data.participants.unshift({
+          name: foundConvo.participants[j].name,
+          msgTime: [],
+          msgPct: [],
+          msgType: [0, 0, 0, 0, 0, 0],
+          msgCount: 0,
+          rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+          active: true,
+          hourCount: [...activeTime]
+        });
+      } else {
+        data.participants.push({
+          name: foundConvo.participants[j].name,
+          msgTime: [],
+          msgPct: [],
+          msgType: [0, 0, 0, 0, 0, 0],
+          msgCount: 0,
+          rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+          active: true,
+          hourCount: [...activeTime]
+        });
+      }
     }
     if (startTime == 0 && endTime == 0) {
       tempDate = new Date(foundConvo.messages[0].timestamp_ms);
@@ -298,6 +305,29 @@ function getData(contact, startTime, endTime) {
         foundConvo.messages[j].timestamp_ms < endTime) {
         messages.push(foundConvo.messages[j]);
       }
+    }
+  }
+
+  //set up message proximity for groups
+  activeLength = data.participants.length;
+  data.activeLength = activeLength;
+  if (data.details.type == 'Group') {
+    for (i = 0; i < data.participants.length; i++) {
+      data.participants[i].proximity = [];
+      for (j = 0; j < activeLength; j++) {
+        data.participants[i].proximity.push({
+          before: true,
+          sum: 0,
+          count: 0
+        });
+      }
+    }
+  } else if (contact != ''){ //set up response time for DM's
+    for (i = 0; i < data.participants.length; i++) {
+      data.participants[i].responseTime = {
+        sum: 0,
+        count: 0
+      };
     }
   }
 
@@ -338,7 +368,8 @@ function getData(contact, startTime, endTime) {
 
   let messageIndex = 0,
     end = true,
-    arr;
+    arr, foundIndex,
+    lastMessage;
   for (cTime = startTime; end; cTime += timeUnit) {
     if (cTime >= endTime && end) {
       end = false;
@@ -364,6 +395,7 @@ function getData(contact, startTime, endTime) {
       person = undefined;
       message = messages[messageIndex];
       messageIndex++;
+
       if (contact == "") {
         if (message.sender_name == name) {
           person = data.participants[0];
@@ -374,6 +406,7 @@ function getData(contact, startTime, endTime) {
         for (i = 0; i < data.participants.length; i++) {
           if (message.sender_name == data.participants[i].name) {
             person = data.participants[i];
+            foundIndex = i;
           }
         }
         if (person == undefined) {
@@ -391,6 +424,40 @@ function getData(contact, startTime, endTime) {
           });
           person = data.participants[data.participants.length - 1];
         }
+      }
+
+
+      //if group and active contact, calculate message proximity
+      if (data.details.type == 'Group' && person.active) {
+        for (i = 0; i < activeLength; i++) {
+          if (i != foundIndex) {
+            if (person.proximity[i].before && data.participants[i].proximity[foundIndex].distance != undefined) {
+              person.proximity[i].sum += data.participants[i].proximity[foundIndex].distance;
+              data.participants[i].proximity[foundIndex].sum += data.participants[i].proximity[foundIndex].distance;
+              person.proximity[i].count += 1;
+              data.participants[i].proximity[foundIndex].count += 1;
+              data.participants[i].proximity[foundIndex].distance = 0;
+              person.proximity[i].distance = 0;
+            }
+            for (j = 0; j < activeLength; j++) {
+              if (j != foundIndex && !data.participants[i].proximity[j].before) {
+                if (data.participants[i].proximity[j].distance == undefined) {
+                  data.participants[i].proximity[j].distance = 1;
+                } else {
+                  data.participants[i].proximity[j].distance += 1;
+                }
+              }
+            }
+            data.participants[i].proximity[foundIndex].before = true;
+            person.proximity[i].before = false;
+          }
+        }
+      } else if (data.details.type == 'DM' && contact != '') {
+        if (lastMessage != undefined && lastMessage.sender_name != message.sender_name && message.timestamp_ms - lastMessage.timestamp_ms < 21600000) {
+          person.responseTime.count += 1;
+          person.responseTime.sum += message.timestamp_ms - lastMessage.timestamp_ms;
+        }
+        lastMessage = message;
       }
 
       person.msgCount += 1;
@@ -419,6 +486,9 @@ function getData(contact, startTime, endTime) {
       d = new Date(message.timestamp_ms)
       person.hourCount[d.getHours() * 60 + d.getMinutes()] += 1;
       data.activeTotal[d.getHours() * 60 + d.getMinutes()] += 1;
+
+      //get the message proximity
+
 
     } //end while loop
 

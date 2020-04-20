@@ -323,7 +323,14 @@
           <canvas id="msgActiveTime"></canvas>
         </div>
       </div>
-      <div class="item9">9</div>
+      <div class="item9">
+        <span id="msgProxTitle">Message Proximity for </span>
+        <select id="messageProxSelect" class="dashSelect" onchange="msgProxSelect(this.selectedIndex);">
+        </select>
+        <div class="dashChart">
+          <canvas id="msgProxResp"></canvas>
+        </div>
+      </div>
       <div class="item10">10</div>
       <div class="item11">11</div>
       <div class="item12">12</div>
