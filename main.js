@@ -185,7 +185,7 @@ function getData(contact, startTime, endTime) {
   console.log("Loading data for: " + contact + ", " + startTime + ", " + endTime);
   let messages = [],
     timeLabel = [],
-    i, j, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person, activeLength
+    i, j, k, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person, activeLength
   msgSentTime = [],
     msgSent = [],
     activeTime = new Array(1440);
@@ -222,7 +222,6 @@ function getData(contact, startTime, endTime) {
         msgPct: [],
         msgType: [0, 0, 0, 0, 0, 0],
         msgCount: 0,
-        rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
         active: true,
         hourCount: [...activeTime],
         dist: {}
@@ -273,9 +272,10 @@ function getData(contact, startTime, endTime) {
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
           msgCount: 0,
-          rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
           active: true,
-          hourCount: [...activeTime]
+          hourCount: [...activeTime],
+          react: {},
+          reactFrom: {}
         });
       } else {
         data.participants.push({
@@ -284,9 +284,10 @@ function getData(contact, startTime, endTime) {
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
           msgCount: 0,
-          rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
           active: true,
-          hourCount: [...activeTime]
+          hourCount: [...activeTime],
+          react: {},
+          reactFrom: {}
         });
       }
     }
@@ -427,9 +428,10 @@ function getData(contact, startTime, endTime) {
             msgPct: [...arr],
             msgType: [0, 0, 0, 0, 0, 0],
             msgCount: 0,
-            rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
             active: false,
-            hourCount: [...activeTime]
+            hourCount: [...activeTime],
+            react: {},
+            reactFrom: {}
           });
           person = data.participants[data.participants.length - 1];
         }
@@ -444,6 +446,43 @@ function getData(contact, startTime, endTime) {
           };
         } else {
           person.dist[message.fromTitle].count += 1;
+        }
+      } else { //get the reactions
+        if (message.reactions != undefined) {
+          for (i = 0; i < message.reactions.length; i++) {
+            if (person.react[message.reactions[i].actor] == undefined) {
+              person.react[message.reactions[i].actor] = {
+                count: [0, 0, 0, 0, 0, 0, 0, 0],
+                name: message.reactions[i].actor
+              };
+            }
+            switch (message.reactions[i].reaction) {
+              case '\u00f0\u009f\u0098\u008d':
+                person.react[message.reactions[i].actor].count[0] += 1;
+                break;
+              case '\u00e2\u009d\u00a4':
+                person.react[message.reactions[i].actor].count[1] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u0086':
+                person.react[message.reactions[i].actor].count[2] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00ae':
+                person.react[message.reactions[i].actor].count[3] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00a2':
+                person.react[message.reactions[i].actor].count[4] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00a0':
+                person.react[message.reactions[i].actor].count[5] += 1;
+                break;
+              case '\u00f0\u009f\u0091\u008d':
+                person.react[message.reactions[i].actor].count[6] += 1;
+                break;
+              case '\u00f0\u009f\u0091\u008e':
+                person.react[message.reactions[i].actor].count[7] += 1;
+                break;
+            }
+          }
         }
       }
 
@@ -528,13 +567,13 @@ function getData(contact, startTime, endTime) {
   }
 
   //format data for message distribution
-  let distList = []
   if (contact == "") {
+    let distList = []
     for (i = 0; i < data.participants.length; i++) {
       distList = Object.values(data.participants[i].dist);
       data.participants[i].dist = distList;
       data.participants[i].dist.sort((a, b) => (a.count < b.count) ? 1 : -1);
-      if (data.participants[i].dist.length > 15){
+      if (data.participants[i].dist.length > 15) {
         for (j = 15; j < data.participants[i].dist.length; j++) {
           data.participants[i].dist[14].count += data.participants[i].dist[j].count;
         }
@@ -542,7 +581,33 @@ function getData(contact, startTime, endTime) {
         data.participants[i].dist[14].title = "Others";
       }
     }
-  }
+  } else {
+    let reactTo = [],
+      reactFrom = [];
+    for (i = 0; i < data.participants.length; i++) {
+      reactTo = Object.values(data.participants[i].react);
+      data.participants[i].react = reactTo;
+      for (k = 0; k < data.participants[i].react.length; k++) {
+        for (j = 0; j < data.participants.length; j++) {
+          if (data.participants[j].name == data.participants[i].react[k].name) {
+            if (data.participants[j].reactFrom[data.participants[i].name] == undefined) {
+              data.participants[j].reactFrom[data.participants[i].name] = {
+                name: data.participants[i].name
+              };
+            }
+            data.participants[j].reactFrom[data.participants[i].name].count = data.participants[i].react[k].count;
+          } // end if
+        } //end j loop
+      } //end k loop
+    } //end i loop
+    for (i = 0; i < data.participants.length; i++) {
+      if (data.participants[i].reactFrom != undefined) {
+        reactFrom = Object.values(data.participants[i].reactFrom);
+        data.participants[i].reactFrom = reactFrom;
+      }
+    }
+  } // end else
+
 
   console.log("Dashboard data loaded for: " + contact + ", " + startTime + ", " + endTime);
   return data;

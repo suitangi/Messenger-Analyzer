@@ -28,22 +28,34 @@ function hexToRgb(hex, alpha) {
 }
 
 function dashGraphs(data) {
-  let i, h, m, j,
+  let i, h, m, j, k,
     msgTime = [],
     msgSent = [],
     msgPct = [],
     dev = [],
     avg, std,
     msgTotal = 0,
-    msgTypeListHtml = '',
+    partiSelectHtml = '',
     activeHtml = '',
-    partiListHtml = '';
+    partiListHtml = '',
+    rctToHtml = '',
+    rctFromHtml = '';
 
   window.names = [];
   window.activeNames = [];
   window.activeLabel = [];
   window.activeTime = [];
   window.activeDeviation = [];
+  window.reactToData = [];
+  window.reactFromData = [];
+  window.reactToType = [];
+  window.reactFromType = [];
+  window.rctToIndex = 0;
+  window.rctFromIndex = 0;
+  window.rctToPerson = true;
+  window.rctFromPerson = true;
+
+  let reactions = ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'];
 
   for (i = 0; i < 1440; i++) {
     h = Math.floor(i / 60);
@@ -56,7 +68,7 @@ function dashGraphs(data) {
 
   for (i = 0; i < data.participants.length; i++) {
 
-    msgTypeListHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+    partiSelectHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
 
@@ -64,6 +76,57 @@ function dashGraphs(data) {
     if (i < data.activeLength) {
       window.activeNames.push(data.participants[i].name);
       activeHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+    }
+
+    if (data.details.type != "N/A") {
+      if (data.participants[i].react.length != 0) {
+        rctToHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+        window.reactToType.push([0, 0, 0, 0, 0, 0, 0, 0]);
+        window.reactToData.push({
+          labels: [],
+          datasets: []
+        });
+        for (j = 0; j < reactions.length; j++) {
+          window.reactToData[window.reactToData.length - 1].datasets.push({
+            label: reactions[j],
+            data: [],
+            borderColor: window.graphColors[j],
+            pointBackgroundColor: window.graphColors[j],
+            backgroundColor: window.graphColors[j]
+          });
+        }
+        for (j = 0; j < data.participants[i].react.length; j++) {
+          window.reactToData[window.reactToData.length - 1].labels.push(data.participants[i].react[j].name);
+          for (k = 0; k < data.participants[i].react[j].count.length; k++) {
+            window.reactToType[window.reactToType.length - 1][k] += data.participants[i].react[j].count[k];
+            window.reactToData[window.reactToData.length - 1].datasets[k].data.push(data.participants[i].react[j].count[k]);
+          }
+        }
+      }
+      if (data.participants[i].reactFrom.length != 0) {
+        rctFromHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+        window.reactFromType.push([0, 0, 0, 0, 0, 0, 0, 0]);
+        window.reactFromData.push({
+          labels: [],
+          datasets: []
+        });
+        for (j = 0; j < reactions.length; j++) {
+          window.reactFromData[window.reactFromData.length - 1].datasets.push({
+            label: reactions[j],
+            data: [],
+            borderColor: window.graphColors[j],
+            pointBackgroundColor: window.graphColors[j],
+            backgroundColor: window.graphColors[j]
+          });
+        }
+        for (j = 0; j < data.participants[i].reactFrom.length; j++) {
+          window.reactFromData[window.reactFromData.length - 1].labels.push(data.participants[i].reactFrom[j].name);
+          for (k = 0; k < data.participants[i].reactFrom[j].count.length; k++) {
+            window.reactFromType[window.reactFromType.length - 1][k] += data.participants[i].reactFrom[j].count[k];
+            window.reactFromData[window.reactFromData.length - 1].datasets[k].data.push(data.participants[i].reactFrom[j].count[k]);
+          }
+        }
+      }
     }
     msgTime.push({
       label: data.participants[i].name,
@@ -169,19 +232,27 @@ function dashGraphs(data) {
     window.msgTime.destroy();
     window.msgPct.destroy();
     window.msgActive.destroy();
+    window.reactToBar.destroy();
+    window.reactFromBar.destroy();
   }
   if (window.msgProx) {
     window.msgProx.destroy();
   }
-  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names);
-  window.msgType = pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
+  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names, true);
+  window.msgType = pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
   window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
   window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
   window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Message Count');
+  window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[0]);
+  window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[0]);
 
   document.getElementById("messageActiveSelect").selectedIndex = 0;
+  document.getElementById("reactToTypeSelect").selectedIndex = 0;
+  document.getElementById("reactFromTypeSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
-  document.getElementById('messageTypeSelect').innerHTML = msgTypeListHtml;
+  document.getElementById('messageTypeSelect').innerHTML = partiSelectHtml;
+  document.getElementById('reactToSelect').innerHTML = rctToHtml;
+  document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
 
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
@@ -201,14 +272,16 @@ function dashGraphs(data) {
       Math.round((data.participants[1].responseTime.sum / data.participants[1].responseTime.count / 1000 + Number.EPSILON) * 100) / 100,
     ], window.names, 'Average Response Time (s)');
   } else {
+    document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
-    document.getElementById('messageProxSelect').innerHTML = msgTypeListHtml;
-    let distCount = [], distNames = [];
+    document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
+    let distCount = [],
+      distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
       distCount.push(data.participants[0].dist[i].count);
       distNames.push(data.participants[0].dist[i].title);
     }
-    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames);
+    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames, true);
   }
 
 }
@@ -216,7 +289,49 @@ function dashGraphs(data) {
 
 function msgTypeSelect(index) {
   window.msgType.destroy();
-  window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
+  window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
+}
+
+function rctToSelect(index) {
+  window.reactToBar.destroy();
+  window.rctToIndex = index;
+  if (window.rctToPerson) {
+    window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[index]);
+  } else {
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[index], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+  }
+}
+
+function rctFromSelect(index) {
+  window.reactFromBar.destroy();
+  window.rctFromIndex = index;
+  if (window.rctFromPerson) {
+    window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[index]);
+  } else {
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+  }
+}
+
+function rctToTypeSelect(index) {
+  window.reactToBar.destroy();
+  if (index == 0) {
+    window.rctToPerson = true;
+    window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[window.rctToIndex]);
+  } else {
+    window.rctToPerson = false;
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+  }
+}
+
+function rctFromTypeSelect(index) {
+  window.reactFromBar.destroy();
+  if (index == 0) {
+    window.rctFromPerson = true;
+    window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[window.rctFromIndex]);
+  } else {
+    window.rctFromPerson = false;
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+  }
 }
 
 function msgProxSelect(index) {
@@ -225,12 +340,13 @@ function msgProxSelect(index) {
   if (window.dashData.details.type == 'Group') {
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), window.dashData.participants[index].proxAvg, allButOne(window.activeNames, index), 'Proximity');
   } else {
-    let distCount = [], distNames = [];
+    let distCount = [],
+      distNames = [];
     for (var i = 0; i < window.dashData.participants[index].dist.length; i++) {
       distCount.push(window.dashData.participants[index].dist[i].count);
       distNames.push(window.dashData.participants[index].dist[i].title);
     }
-    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames);
+    window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames, true);
   }
 }
 
@@ -401,12 +517,7 @@ function vertBarChart(ctx, data, label, yAxis) {
       },
       responsiveAnimationDuration: 0, // animation duration after a resize
       legend: {
-        display: false,
-        position: 'bottom',
-        labels: {
-          boxWidth: 12
-        },
-        padding: 20
+        display: false
       },
       tooltips: {
         displayColors: true,
@@ -424,7 +535,7 @@ function vertBarChart(ctx, data, label, yAxis) {
   });
 }
 
-function pieChart(ctx, data, label) {
+function pieChart(ctx, data, label, legendBox) {
   return new Chart(ctx, {
     type: 'pie',
     data: {
@@ -452,7 +563,7 @@ function pieChart(ctx, data, label) {
         padding: 20
       },
       tooltips: {
-        displayColors: true,
+        displayColors: legendBox,
         bodyFontFamily: "'Muli', sans-serif",
         bodyFontSize: 12,
         bodyAlign: 'center',
@@ -470,6 +581,54 @@ function pieChart(ctx, data, label) {
             return percentage;
           },
           color: '#fff'
+        }
+      }
+    }
+  });
+}
+
+function stackedBar(ctx, data) {
+  return new Chart(ctx, {
+    type: 'bar',
+    data: data,
+    options: {
+      tooltips: {
+        displayColors: false,
+        callbacks: {
+          mode: 'x',
+        },
+      },
+      scales: {
+        xAxes: [{
+          stacked: true,
+          gridLines: {
+            display: false,
+          }
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            beginAtZero: true,
+          },
+          type: 'linear',
+        }]
+      },
+      animation: {
+        duration: 0 // general animation time
+      },
+      hover: {
+        animationDuration: 0 // duration of animations when hovering an item
+      },
+      responsiveAnimationDuration: 0, // animation duration after a resize
+      legend: {
+        position: 'bottom',
+        labels: {
+          boxWidth: 12
+        }
+      },
+      plugins: {
+        datalabels: {
+          display: false,
         }
       }
     }

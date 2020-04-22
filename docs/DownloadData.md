@@ -5,26 +5,31 @@ Go to https://www.facebook.com/settings?tab=your_facebook_information
 
 ## Step 2.
 Click **Download your information**
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step1.png)
 
 ## Step 3.
 Choose your date range (All is recommended unless you are updating your messenger data)
 
 ## Step 4.
 **Select JSON**
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step2.png)
 
 ## Step 5.
 Select whatever quality of images you want (lower quality images are compressed)
 
-## Step 5.
-Click Deselect All
-
 ## Step 6.
-Scroll down and check Messages (*Messages you've exchanged with other people on Messenger*)
+Click 'Deselect All'
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step3.png)
 
 ## Step 7.
-Click 'Create File'
+Scroll down and check Messages (*Messages you've exchanged with other people on Messenger*)
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step4.png)
 
 ## Step 8.
+Click 'Create File'
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step5.png)
+
+## Step 9.
 Wait for Facebook to pack your data (they will email you when it's done).
 
 
