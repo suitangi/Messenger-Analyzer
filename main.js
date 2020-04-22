@@ -120,6 +120,15 @@ function processData() {
       //encode all emojis
       if (message.content != undefined && message.content.length != 0) {
         message.content = utf8.decode(message.content);
+        if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
+          (message.content.startsWith('You called ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.endsWith(' called you.') && message.type == 'Generic')) {
+          message.type = "Call";
+        } else if ((message.content.endsWith(' missed your call.') && message.type == 'Generic') ||
+          (message.content.startsWith('You missed a call from ') && message.content.endsWith('.') && message.type == 'Generic')) {
+          message.type = "Call";
+          message.missed = true;
+        }
       }
     }
   }
@@ -148,6 +157,14 @@ function processData() {
       //encode all emojis
       if (message.content != undefined && message.content.length != 0) {
         message.content = utf8.decode(message.content);
+        if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
+          (message.content.endsWith(' started a video chat.') && message.type == 'Generic') ||
+          (message.content.endsWith(' joined the video chat.') && message.type == 'Generic') ||
+          (message.content.endsWith(' started sharing video.') && message.type == 'Generic') ||
+          (message.content.endsWith(' started a call.') && message.type == 'Generic') ||
+          (message.content.endsWith(' joined the call.') && message.type == 'Generic')) {
+          message.type = "Call";
+        }
       }
     }
   }
@@ -263,7 +280,7 @@ function getData(contact, startTime, endTime) {
     }
 
     data.details.title = utf8.decode(foundConvo.title);
-    data.details.type = foundConvo.participants.length == 2 ? 'DM' : 'Group';
+    data.details.type = foundConvo.thread_type == 'Regular' ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
       if (foundConvo.participants[j].name == name) {
         data.participants.unshift({
@@ -719,17 +736,16 @@ function processYear(year) {
         }
 
         //add to wordCount
-        if (message.content != undefined && message.content.length != 0) {
-          if (message.sender_name == name) {
-            message.content.split(/\s+/).forEach(function(word) {
-              word = word.toUpperCase();
-              if (wordCount[word] != undefined) {
-                wordCount[word] += 1;
-              } else {
-                wordCount[word] = 1;
-              }
-            });
-          }
+        if (message.content != undefined && message.content.length != 0 &&
+          message.sender_name == name && message.type == 'Generic') {
+          message.content.split(/\s+/).forEach(function(word) {
+            word = word.toUpperCase();
+            if (wordCount[word] != undefined) {
+              wordCount[word] += 1;
+            } else {
+              wordCount[word] = 1;
+            }
+          });
         }
 
         //for reactions
@@ -847,17 +863,16 @@ function processYear(year) {
         }
 
         //add to wordCount
-        if (message.content != undefined && message.content.length != 0) {
-          if (message.sender_name == name) {
-            message.content.split(/\s+/).forEach(function(word) {
-              word = word.toUpperCase();
-              if (wordCount[word] != undefined) {
-                wordCount[word] += 1;
-              } else {
-                wordCount[word] = 1;
-              }
-            });
-          }
+        if (message.content != undefined && message.content.length != 0 &&
+          message.sender_name == name && message.type == 'Generic') {
+          message.content.split(/\s+/).forEach(function(word) {
+            word = word.toUpperCase();
+            if (wordCount[word] != undefined) {
+              wordCount[word] += 1;
+            } else {
+              wordCount[word] = 1;
+            }
+          });
         }
 
         if (message.reactions != undefined) {

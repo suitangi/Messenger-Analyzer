@@ -650,8 +650,18 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
+.item14 {
+  grid-area: 9 / 1 / 11 / 3;
+  height: calc(24vw + 50px) !important;
+}
+
+.item15 {
+  grid-area: 9 / 3 / 11 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
 .dashChart {
-  width: calc(2*(100vw - 60px)/5 + 10px);
+  width: calc(2*(100vw - 60px)/5);
   position: relative;
   margin-top: 50px;
   margin-right: 0px;

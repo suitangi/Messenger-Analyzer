@@ -279,8 +279,8 @@ function dashGraphs(data) {
   window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[0]);
   window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[0]);
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
-  window.reactToDist = smallPieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
-  window.reactFromDist = smallPieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
+  window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
+  window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
 
   document.getElementById("messageActiveSelect").selectedIndex = 0;
   document.getElementById("reactToTypeSelect").selectedIndex = 0;
@@ -374,12 +374,12 @@ function rctFromTypeSelect(index) {
 
 function rctFromDistSelect(index) {
   window.reactFromDist.destroy()
-  window.reactFromDist = smallPieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[index].data, window.reactFromDistData[index].label, false);
+  window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[index].data, window.reactFromDistData[index].label, false);
 }
 
 function rctToDistSelect(index) {
   window.reactToDist.destroy();
-  window.reactToDist = smallPieChart(document.getElementById('reactToDistChart'), window.reactToDistData[index].data, window.reactToDistData[index].label, false);
+  window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[index].data, window.reactToDistData[index].label, false);
 }
 
 

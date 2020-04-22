@@ -338,11 +338,12 @@
         Reactions to
         <select id="reactToSelect" class="dashSelect" onchange="rctToSelect(this.selectedIndex);">
         </select>
-        by
+        (
         <select id="reactToTypeSelect" class="dashSelect" onchange="rctToTypeSelect(this.selectedIndex);">
           <option value=0>People</option>
           <option value=1>Type</option>
         </select>
+        )
         <div class="dashChart">
           <canvas id="reactToChart"></canvas>
         </div>
@@ -351,11 +352,12 @@
         Reactions from
         <select id="reactFromSelect" class="dashSelect" onchange="rctFromSelect(this.selectedIndex);">
         </select>
-        by
+        (
         <select id="reactFromTypeSelect" class="dashSelect" onchange="rctFromTypeSelect(this.selectedIndex);">
           <option value=0>People</option>
           <option value=1>Type</option>
         </select>
+        )
         <div class="dashChart">
           <canvas id="reactFromChart"></canvas>
         </div>
@@ -378,7 +380,7 @@
           <option value=6>👍</option>
           <option value=7>👎</option>
         </select>
-        <div class="smalldashChart">
+        <div class="dashChart">
           <canvas id="reactFromDistChart"></canvas>
         </div>
       </div>
@@ -394,7 +396,7 @@
           <option value=6>👍</option>
           <option value=7>👎</option>
         </select>
-        <div class="smalldashChart">
+        <div class="dashChart">
           <canvas id="reactToDistChart"></canvas>
         </div>
       </div>
