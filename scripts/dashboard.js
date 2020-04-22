@@ -46,6 +46,8 @@ function dashGraphs(data) {
   window.activeLabel = [];
   window.activeTime = [];
   window.activeDeviation = [];
+
+  //for reacts
   window.reactToData = [];
   window.reactFromData = [];
   window.reactToType = [];
@@ -54,9 +56,24 @@ function dashGraphs(data) {
   window.rctFromIndex = 0;
   window.rctToPerson = true;
   window.rctFromPerson = true;
+  window.reactTotals = [0, 0, 0, 0, 0, 0, 0, 0];
+  window.reactToDistData = [];
+  window.reactFromDistData = [];
 
-  let reactions = ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'];
+  window.reactions = ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'];
 
+  for (i = 0; i < window.reactions.length; i++) {
+    window.reactToDistData.push({
+      label: [],
+      data: []
+    });
+    window.reactFromDistData.push({
+      label: [],
+      data: []
+    });
+  }
+
+  //set up label for activetime
   for (i = 0; i < 1440; i++) {
     h = Math.floor(i / 60);
     m = i % 60;
@@ -86,20 +103,28 @@ function dashGraphs(data) {
           labels: [],
           datasets: []
         });
-        for (j = 0; j < reactions.length; j++) {
+        for (j = 0; j < window.reactions.length; j++) {
           window.reactToData[window.reactToData.length - 1].datasets.push({
-            label: reactions[j],
+            label: window.reactions[j],
             data: [],
             borderColor: window.graphColors[j],
             pointBackgroundColor: window.graphColors[j],
             backgroundColor: window.graphColors[j]
           });
+          window.reactToDistData[j].label.push(data.participants[i].name);
         }
+
         for (j = 0; j < data.participants[i].react.length; j++) {
           window.reactToData[window.reactToData.length - 1].labels.push(data.participants[i].react[j].name);
           for (k = 0; k < data.participants[i].react[j].count.length; k++) {
+            if (j == 0) {
+              window.reactToDistData[k].data.push(0);
+            }
             window.reactToType[window.reactToType.length - 1][k] += data.participants[i].react[j].count[k];
             window.reactToData[window.reactToData.length - 1].datasets[k].data.push(data.participants[i].react[j].count[k]);
+            //add to totals
+            window.reactTotals[k] += data.participants[i].react[j].count[k];
+            window.reactToDistData[k].data[window.reactToDistData[k].data.length - 1] += data.participants[i].react[j].count[k];
           }
         }
       }
@@ -110,20 +135,25 @@ function dashGraphs(data) {
           labels: [],
           datasets: []
         });
-        for (j = 0; j < reactions.length; j++) {
+        for (j = 0; j < window.reactions.length; j++) {
           window.reactFromData[window.reactFromData.length - 1].datasets.push({
-            label: reactions[j],
+            label: window.reactions[j],
             data: [],
             borderColor: window.graphColors[j],
             pointBackgroundColor: window.graphColors[j],
             backgroundColor: window.graphColors[j]
           });
+          window.reactFromDistData[j].label.push(data.participants[i].name);
         }
         for (j = 0; j < data.participants[i].reactFrom.length; j++) {
           window.reactFromData[window.reactFromData.length - 1].labels.push(data.participants[i].reactFrom[j].name);
           for (k = 0; k < data.participants[i].reactFrom[j].count.length; k++) {
+            if (j == 0) {
+              window.reactFromDistData[k].data.push(0);
+            }
             window.reactFromType[window.reactFromType.length - 1][k] += data.participants[i].reactFrom[j].count[k];
             window.reactFromData[window.reactFromData.length - 1].datasets[k].data.push(data.participants[i].reactFrom[j].count[k]);
+            window.reactFromDistData[k].data[window.reactFromDistData[k].data.length - 1] += data.participants[i].reactFrom[j].count[k];
           }
         }
       }
@@ -234,6 +264,9 @@ function dashGraphs(data) {
     window.msgActive.destroy();
     window.reactToBar.destroy();
     window.reactFromBar.destroy();
+    window.reactTotal.destroy();
+    window.reactToDist.destroy();
+    window.reactFromDist.destroy();
   }
   if (window.msgProx) {
     window.msgProx.destroy();
@@ -245,10 +278,15 @@ function dashGraphs(data) {
   window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Message Count');
   window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[0]);
   window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[0]);
+  window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
+  window.reactToDist = smallPieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
+  window.reactFromDist = smallPieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
 
   document.getElementById("messageActiveSelect").selectedIndex = 0;
   document.getElementById("reactToTypeSelect").selectedIndex = 0;
   document.getElementById("reactFromTypeSelect").selectedIndex = 0;
+  document.getElementById("reactToDistSelect").selectedIndex = 0;
+  document.getElementById("reactFromDistSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = partiSelectHtml;
   document.getElementById('reactToSelect').innerHTML = rctToHtml;
@@ -298,7 +336,7 @@ function rctToSelect(index) {
   if (window.rctToPerson) {
     window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[index]);
   } else {
-    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[index], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[index], window.reactions, false);
   }
 }
 
@@ -308,7 +346,7 @@ function rctFromSelect(index) {
   if (window.rctFromPerson) {
     window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[index]);
   } else {
-    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], window.reactions, false);
   }
 }
 
@@ -319,7 +357,7 @@ function rctToTypeSelect(index) {
     window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[window.rctToIndex]);
   } else {
     window.rctToPerson = false;
-    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], window.reactions, false);
   }
 }
 
@@ -330,9 +368,20 @@ function rctFromTypeSelect(index) {
     window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[window.rctFromIndex]);
   } else {
     window.rctFromPerson = false;
-    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'], false);
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], window.reactions, false);
   }
 }
+
+function rctFromDistSelect(index) {
+  window.reactFromDist.destroy()
+  window.reactFromDist = smallPieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[index].data, window.reactFromDistData[index].label, false);
+}
+
+function rctToDistSelect(index) {
+  window.reactToDist.destroy();
+  window.reactToDist = smallPieChart(document.getElementById('reactToDistChart'), window.reactToDistData[index].data, window.reactToDistData[index].label, false);
+}
+
 
 function msgProxSelect(index) {
   window.msgProx.destroy();
@@ -556,6 +605,57 @@ function pieChart(ctx, data, label, legendBox) {
       responsiveAnimationDuration: 0, // animation duration after a resize
       legend: {
         display: true,
+        position: 'right',
+        labels: {
+          boxWidth: 12
+        },
+        padding: 20
+      },
+      tooltips: {
+        displayColors: legendBox,
+        bodyFontFamily: "'Muli', sans-serif",
+        bodyFontSize: 12,
+        bodyAlign: 'center',
+        bodySpacing: 4
+      },
+      plugins: {
+        datalabels: {
+          formatter: (value, ctx) => {
+            let sum = 0;
+            let dataArr = ctx.chart.data.datasets[0].data;
+            dataArr.map(data => {
+              sum += data;
+            });
+            let percentage = (value * 100 / sum).toFixed(0) + "%";
+            return percentage;
+          },
+          color: '#fff'
+        }
+      }
+    }
+  });
+}
+
+function smallPieChart(ctx, data, label, legendBox) {
+  return new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: label,
+      datasets: [{
+        data: data,
+        backgroundColor: window.graphColors
+      }],
+    },
+    options: {
+      animation: {
+        duration: 0 // general animation time
+      },
+      hover: {
+        animationDuration: 0 // duration of animations when hovering an item
+      },
+      responsiveAnimationDuration: 0, // animation duration after a resize
+      legend: {
+        display: false,
         position: 'right',
         labels: {
           boxWidth: 12

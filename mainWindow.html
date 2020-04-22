@@ -361,10 +361,43 @@
         </div>
       </div>
       <div class="item13">
-        Reactions totals
+        Reactions Totals
+        <div class="smalldashChart">
+          <canvas id="reactTotalChart"></canvas>
+        </div>
       </div>
-      <div class="item14">14</div>
-      <div class="item15">15</div>
+      <div class="item14">
+        Sent Distribution of
+        <select id="reactFromDistSelect" class="dashSelect" onchange="rctFromDistSelect(this.selectedIndex);">
+          <option value=0>😍</option>
+          <option value=1>❤️</option>
+          <option value=2>😆</option>
+          <option value=3>😮</option>
+          <option value=4>😢</option>
+          <option value=5>😠</option>
+          <option value=6>👍</option>
+          <option value=7>👎</option>
+        </select>
+        <div class="smalldashChart">
+          <canvas id="reactFromDistChart"></canvas>
+        </div>
+      </div>
+      <div class="item15">
+        Received Distribution of
+        <select id="reactToDistSelect" class="dashSelect" onchange="rctToDistSelect(this.selectedIndex);">
+          <option value=0>😍</option>
+          <option value=1>❤️</option>
+          <option value=2>😆</option>
+          <option value=3>😮</option>
+          <option value=4>😢</option>
+          <option value=5>😠</option>
+          <option value=6>👍</option>
+          <option value=7>👎</option>
+        </select>
+        <div class="smalldashChart">
+          <canvas id="reactToDistChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 </body>

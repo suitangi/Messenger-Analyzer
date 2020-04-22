@@ -631,22 +631,22 @@ body::-webkit-scrollbar {
 }
 
 .item8 {
-  grid-area: 5 / 1 / 5 / 3;
+  grid-area: 5 / 1 / 7 / 3;
   height: calc(24vw + 50px) !important;
 }
 
 .item9 {
-  grid-area: 5 / 3 / 5 / 5;
+  grid-area: 5 / 3 / 7 / 5;
   height: calc(24vw + 50px) !important;
 }
 
 .item11 {
-  grid-area: 6 / 1 / 8 / 3;
+  grid-area: 7 / 1 / 9 / 3;
   height: calc(24vw + 50px) !important;
 }
 
 .item12 {
-  grid-area: 6 / 3 / 8 / 5;
+  grid-area: 7 / 3 / 9 / 5;
   height: calc(24vw + 50px) !important;
 }
 
@@ -654,6 +654,13 @@ body::-webkit-scrollbar {
   width: calc(2*(100vw - 60px)/5 + 10px);
   position: relative;
   margin-top: 50px;
+  margin-right: 0px;
+}
+
+.smalldashChart {
+  width: calc((100vw - 60px)/5 + 10px);
+  position: relative;
+  margin-top: 8px;
   margin-right: 0px;
 }
 
