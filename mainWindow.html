@@ -335,29 +335,29 @@
         Placeholder
       </div>
       <div class="item11">
-        Reactions to
+        <span id="reactToTitle">Reactions to</span>
         <select id="reactToSelect" class="dashSelect" onchange="rctToSelect(this.selectedIndex);">
         </select>
-        (
-        <select id="reactToTypeSelect" class="dashSelect" onchange="rctToTypeSelect(this.selectedIndex);">
-          <option value=0>People</option>
-          <option value=1>Type</option>
-        </select>
-        )
+        <span id="reactToTypeSpan">(
+          <select id="reactToTypeSelect" class="dashSelect" onchange="rctToTypeSelect(this.selectedIndex);">
+            <option value=0>People</option>
+            <option value=1>Type</option>
+          </select>
+          )</span>
         <div class="dashChart">
           <canvas id="reactToChart"></canvas>
         </div>
       </div>
       <div class="item12">
-        Reactions from
+        <span id="reactFromTitle">Reactions from</span>
         <select id="reactFromSelect" class="dashSelect" onchange="rctFromSelect(this.selectedIndex);">
         </select>
-        (
-        <select id="reactFromTypeSelect" class="dashSelect" onchange="rctFromTypeSelect(this.selectedIndex);">
-          <option value=0>People</option>
-          <option value=1>Type</option>
-        </select>
-        )
+        <span id="reactFromTypeSpan">(
+          <select id="reactFromTypeSelect" class="dashSelect" onchange="rctFromTypeSelect(this.selectedIndex);">
+            <option value=0>People</option>
+            <option value=1>Type</option>
+          </select>
+          ) </span>
         <div class="dashChart">
           <canvas id="reactFromChart"></canvas>
         </div>
@@ -369,7 +369,7 @@
         </div>
       </div>
       <div class="item14">
-        Sent Distribution of
+        Total Sent Distribution of
         <select id="reactFromDistSelect" class="dashSelect" onchange="rctFromDistSelect(this.selectedIndex);">
           <option value=0>😍</option>
           <option value=1>❤️</option>
@@ -385,7 +385,7 @@
         </div>
       </div>
       <div class="item15">
-        Received Distribution of
+        Total Received Distribution of
         <select id="reactToDistSelect" class="dashSelect" onchange="rctToDistSelect(this.selectedIndex);">
           <option value=0>😍</option>
           <option value=1>❤️</option>

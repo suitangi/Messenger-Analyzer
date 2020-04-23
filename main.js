@@ -241,7 +241,8 @@ function getData(contact, startTime, endTime) {
         msgCount: 0,
         active: true,
         hourCount: [...activeTime],
-        dist: {}
+        dist: {},
+        rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
       });
     }
     //get the messages and add them to the messages list
@@ -385,7 +386,8 @@ function getData(contact, startTime, endTime) {
   let messageIndex = 0,
     end = true,
     arr, foundIndex,
-    lastMessage;
+    lastMessage,
+    reactor;
 
   for (cTime = startTime; end; cTime += timeUnit) {
 
@@ -454,7 +456,7 @@ function getData(contact, startTime, endTime) {
         }
       }
 
-      //get distribution if contact == ""
+      //add to distribution if contact == ""
       if (contact == "") {
         if (person.dist[message.fromTitle] == undefined) {
           person.dist[message.fromTitle] = {
@@ -463,6 +465,49 @@ function getData(contact, startTime, endTime) {
           };
         } else {
           person.dist[message.fromTitle].count += 1;
+        }
+        if (message.reactions != undefined) {
+          for (i = 0; i < message.reactions.length; i++) {
+            if (message.fromType == "DM") {
+              if (message.reactions[i].actor == name) {
+                reactor = data.participants[0];
+              } else if (message.sender_name == name) {
+                reactor = data.participants[1];
+              }
+            } else {
+              if (message.reactions[i].actor == name) {
+                reactor = data.participants[2];
+              } else if (message.sender_name == name) {
+                reactor = data.participants[3];
+              }
+            }
+            switch (message.reactions[i].reaction) {
+              case '\u00f0\u009f\u0098\u008d':
+                reactor.rctCount[0] += 1;
+                break;
+              case '\u00e2\u009d\u00a4':
+                reactor.rctCount[1] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u0086':
+                reactor.rctCount[2] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00ae':
+                reactor.rctCount[3] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00a2':
+                reactor.rctCount[4] += 1;
+                break;
+              case '\u00f0\u009f\u0098\u00a0':
+                reactor.rctCount[5] += 1;
+                break;
+              case '\u00f0\u009f\u0091\u008d':
+                reactor.rctCount[6] += 1;
+                break;
+              case '\u00f0\u009f\u0091\u008e':
+                reactor.rctCount[7] += 1;
+                break;
+            }
+          }
         }
       } else { //get the reactions
         if (message.reactions != undefined) {

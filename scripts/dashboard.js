@@ -276,11 +276,8 @@ function dashGraphs(data) {
   window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
   window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
   window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Message Count');
-  window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[0]);
-  window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[0]);
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
-  window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
-  window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
+
 
   document.getElementById("messageActiveSelect").selectedIndex = 0;
   document.getElementById("reactToTypeSelect").selectedIndex = 0;
@@ -289,8 +286,6 @@ function dashGraphs(data) {
   document.getElementById("reactFromDistSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = partiSelectHtml;
-  document.getElementById('reactToSelect').innerHTML = rctToHtml;
-  document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
 
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
@@ -302,6 +297,16 @@ function dashGraphs(data) {
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Proximity for ";
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), data.participants[0].proxAvg, allButOne(window.activeNames, 0), 'Proximity');
+    window.reactToBar = stackedBar(document.getElementById('reactToChart'), window.reactToData[0]);
+    window.reactFromBar = stackedBar(document.getElementById('reactFromChart'), window.reactFromData[0]);
+    window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
+    window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
+    document.getElementById('reactFromTypeSpan').style = "";
+    document.getElementById('reactToTypeSpan').style = "";
+    document.getElementById('reactToTitle').innerText = "Reactions to ";
+    document.getElementById('reactFromTitle').innerText = "Reactions from ";
+    document.getElementById('reactToSelect').innerHTML = rctToHtml;
+    document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -309,7 +314,41 @@ function dashGraphs(data) {
       Math.round((data.participants[0].responseTime.sum / data.participants[0].responseTime.count / 1000 + Number.EPSILON) * 100) / 100,
       Math.round((data.participants[1].responseTime.sum / data.participants[1].responseTime.count / 1000 + Number.EPSILON) * 100) / 100,
     ], window.names, 'Average Response Time (s)');
+    window.rctToPerson = false;
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], window.reactions, false);
+    window.rctFromPerson = false;
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], window.reactions, false);
+    window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
+    window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
+    document.getElementById('reactFromTypeSpan').style = "display: none;";
+    document.getElementById('reactToTypeSpan').style = "display: none;";
+    document.getElementById('reactToTitle').innerText = "Reactions to ";
+    document.getElementById('reactFromTitle').innerText = "Reactions from ";
+    document.getElementById('reactToSelect').innerHTML = rctToHtml;
+    document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
   } else {
+    window.reactToType = [data.participants[0].rctCount, data.participants[2].rctCount];
+    window.reactFromType = [data.participants[1].rctCount, data.participants[3].rctCount];
+    for (i = 0; i < window.reactions.length; i++) {
+      window.reactToDistData[i].label = ['DM', 'Group'];
+      window.reactFromDistData[i].label = ['DM', 'Group'];
+      window.reactToDistData[i].data.push(data.participants[0].rctCount[i]);
+      window.reactToDistData[i].data.push(data.participants[2].rctCount[i]);
+      window.reactFromDistData[i].data.push(data.participants[1].rctCount[i]);
+      window.reactFromDistData[i].data.push(data.participants[3].rctCount[i]);
+    }
+    window.rctToPerson = false;
+    window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], window.reactions, false);
+    window.rctFromPerson = false;
+    window.reactFromBar = pieChart(document.getElementById('reactFromChart'), window.reactFromType[window.rctFromIndex], window.reactions, false);
+    window.reactToDist = pieChart(document.getElementById('reactToDistChart'), window.reactToDistData[0].data, window.reactToDistData[0].label, false);
+    window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
+    document.getElementById('reactToTitle').innerText = "Reactions sent in ";
+    document.getElementById('reactFromTitle').innerText = "Reactions received in ";
+    document.getElementById('reactFromTypeSpan').style = "display: none;";
+    document.getElementById('reactToTypeSpan').style = "display: none;";
+    document.getElementById('reactToSelect').innerHTML = '<option value=0>DM</option> <option value=1>Group</option>';
+    document.getElementById('reactFromSelect').innerHTML = '<option value=0>DM</option> <option value=1>Group</option>';
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
