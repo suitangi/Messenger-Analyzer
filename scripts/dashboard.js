@@ -35,7 +35,7 @@ function dashGraphs(data) {
     dev = [],
     avg, std,
     msgTotal = 0,
-    partiSelectHtml = '',
+    partiSelectHtml = ''
     activeHtml = '',
     partiListHtml = '',
     rctToHtml = '',
@@ -46,6 +46,7 @@ function dashGraphs(data) {
   window.activeLabel = [];
   window.activeTime = [];
   window.activeDeviation = [];
+  window.messageTypeTotal = [0, 0, 0, 0, 0, 0];
 
   //for reacts
   window.reactToData = [];
@@ -84,15 +85,18 @@ function dashGraphs(data) {
 
 
   for (i = 0; i < data.participants.length; i++) {
-
-    partiSelectHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+    partiSelectHtml += '<option>' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
+
+    for (j = 0; j < window.messageTypeTotal.length; j++){
+      window.messageTypeTotal[j] += data.participants[i].msgType[j];
+    }
 
     window.names.push(data.participants[i].name);
     if (i < data.activeLength) {
       window.activeNames.push(data.participants[i].name);
-      activeHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
+      activeHtml += '<option>' + data.participants[i].name + '</option>';
     }
 
     if (data.details.type != "N/A") {
@@ -272,25 +276,25 @@ function dashGraphs(data) {
     window.msgProx.destroy();
   }
   window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names, true);
-  window.msgType = pieChart(document.getElementById('msgTypePie'), data.participants[0].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
+  window.msgType = pieChart(document.getElementById('msgTypePie'), window.messageTypeTotal, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
   window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
   window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
   window.msgActive = timeChart(document.getElementById('msgActiveTime'), window.activeTime, window.activeLabel, 'Message Count');
-  window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
 
-
+  document.getElementById("messageTypeSelect").selectedIndex = -1;
   document.getElementById("messageActiveSelect").selectedIndex = 0;
   document.getElementById("reactToTypeSelect").selectedIndex = 0;
   document.getElementById("reactFromTypeSelect").selectedIndex = 0;
   document.getElementById("reactToDistSelect").selectedIndex = 0;
   document.getElementById("reactFromDistSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
-  document.getElementById('messageTypeSelect').innerHTML = partiSelectHtml;
+  document.getElementById('messageTypeSelect').innerHTML = '<option>Total</option>' + partiSelectHtml;
 
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
   document.getElementById('chatType').innerText = data.details.type;
   document.getElementById('detailDRange').innerText = data.details.range;
+  document.getElementById('firstDate').innerText = data.details.firstTime;
 
   if (data.details.type == 'Group') {
     document.getElementById('messageProxSelect').innerHTML = activeHtml;
@@ -336,6 +340,7 @@ function dashGraphs(data) {
       window.reactToDistData[i].data.push(data.participants[2].rctCount[i]);
       window.reactFromDistData[i].data.push(data.participants[1].rctCount[i]);
       window.reactFromDistData[i].data.push(data.participants[3].rctCount[i]);
+      window.reactTotals[i] += data.participants[0].rctCount[i] + data.participants[2].rctCount[i] + data.participants[1].rctCount[i] + data.participants[3].rctCount[i];
     }
     window.rctToPerson = false;
     window.reactToBar = pieChart(document.getElementById('reactToChart'), window.reactToType[window.rctToIndex], window.reactions, false);
@@ -360,13 +365,18 @@ function dashGraphs(data) {
     }
     window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames, true);
   }
+  window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
 
 }
 
 
 function msgTypeSelect(index) {
   window.msgType.destroy();
-  window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
+  if (index != 0) {
+    window.msgType = pieChart(document.getElementById('msgTypePie'), window.dashData.participants[index - 1].msgType, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
+  } else {
+    window.msgType = pieChart(document.getElementById('msgTypePie'), window.messageTypeTotal, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
+  }
 }
 
 function rctToSelect(index) {
@@ -665,7 +675,10 @@ function pieChart(ctx, data, label, legendBox) {
             dataArr.map(data => {
               sum += data;
             });
-            let percentage = (value * 100 / sum).toFixed(0) + "%";
+            let percentage = "";
+            if ((value * 100 / sum).toFixed(0) > 0) {
+              percentage = (value * 100 / sum).toFixed(0) + "%";
+            }
             return percentage;
           },
           color: '#fff'

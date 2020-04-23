@@ -615,6 +615,10 @@ body::-webkit-scrollbar {
   padding-left: 15px;
 }
 
+.item3 ol li {
+  margin-top: 3px;
+}
+
 .item5 {
   grid-area: 3 / 1 / 5 / 3;
   height: calc(24vw + 50px) !important;
@@ -640,6 +644,11 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
+.item10 {
+  grid-area: 5 / 5 / 7 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
 .item11 {
   grid-area: 7 / 1 / 9 / 3;
   height: calc(24vw + 50px) !important;
@@ -648,6 +657,10 @@ body::-webkit-scrollbar {
 .item12 {
   grid-area: 7 / 3 / 9 / 5;
   height: calc(24vw + 50px) !important;
+}
+
+.item13 {
+  grid-area: 7 / 5 / 7 / 5;
 }
 
 .item14 {

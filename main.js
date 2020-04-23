@@ -227,6 +227,7 @@ function getData(contact, startTime, endTime) {
       tempDate = new Date(messagesData.firstMsg.timestamp_ms);
       tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
       startTime = tempDate2.getTime();
+      data.details.firstTime = tempDate.toLocaleDateString() + ' ' + tempDate.toLocaleTimeString();
       tempDate = new Date(messagesData.lastMsg.timestamp_ms);
       tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
       endTime = tempDate2.getTime() + 86399999; //inclusive day
@@ -279,7 +280,8 @@ function getData(contact, startTime, endTime) {
         foundConvo = messagesData.group[i];
       }
     }
-
+    tempDate = new Date(foundConvo.messages[0].timestamp_ms);
+    data.details.firstTime = tempDate.toLocaleDateString() + ' ' + tempDate.toLocaleTimeString();
     data.details.title = utf8.decode(foundConvo.title);
     data.details.type = foundConvo.thread_type == 'Regular' ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
