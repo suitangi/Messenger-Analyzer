@@ -1,47 +1,46 @@
-# Download Data from Facebook
+# Downloading Data from Facebook
 
 ## Step 1.
-Go to https://www.facebook.com/settings?tab=your_facebook_information
+Go to [https://www.facebook.com/dyi/?referrer=yfi_settings](https://www.facebook.com/dyi/?referrer=yfi_settings) to download your data.
+You must be logged into your Facebook account.
 
 ## Step 2.
-Click **Download your information**
-![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step1.png)
+Choose your date range (**All** is recommended)
 
 ## Step 3.
-Choose your date range (All is recommended unless you are updating your messenger data)
-
-## Step 4.
-**Select JSON**
+Select **JSON**
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step2.png)
 
-## Step 5.
+## Step 4.
 Select whatever quality of images you want (lower quality images are compressed)
 
-## Step 6.
-Click 'Deselect All'
+## Step 5.
+Click **Deselect All**
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step3.png)
 
-## Step 7.
+## Step 6.
 Scroll down and check Messages (*Messages you've exchanged with other people on Messenger*)
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step4.png)
 
-## Step 8.
-Click 'Create File'
+## Step 7.
+Click **Create File**
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step5.png)
 
-## Step 9.
+## Step 8.
 Wait for Facebook to pack your data (they will email you when it's done).
 The email should look something like this:
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step6.png)
 
+## Step 9.
+Download the zip file(s). There may be multiple files depending on the size and date range you chose.
+Create a folder wherever you want, then save these files all to that folder.
 
-# Setting up Data
-1. Download all of the files (there may be multiple)
-2. Unzip them and save them to one directory
+## Step 10.
+Unzip these files in the same directory (folder). Then delete the zip files.
 
-For example, it should look something like this (some directories omitted):
+For example, it should look something like this:
 ```
-your_directory_name
+your_folder
 ├── facebook-username
 │   ├── messages
 │   │   ├── archived_threads
