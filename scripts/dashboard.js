@@ -169,7 +169,8 @@ function dashGraphs(data) {
       pointBackgroundColor: window.graphColors[i],
       backgroundColor: "rgba(255,255,255, 0)",
       borderWidth: 1,
-      pointRadius: 1,
+      pointRadius: 0,
+      pointHoverRadius: 2,
       hidden: true
     });
     msgPct.push({
@@ -179,7 +180,8 @@ function dashGraphs(data) {
       pointBackgroundColor: window.graphColors[i],
       backgroundColor: window.graphColors[i],
       borderWidth: 1,
-      pointRadius: 1
+      pointRadius: 0,
+      pointHoverRadius: 2
     });
     window.activeTime.push({
       label: data.participants[i].name,
@@ -188,7 +190,8 @@ function dashGraphs(data) {
       pointBackgroundColor: window.graphColors[i],
       backgroundColor: "rgba(255,255,255, 0)",
       borderWidth: 1,
-      pointRadius: 1,
+      pointRadius: 0,
+      pointHoverRadius: 2,
       hidden: true
     });
     dev = [];
@@ -206,7 +209,8 @@ function dashGraphs(data) {
       pointBackgroundColor: window.graphColors[i],
       backgroundColor: "rgba(255,255,255, 0)",
       borderWidth: 1,
-      pointRadius: 1,
+      pointRadius: 0,
+      pointHoverRadius: 2,
       hidden: true
     });
     msgSent.push(data.participants[i].msgCount);
@@ -231,7 +235,8 @@ function dashGraphs(data) {
     pointBackgroundColor: "#92d0de",
     backgroundColor: "rgba(255,255,255, 0)",
     borderWidth: 1,
-    pointRadius: 1
+    pointRadius: 0,
+    pointHoverRadius: 2,
   });
   window.activeTime.unshift({
     label: "Total",
@@ -240,7 +245,8 @@ function dashGraphs(data) {
     pointBackgroundColor: "#92d0de",
     backgroundColor: "rgba(255,255,255, 0)",
     borderWidth: 1,
-    pointRadius: 1
+    pointRadius: 0,
+    pointHoverRadius: 2,
   });
   dev = [];
   avg = window.activeTime[0].data.reduce((a, b) => a + b, 0) / 1440;
@@ -257,7 +263,8 @@ function dashGraphs(data) {
     pointBackgroundColor: "#92d0de",
     backgroundColor: "rgba(255,255,255, 0)",
     borderWidth: 1,
-    pointRadius: 1
+    pointRadius: 0,
+    pointHoverRadius: 2,
   });
 
   if (window.msgSent) {

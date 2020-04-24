@@ -31,6 +31,8 @@ Click 'Create File'
 
 ## Step 9.
 Wait for Facebook to pack your data (they will email you when it's done).
+The email should look something like this:
+![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step6.png)
 
 
 # Setting up Data
