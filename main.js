@@ -244,11 +244,11 @@ function processData() {
       if (message.content != undefined && message.content.length != 0) {
 
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
-          (message.content.startsWith('You called ') && message.content.endsWith('.') && message.type == 'Generic') ||
-          (message.content.endsWith(' called you.') && message.type == 'Generic')) {
+          (message.content == 'You called ' + messagesData.private[i].participants[0].nickname + '.' && message.type == 'Generic') ||
+          (message.content == messagesData.private[i].participants[0].nickname + ' called you.' && message.type == 'Generic')) {
           message.type = "Call";
-        } else if ((message.content.endsWith(' missed your call.') && message.type == 'Generic') ||
-          (message.content.startsWith('You missed a call from ') && message.content.endsWith('.') && message.type == 'Generic')) {
+        } else if ((message.content == messagesData.private[i].participants[0].nickname + ' missed your call.' && message.type == 'Generic') ||
+          (message.content == 'You missed a call from ' + messagesData.private[i].participants[0].nickname + '.' && message.type == 'Generic')) {
           message.type = "Call";
           message.missed = true;
         } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
@@ -257,28 +257,6 @@ function processData() {
           (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
           (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
           message.type = "Event";
-        } else if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
-            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
-          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
-            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
-            tempName = message.content.match(regx)[0];
-            person = messagesData.private[i].participants[0];
-          } else if (message.content.includes(' set your nickname to ')) {
-            tempName = name;
-            person = messagesData.private[i].participants[1];
-          }
-
-          message.type = "Nickname";
-          regx = /(?<= to )(.+)(?=.)/g;
-          if (message.content.match(regx) != null) {
-            tempName = message.content.match(regx)[0];
-          }
-          person.nickname = tempName;
-          person.nickname_history.push({
-            name: tempName,
-            sender: message.sender_name,
-            time: message.timestamp_ms
-          });
         }
       }
     }
@@ -317,37 +295,6 @@ function processData() {
           (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
           (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
           message.type = "Event"
-        } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
-          (message.content.includes(' responded Going to ') && message.type == 'Generic') ||
-          (message.content.includes(' responded Can\'t Go to ') && message.type == 'Generic') ||
-          (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
-          (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
-          message.type = "Event";
-        } else if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
-            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
-          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
-            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
-            tempName = message.content.match(regx)[0];
-          } else if (message.content.includes(' set your nickname to ')) {
-            tempName = name;
-          }
-          for (k = 0; k < messagesData.group[i].participants.length; k++) {
-            if (tempName == messagesData.group[i].participants[k].name) {
-              person = messagesData.group[i].participants[k];
-              break;
-            }
-          }
-          message.type = "Nickname";
-          regx = /(?<= to )(.+)(?=.)/g;
-          if (message.content.match(regx) != null) {
-            tempName = message.content.match(regx)[0];
-          }
-          person.nickname = tempName;
-          person.nickname_history.push({
-            name: tempName,
-            sender: message.sender_name,
-            time: message.timestamp_ms
-          });
         }
       }
     }
