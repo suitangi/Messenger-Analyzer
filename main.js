@@ -103,10 +103,15 @@ function preProcessData() {
         message.content = utf8.decode(message.content);
 
         if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
-            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
-          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
-            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
-            tempName = message.content.match(regx)[0];
+            (message.content.includes(' set her own nickname to ')) ||
+            (message.content.includes(' set his own nickname to ')) ||
+            (message.content.includes(' set your nickname to ')))
+             && message.type == 'Generic' && message.content.endsWith('.')) {
+
+          if ((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
+             (message.content.includes(' set her own nickname to ')) ||
+             (message.content.includes(' set his own nickname to '))) {
+            tempName = messagesData.private[i].participants[0].name;
             person = messagesData.private[i].participants[0];
           } else if (message.content.includes(' set your nickname to ')) {
             tempName = name;
@@ -114,7 +119,7 @@ function preProcessData() {
           }
 
           message.type = "Nickname";
-          regx = /(?<= to )(.+)(?=.)/g;
+          regx = /(?<= to )(.+)(?=\.)/g;
           if (message.content.match(regx) != null) {
             tempName = message.content.match(regx)[0];
           }
@@ -188,7 +193,7 @@ function preProcessData() {
             person = part_table[tempName];
           }
           message.type = "Nickname";
-          regx = /(?<= to )(.+)(?=.)/g;
+          regx = /(?<= to )(.+)(?=\.)/g;
           if (message.content.match(regx) != null) {
             tempName = message.content.match(regx)[0];
           }
@@ -198,6 +203,19 @@ function preProcessData() {
             sender: message.sender_name,
             time: message.timestamp_ms
           });
+        } else if (message.content.includes(' cleared the nickname for ')) {
+          regx = /(?<= cleared the nickname for )(.+)(?=\.)/g;
+          tempName = message.content.match(regx)[0];
+          person = part_table[tempName];
+          if (person != undefined) {
+            message.type = "Nickname";
+            person.nickname = person.name;
+            person.nickname_history.push({
+              name: person.name,
+              sender: message.sender_name,
+              time: message.timestamp_ms
+            });
+          }
         }
       }
     }
@@ -210,7 +228,7 @@ function preProcessData() {
 
 //function process data
 function processData() {
-  let i, j, k, message, person, regx, tempName, name,
+  let i, j, k, message, person, regx, tempName, name, nickname,
     firstMsg = {
       timestamp_ms: 9999999999999
     },
@@ -242,13 +260,19 @@ function processData() {
       message = messagesData.private[i].messages[j];
       //encode all emojis and filter messages
       if (message.content != undefined && message.content.length != 0) {
-
+        nickname = messagesData.private[i].participants[0].nickname;
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
-          (message.content == 'You called ' + messagesData.private[i].participants[0].nickname + '.' && message.type == 'Generic') ||
-          (message.content == messagesData.private[i].participants[0].nickname + ' called you.' && message.type == 'Generic')) {
+          (message.content == 'You called ' + nickname + '.' && message.type == 'Generic') ||
+          (message.content == nickname + ' called you.' && message.type == 'Generic') ||
+          (message.content == 'You and ' + nickname + ' can now see each other.' && message.type == 'Generic') ||
+          (message.content == 'You stopped viewing ' + nickname + '\'s video.' && message.type == 'Generic') ||
+          (message.content == nickname + ' stopped sharing video.' && message.type == 'Generic') ||
+          (message.content == nickname + ' started sharing video.' && message.type == 'Generic')) {
           message.type = "Call";
-        } else if ((message.content == messagesData.private[i].participants[0].nickname + ' missed your call.' && message.type == 'Generic') ||
-          (message.content == 'You missed a call from ' + messagesData.private[i].participants[0].nickname + '.' && message.type == 'Generic')) {
+        } else if ((message.content == nickname + ' missed your call.' && message.type == 'Generic') ||
+          (message.content == 'You missed a call from ' + nickname + '.' && message.type == 'Generic') ||
+          (message.content == nickname + ' missed your video chat.' && message.type == 'Generic') ||
+          (message.content == 'You missed a video chat with ' + nickname + '.' && message.type == 'Generic')) {
           message.type = "Call";
           message.missed = true;
         } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
@@ -257,6 +281,20 @@ function processData() {
           (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
           (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
           message.type = "Event";
+        } else if ((message.content.startsWith(nickname + ' scored ') && message.content.endsWith(' in a game.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' scored ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' scored ') && message.content.includes(' playing ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' set a new personal best of ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' set the new high score of ') && message.content.includes(' points playing') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' is now in first place in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' moved up the leaderboard in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith('You challenged ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' challenged you in ') && message.content.endsWith('.') && message.type == 'Generic')) {
+          message.type = "Game";
+        } else if (message.content.startsWith(nickname + ' set the emoji to ') && message.content.endsWith('.') && message.type == 'Generic') {
+          message.type = "Emoji";
+        } else if (message.content == (nickname + ' changed the chat theme.') && message.type == 'Generic') {
+          message.type = "Theme";
         }
       }
     }
@@ -276,25 +314,73 @@ function processData() {
       };
       lastMsg.title = messagesData.group[i].title;
     }
+    messagesData.group[i].title_history = [];
 
     //iterate through each message
     for (j = 0; j < messagesData.group[i].messages.length; j++) {
       message = messagesData.group[i].messages[j];
       //encode all emojis
+      nickname = messagesData.group[i].nickname_translate[message.sender_name];
       if (message.content != undefined && message.content.length != 0) {
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
-          (message.content.endsWith(' started a video chat.') && message.type == 'Generic') ||
-          (message.content.endsWith(' joined the video chat.') && message.type == 'Generic') ||
-          (message.content.endsWith(' started sharing video.') && message.type == 'Generic') ||
-          (message.content.endsWith(' started a call.') && message.type == 'Generic') ||
-          (message.content.endsWith(' joined the call.') && message.type == 'Generic')) {
+          (message.content == (nickname + ' started a video chat.') && message.type == 'Generic') ||
+          (message.content == (nickname + ' joined the video chat.') && message.type == 'Generic') ||
+          (message.content == (nickname + ' started sharing video.') && message.type == 'Generic') ||
+          (message.content == (nickname + ' started a call.') && message.type == 'Generic') ||
+          (message.content == (nickname + ' joined the call.') && message.type == 'Generic')) {
           message.type = "Call";
         } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
-          (message.content.includes(' responded Going to ') && message.type == 'Generic') ||
-          (message.content.includes(' responded Can\'t Go to ') && message.type == 'Generic') ||
-          (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
-          (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
-          message.type = "Event"
+          (message.content.startsWith(nickname + ' responded Going to ') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' responded Can\'t Go to ') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' created the reminder: ') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' updated the reminder: ') && message.type == 'Generic') ||
+          (message.content == (nickname + ' updated the reminder time.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' updated the reminder location to ') && message.type == 'Generic' && message.content.endsWith('.')) ||
+          (message.content == (nickname + ' removed the reminder location.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' turned off the reminder: ') && message.type == 'Generic') ||
+          (message.content == (nickname + ' started a plan.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' updated the plan location to ') && message.type == 'Generic' && message.content.endsWith('.')) ||
+          (message.content == (nickname + ' removed the plan location.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' updated the plan to ') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' named the plan ') && message.type == 'Generic')) {
+          message.type = "Event";
+        } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' voted for \"') && message.content.includes(' in the poll:') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' removed vote for \"') && message.content.includes(' in the poll:') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' changed vote to \"') && message.content.includes(' in the poll:') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' created a poll: ') && message.type == 'Generic')) {
+          message.type = "Poll";
+        } else if ((message.content.startsWith(nickname + ' scored ') && message.content.endsWith(' in a game.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' scored ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' scored ') && message.content.includes(' playing ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' set a new personal best of ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' set the new high score of ') && message.content.includes(' points playing') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' is now in first place in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' moved up the leaderboard in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith('You challenged ') && message.content.includes(' in ') && message.content.endsWith('.') && message.type == 'Generic') ||
+          (message.content.startsWith(nickname + ' challenged you in ') && message.content.endsWith('.') && message.type == 'Generic')) {
+          message.type = "Game";
+        } else if ((message.content.startsWith(nickname + ' named the group ') && message.type == 'Generic') ||
+         (message.content.startsWith('You named the group ') && message.type == 'Generic')) {
+          messagesData.group[i].title_history.push({
+            title: message.content.substring(message.content.search(' named the group ') + 17, message.content.length - ((message.content.substring(message.content.length - 1) == '.') ? 1 : 0)),
+            actor: message.sender_name
+          });
+          message.type = "Group_Name";
+        } else if (message.content == (nickname + ' removed the group name.') && message.type == 'Generic') {
+          messagesData.group[i].title_history.push({
+            title: "",
+            actor: message.sender_name
+          });
+          message.type = "Group_Name";
+        } else if (message.content.startsWith(nickname + ' set the emoji to ') && message.content.endsWith('.') && message.type == 'Generic') {
+          message.type = "Emoji";
+        } else if (message.content == (nickname + ' changed the chat theme.') && message.type == 'Generic') {
+          message.type = "Theme";
+        } else if (message.content == (nickname + ' changed the group photo.') && message.type == 'Generic') {
+          message.type = "Group_Photo";
+        } else if (message.content == (nickname + ' responded ') && message.type == 'Generic') {
+          message.type = "Responded";
         }
       }
     }
