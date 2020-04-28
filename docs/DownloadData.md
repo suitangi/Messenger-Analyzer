@@ -5,7 +5,7 @@ Go to [https://www.facebook.com/dyi/?referrer=yfi_settings](https://www.facebook
 You must be logged into your Facebook account.
 
 ## Step 2.
-Choose your date range (**All** is recommended)
+Choose your date range (choosing **All of my data** is recommended)
 
 ## Step 3.
 Select **JSON**
@@ -23,12 +23,14 @@ Scroll down and check Messages (*Messages you've exchanged with other people on 
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step4.png)
 
 ## Step 7.
-Click **Create File**
+Scroll back up and click **Create File**
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step5.png)
 
 ## Step 8.
 Wait for Facebook to pack your data (they will email you when it's done).
 The email should look something like this:
+
+
 ![Screenshot](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Step6.png)
 
 ## Step 9.

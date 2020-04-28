@@ -94,7 +94,7 @@ function dashGraphs(data) {
     }
 
     window.names.push(data.participants[i].name);
-    if (i < data.activeLength) {
+    if (i < data.participants.length) {
       window.activeNames.push(data.participants[i].name);
       activeHtml += '<option>' + data.participants[i].name + '</option>';
     }
@@ -296,7 +296,7 @@ function dashGraphs(data) {
   document.getElementById("reactFromDistSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = '<option>Total</option>' + partiSelectHtml;
-
+  document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
   document.getElementById('chatType').innerText = data.details.type;
@@ -373,9 +373,19 @@ function dashGraphs(data) {
     window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames, true);
   }
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
+  msgWordsSelect(0);
 
 }
 
+function msgWordsSelect(index) {
+  let htmlStr = '';
+  for (var i = 0; i < window.dashData.participants[index].wordCount.length; i++) {
+    htmlStr += "<li>" + window.dashData.participants[index].wordCount[i].text +
+                ' <span class="count"> ' + window.dashData.participants[index].wordCount[i].size + '</span>' +
+                '</li>'
+  }
+  document.getElementById('wordsList').innerHTML = htmlStr;
+}
 
 function msgTypeSelect(index) {
   window.msgType.destroy();
@@ -441,7 +451,6 @@ function rctToDistSelect(index) {
 
 function msgProxSelect(index) {
   window.msgProx.destroy();
-  console.log("test");
   if (window.dashData.details.type == 'Group') {
     window.msgProx = vertBarChart(document.getElementById('msgProxResp'), window.dashData.participants[index].proxAvg, allButOne(window.activeNames, index), 'Proximity');
   } else {

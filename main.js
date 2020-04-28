@@ -13,20 +13,8 @@ const {
 
 let mainWindow;
 
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
-];
+const stopWords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"];
+
 
 // Listen for app to be ready
 app.on('ready', function() {
@@ -84,10 +72,145 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+//function preProcess data
+function preProcessData() {
+  mainWindow.webContents.send('loading', 'parsing');
+  //get the name of the user
+  messagesData.user_name = (messagesData.private[0].participants[1] != undefined) ? messagesData.private[0].participants[1].name :
+    messagesData.private[1].participants[1];
+  let name = messagesData.user_name,
+    part_table = {};
+
+  //iterate through private conversations
+  for (i = 0; i < messagesData.private.length; i++) {
+
+    //sort the messages list
+    messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+
+    //set participant nicknames
+    for (j = 0; j < messagesData.private[i].participants.length; j++) {
+      messagesData.private[i].participants[j].nickname = messagesData.private[i].participants[j].name;
+      messagesData.private[i].participants[j].nickname_history = [];
+      messagesData.private[i].participants[j].active = true;
+    }
+
+    //iterate through each message
+    for (j = 0; j < messagesData.private[i].messages.length; j++) {
+
+      message = messagesData.private[i].messages[j];
+      //encode all emojis and filter messages
+      if (message.content != undefined && message.content.length != 0) {
+        message.content = utf8.decode(message.content);
+
+        if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
+            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
+          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
+            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
+            tempName = message.content.match(regx)[0];
+            person = messagesData.private[i].participants[0];
+          } else if (message.content.includes(' set your nickname to ')) {
+            tempName = name;
+            person = messagesData.private[i].participants[1];
+          }
+
+          message.type = "Nickname";
+          regx = /(?<= to )(.+)(?=.)/g;
+          if (message.content.match(regx) != null) {
+            tempName = message.content.match(regx)[0];
+          }
+          person.nickname = tempName;
+          person.nickname_history.push({
+            name: tempName,
+            sender: message.sender_name,
+            time: message.timestamp_ms
+          });
+        }
+      }
+    }
+    messagesData.private[i].nickname_translate = {};
+    for (j = 0; j < messagesData.private[i].participants.length; j++) {
+      messagesData.private[i].nickname_translate[messagesData.private[i].participants[j].name] = messagesData.private[i].participants[j].nickname;
+    }
+  }
+
+  //iterate through group conversations
+  for (i = 0; i < messagesData.group.length; i++) {
+
+    //sort the messages list
+    messagesData.group[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
+
+    part_table = {};
+
+    //set participant nicknames and lookup table
+    for (j = 0; j < messagesData.group[i].participants.length; j++) {
+      messagesData.group[i].participants[j].nickname = messagesData.group[i].participants[j].name;
+      messagesData.group[i].participants[j].nickname_history = [];
+      part_table[messagesData.group[i].participants[j].name] = messagesData.group[i].participants[j];
+    }
+
+
+
+    //iterate through each message
+    for (j = 0; j < messagesData.group[i].messages.length; j++) {
+      message = messagesData.group[i].messages[j];
+
+      if (part_table[message.sender_name] == undefined) {
+        messagesData.group[i].participants.push({
+          name: message.sender_name,
+          nickname: message.sender_name,
+          nickname_history: [],
+          active: false
+        });
+        part_table[message.sender_name] = messagesData.group[i].participants[messagesData.group[i].participants.length - 1];
+      }
+
+      //encode all emojis
+      if (message.content != undefined && message.content.length != 0) {
+        message.content = utf8.decode(message.content);
+
+        if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
+            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
+          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
+            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
+            tempName = message.content.match(regx)[0];
+          } else if (message.content.includes(' set your nickname to ')) {
+            tempName = name;
+          }
+          person = part_table[tempName];
+          if (person == undefined) {
+            messagesData.group[i].participants.push({
+              name: tempName,
+              nickname: tempName,
+              nickname_history: [],
+              active: false
+            });
+            part_table[tempName] = messagesData.group[i].participants[messagesData.group[i].participants.length - 1];
+            person = part_table[tempName];
+          }
+          message.type = "Nickname";
+          regx = /(?<= to )(.+)(?=.)/g;
+          if (message.content.match(regx) != null) {
+            tempName = message.content.match(regx)[0];
+          }
+          person.nickname = tempName;
+          person.nickname_history.push({
+            name: tempName,
+            sender: message.sender_name,
+            time: message.timestamp_ms
+          });
+        }
+      }
+    }
+    messagesData.group[i].nickname_translate = {};
+    for (j = 0; j < messagesData.group[i].participants.length; j++) {
+      messagesData.group[i].nickname_translate[messagesData.group[i].participants[j].name] = messagesData.group[i].participants[j].nickname;
+    }
+  }
+}
+
 //function process data
 function processData() {
-  mainWindow.webContents.send('loading', 'parsing');
-  let i, j, message,
+  let i, j, k, message, person, regx, tempName, name,
     firstMsg = {
       timestamp_ms: 9999999999999
     },
@@ -95,11 +218,11 @@ function processData() {
       timestamp_ms: -1
     };
 
+  //get the name of the user
+  name = messagesData.user_name;
+
   //iterate through private conversations
   for (i = 0; i < messagesData.private.length; i++) {
-
-    //sort the messages list
-    messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
 
     //find earliest and latest message
     if (messagesData.private[i].messages[0].timestamp_ms < firstMsg.timestamp_ms) {
@@ -117,9 +240,9 @@ function processData() {
     for (j = 0; j < messagesData.private[i].messages.length; j++) {
 
       message = messagesData.private[i].messages[j];
-      //encode all emojis
+      //encode all emojis and filter messages
       if (message.content != undefined && message.content.length != 0) {
-        message.content = utf8.decode(message.content);
+
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content.startsWith('You called ') && message.content.endsWith('.') && message.type == 'Generic') ||
           (message.content.endsWith(' called you.') && message.type == 'Generic')) {
@@ -128,6 +251,34 @@ function processData() {
           (message.content.startsWith('You missed a call from ') && message.content.endsWith('.') && message.type == 'Generic')) {
           message.type = "Call";
           message.missed = true;
+        } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
+          (message.content.includes(' responded Going to ') && message.type == 'Generic') ||
+          (message.content.includes(' responded Can\'t Go to ') && message.type == 'Generic') ||
+          (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
+          (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
+          message.type = "Event";
+        } else if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
+            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
+          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
+            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
+            tempName = message.content.match(regx)[0];
+            person = messagesData.private[i].participants[0];
+          } else if (message.content.includes(' set your nickname to ')) {
+            tempName = name;
+            person = messagesData.private[i].participants[1];
+          }
+
+          message.type = "Nickname";
+          regx = /(?<= to )(.+)(?=.)/g;
+          if (message.content.match(regx) != null) {
+            tempName = message.content.match(regx)[0];
+          }
+          person.nickname = tempName;
+          person.nickname_history.push({
+            name: tempName,
+            sender: message.sender_name,
+            time: message.timestamp_ms
+          });
         }
       }
     }
@@ -135,9 +286,6 @@ function processData() {
 
   //iterate through group conversations
   for (i = 0; i < messagesData.group.length; i++) {
-
-    //sort the messages list
-    messagesData.group[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
 
     //find earliest and latest message
     if (messagesData.group[i].messages[0].timestamp_ms < firstMsg.timestamp_ms) {
@@ -156,7 +304,6 @@ function processData() {
       message = messagesData.group[i].messages[j];
       //encode all emojis
       if (message.content != undefined && message.content.length != 0) {
-        message.content = utf8.decode(message.content);
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content.endsWith(' started a video chat.') && message.type == 'Generic') ||
           (message.content.endsWith(' joined the video chat.') && message.type == 'Generic') ||
@@ -164,6 +311,43 @@ function processData() {
           (message.content.endsWith(' started a call.') && message.type == 'Generic') ||
           (message.content.endsWith(' joined the call.') && message.type == 'Generic')) {
           message.type = "Call";
+        } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
+          (message.content.includes(' responded Going to ') && message.type == 'Generic') ||
+          (message.content.includes(' responded Can\'t Go to ') && message.type == 'Generic') ||
+          (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
+          (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
+          message.type = "Event"
+        } else if ((message.content.endsWith(' is happening now.') && message.type == 'Generic') ||
+          (message.content.includes(' responded Going to ') && message.type == 'Generic') ||
+          (message.content.includes(' responded Can\'t Go to ') && message.type == 'Generic') ||
+          (message.content.includes(' created the reminder: ') && message.type == 'Generic' && message.content.endsWith('.')) ||
+          (message.content.includes(' updated the reminder: ') && message.type == 'Generic' && message.content.endsWith('.'))) {
+          message.type = "Event";
+        } else if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
+            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
+          if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
+            regx = /(?<= set the nickname for )(.+?)(?= to )/g;
+            tempName = message.content.match(regx)[0];
+          } else if (message.content.includes(' set your nickname to ')) {
+            tempName = name;
+          }
+          for (k = 0; k < messagesData.group[i].participants.length; k++) {
+            if (tempName == messagesData.group[i].participants[k].name) {
+              person = messagesData.group[i].participants[k];
+              break;
+            }
+          }
+          message.type = "Nickname";
+          regx = /(?<= to )(.+)(?=.)/g;
+          if (message.content.match(regx) != null) {
+            tempName = message.content.match(regx)[0];
+          }
+          person.nickname = tempName;
+          person.nickname_history.push({
+            name: tempName,
+            sender: message.sender_name,
+            time: message.timestamp_ms
+          });
         }
       }
     }
@@ -202,11 +386,12 @@ function getData(contact, startTime, endTime) {
   console.log("Loading data for: " + contact + ", " + startTime + ", " + endTime);
   let messages = [],
     timeLabel = [],
-    i, j, k, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person, activeLength
+    i, j, k, tempDate, tempDate2, timeUnit, msgCount, cTime, name, messaage, person
   msgSentTime = [],
     msgSent = [],
     activeTime = new Array(1440);
   activeTime.fill(0);
+  part_table = {};
   data = {
     participants: [],
     timeLabel: [],
@@ -217,8 +402,7 @@ function getData(contact, startTime, endTime) {
 
 
   //get the name of the user
-  name = (messagesData.private[0].participants[1] != undefined) ? messagesData.private[0].participants[1].name :
-    messagesData.private[1].participants[1];
+  name = messagesData.user_name;
 
   if (contact == "") { //process for all contacts
     data.details.title = "All conversaions";
@@ -245,6 +429,9 @@ function getData(contact, startTime, endTime) {
         dist: {},
         rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
       });
+      if (i % 2 == 0) {
+        data.participants[i].wordCount = {};
+      }
     }
     //get the messages and add them to the messages list
     for (i = 0; i < messagesData.private.length; i++) {
@@ -288,6 +475,8 @@ function getData(contact, startTime, endTime) {
       if (foundConvo.participants[j].name == name) {
         data.participants.unshift({
           name: foundConvo.participants[j].name,
+          nickname: foundConvo.participants[j].nickname,
+          nickname_history: foundConvo.participants[j].nickname_history,
           msgTime: [],
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
@@ -295,11 +484,14 @@ function getData(contact, startTime, endTime) {
           active: true,
           hourCount: [...activeTime],
           react: {},
-          reactFrom: {}
+          reactFrom: {},
+          wordCount: {}
         });
       } else {
         data.participants.push({
           name: foundConvo.participants[j].name,
+          nickname: foundConvo.participants[j].nickname,
+          nickname_history: foundConvo.participants[j].nickname_history,
           msgTime: [],
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
@@ -307,9 +499,14 @@ function getData(contact, startTime, endTime) {
           active: true,
           hourCount: [...activeTime],
           react: {},
-          reactFrom: {}
+          reactFrom: {},
+          wordCount: {}
         });
       }
+    }
+    for (j = 0; j < data.participants.length; j++) {
+      part_table[data.participants[j].name] = data.participants[j];
+      data.participants[j].index = j;
     }
     if (startTime == 0 && endTime == 0) {
       tempDate = new Date(foundConvo.messages[0].timestamp_ms);
@@ -328,12 +525,10 @@ function getData(contact, startTime, endTime) {
   }
 
   //set up message proximity for groups
-  activeLength = data.participants.length;
-  data.activeLength = activeLength;
   if (data.details.type == 'Group') {
     for (i = 0; i < data.participants.length; i++) {
       data.participants[i].proximity = [];
-      for (j = 0; j < activeLength; j++) {
+      for (j = 0; j < data.participants.length; j++) {
         data.participants[i].proximity.push({
           before: true,
           sum: 0,
@@ -387,7 +582,7 @@ function getData(contact, startTime, endTime) {
 
   let messageIndex = 0,
     end = true,
-    arr, foundIndex,
+    arr, foundIndex, word,
     lastMessage,
     reactor;
 
@@ -433,33 +628,29 @@ function getData(contact, startTime, endTime) {
           }
         }
       } else {
-        for (i = 0; i < data.participants.length; i++) {
-          if (message.sender_name == data.participants[i].name) {
-            person = data.participants[i];
-            foundIndex = i;
-            break;
-          }
-        }
+        person = part_table[message.sender_name];
+        foundIndex = person.index;
         if (person == undefined) {
-          arr = new Array(data.participants[0].msgTime.length - 1);
-          arr.fill(0);
-          data.participants.push({
-            name: message.sender_name,
-            msgTime: [...arr, 0],
-            msgPct: [...arr],
-            msgType: [0, 0, 0, 0, 0, 0],
-            msgCount: 0,
-            active: false,
-            hourCount: [...activeTime],
-            react: {},
-            reactFrom: {}
-          });
-          person = data.participants[data.participants.length - 1];
+          console.log("Fatal Error!!!!");
         }
       }
 
       //add to distribution if contact == ""
       if (contact == "") {
+        //add to wordCount
+        if (message.content != undefined && message.content.length != 0 &&
+          message.sender_name == name && message.type == 'Generic') {
+          message.content.split(/\s+|,|(?<!-|>|=)\.(?!-|>|=)|!|\?|"|(?<!:|=|;|:'|8|-|‑)\(|(?<!:|=|;|:'|8|-|‑|:\^|:c)\)|(?<!D|d):\s|(?<!D|d);\s/).forEach(function(word) {
+            word = word.toLowerCase();
+            if (word != "" && !stopWords.includes(word)) {
+              if (person.wordCount[word] != undefined) {
+                person.wordCount[word] += 1;
+              } else {
+                person.wordCount[word] = 1;
+              }
+            }
+          });
+        }
         if (person.dist[message.fromTitle] == undefined) {
           person.dist[message.fromTitle] = {
             title: utf8.decode(message.fromTitle),
@@ -512,6 +703,19 @@ function getData(contact, startTime, endTime) {
           }
         }
       } else { //get the reactions
+        //add to wordCount
+        if (message.content != undefined && message.content.length != 0 && message.type == 'Generic') {
+          message.content.split(/\s+|,|(?<!-|>|=)\.(?!-|>|=)|!|\?|"|(?<!:|=|;|:'|8|-|‑)\(|(?<!:|=|;|:'|8|-|‑|:\^|:c)\)|(?<!D|d):\s|(?<!D|d);\s/).forEach(function(word) {
+            word = word.toLowerCase();
+            if (word != "" && !stopWords.includes(word)) {
+              if (person.wordCount[word] != undefined) {
+                person.wordCount[word] += 1;
+              } else {
+                person.wordCount[word] = 1;
+              }
+            }
+          });
+        }
         if (message.reactions != undefined) {
           for (i = 0; i < message.reactions.length; i++) {
             if (person.react[message.reactions[i].actor] == undefined) {
@@ -550,9 +754,10 @@ function getData(contact, startTime, endTime) {
         }
       }
 
+
       //if group and active contact, calculate message proximity
       if (data.details.type == 'Group' && person.active) {
-        for (i = 0; i < activeLength; i++) {
+        for (i = 0; i < data.participants.length; i++) {
           if (i != foundIndex) {
             if (person.proximity[i].before && data.participants[i].proximity[foundIndex].distance != undefined) {
               person.proximity[i].sum += data.participants[i].proximity[foundIndex].distance;
@@ -562,7 +767,7 @@ function getData(contact, startTime, endTime) {
               data.participants[i].proximity[foundIndex].distance = 0;
               person.proximity[i].distance = 0;
             }
-            for (j = 0; j < activeLength; j++) {
+            for (j = 0; j < data.participants.length; j++) {
               if (j != foundIndex && !data.participants[i].proximity[j].before) {
                 if (data.participants[i].proximity[j].distance == undefined) {
                   data.participants[i].proximity[j].distance = 1;
@@ -627,6 +832,25 @@ function getData(contact, startTime, endTime) {
       } else {
         data.participants[i].msgPct.push(Math.round(10000 * data.participants[i].msgTime[data.participants[i].msgTime.length - 1] / msgCount) / 100);
       }
+    }
+  }
+
+  //format words and wordcounts
+  let finalWordsArray = [];
+  for (i = 0; i < data.participants.length; i++) {
+    //sort final wordcount list and get top 100
+    if (data.participants[i].wordCount != undefined) {
+      finalWordsArray = Object.keys(data.participants[i].wordCount).map(function(key) {
+        return {
+          text: key,
+          size: data.participants[i].wordCount[key]
+        };
+      });
+      finalWordsArray.sort(function(a, b) {
+        return b.size - a.size;
+      });
+      finalWordsArray.length = 150;
+      data.participants[i].wordCount = finalWordsArray;
     }
   }
 
@@ -725,8 +949,7 @@ function processYear(year) {
   messagesData['year_' + year] = {};
 
   //get the name of the user
-  name = (messagesData.private[0].participants[1] != undefined) ? messagesData.private[0].participants[1].name :
-    messagesData.private[1].participants[1];
+  name = messagesData.user_name;
 
 
   //iterate through private convos
@@ -785,12 +1008,14 @@ function processYear(year) {
         //add to wordCount
         if (message.content != undefined && message.content.length != 0 &&
           message.sender_name == name && message.type == 'Generic') {
-          message.content.split(/\s+/).forEach(function(word) {
-            word = word.toUpperCase();
-            if (wordCount[word] != undefined) {
-              wordCount[word] += 1;
-            } else {
-              wordCount[word] = 1;
+          message.content.split(/\s+|,|(?<!-|>|=)\.(?!-|>|=)|!|\?|"|(?<!:|=|;|:'|8|-|‑)\(|(?<!:|=|;|:'|8|-|‑|:\^|:c)\)|(?<!D|d):\s|(?<!D|d);\s/).forEach(function(word) {
+            word = word.toLowerCase();
+            if (word != "" && !stopWords.includes(word)) {
+              if (wordCount[word] != undefined) {
+                wordCount[word] += 1;
+              } else {
+                wordCount[word] = 1;
+              }
             }
           });
         }
@@ -879,8 +1104,6 @@ function processYear(year) {
     tempCountIn = receivedCount;
     tempCountOut = groupCount;
 
-
-
     for (j = 0; j < messagesData.group[i].messages.length; j++) {
       message = messagesData.group[i].messages[j];
       d = new Date(message.timestamp_ms);
@@ -912,12 +1135,14 @@ function processYear(year) {
         //add to wordCount
         if (message.content != undefined && message.content.length != 0 &&
           message.sender_name == name && message.type == 'Generic') {
-          message.content.split(/\s+/).forEach(function(word) {
-            word = word.toUpperCase();
-            if (wordCount[word] != undefined) {
-              wordCount[word] += 1;
-            } else {
-              wordCount[word] = 1;
+          message.content.split(/\s+|,|(?<!-|>|=)\.(?!-|>|=)|!|\?|"|(?<!:|=|;|:'|8|-|‑)\(|(?<!:|=|;|:'|8|-|‑|:\^|:c)\)|(?<!D|d):\s|(?<!D|d);\s/).forEach(function(word) {
+            word = word.toLowerCase();
+            if (word != "" && !stopWords.includes(word)) {
+              if (wordCount[word] != undefined) {
+                wordCount[word] += 1;
+              } else {
+                wordCount[word] = 1;
+              }
             }
           });
         }
@@ -1030,7 +1255,7 @@ function processYear(year) {
   }
 
   //sort final wordcount list and get top 100
-  var finalWordsArray = [];
+  let finalWordsArray = [];
   finalWordsArray = Object.keys(wordCount).map(function(key) {
     return {
       text: key,
@@ -1104,7 +1329,7 @@ function setupMessages(startPath) {
             if (parsed.thread_type == 'Regular') {
               find = -1;
               for (j = 0; j < messagesData.private.length; j++) {
-                if (messagesData.private[j].title == parsed.title) {
+                if (messagesData.private[j].thread_path == parsed.thread_path) {
                   find = j;
                 }
               }
@@ -1116,7 +1341,7 @@ function setupMessages(startPath) {
             } else if (parsed.thread_type == 'RegularGroup') {
               find = -1;
               for (j = 0; j < messagesData.group.length; j++) {
-                if (messagesData.group[j].title == parsed.title) {
+                if (messagesData.group[j].thread_path == parsed.thread_path) {
                   find = j;
                 }
               }
@@ -1129,6 +1354,7 @@ function setupMessages(startPath) {
             cbCount -= 1;
             if (cbCount == 0) {
               console.log('Done loading files');
+              preProcessData();
               processData();
               processYear(2019);
               ready();
