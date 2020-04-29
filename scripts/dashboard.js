@@ -375,6 +375,7 @@ function dashGraphs(data) {
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
   msgWordsSelect(0);
 
+  document.getElementById('dash-loading-back').style = "display: none";
 }
 
 function msgWordsSelect(index) {

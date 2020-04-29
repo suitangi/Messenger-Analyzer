@@ -496,10 +496,17 @@ function dashSubmit() {
       start: 0,
       end: 0
     };
+    document.getElementById('daterangelabel').innerText = "All Time";
+  } else {
+    let tempD1, tempD2;
+    tempD1 = new Date(window.date.start);
+    tempD2 = new Date(window.date.end);
+    document.getElementById('daterangelabel').innerText = tempD1.toLocaleDateString() + " to " + tempD2.toLocaleDateString();
   }
   if ($('#convoSearch').val() == "") {
     window.dashConvo = "";
     ipcRenderer.send('dashboard', ['', window.date.start, window.date.end]);
+    document.getElementById('convonamelabel').innerText = "All conversations";
   } else {
     if (window.dashConvo == "") {
       for (var i = 0; i < window.contactList.length; i++) {
@@ -514,8 +521,11 @@ function dashSubmit() {
       return;
     } else {
       ipcRenderer.send('dashboard', [window.dashConvo.id, window.date.start, window.date.end]);
+      document.getElementById('convonamelabel').innerText = window.dashConvo.name;
     }
   }
+
+  document.getElementById('dash-loading-back').style = "";
 }
 
 //doc start scripting
