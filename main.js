@@ -13,7 +13,7 @@ const {
 
 let mainWindow;
 
-const stopWords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "ill", "i'm", "im", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "r", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "u", "ur", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "https://www"];
+const stopWords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "ill", "i'm", "im", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "r", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "u", "ur", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "https://www", "<", ">", ""];
 
 
 // Listen for app to be ready
@@ -87,8 +87,13 @@ function preProcessData() {
     //sort the messages list
     messagesData.private[i].messages.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
 
+    //encode name
+    messagesData.private[i].title = utf8.decode(messagesData.private[i].title);
+
     //set participant nicknames
     for (j = 0; j < messagesData.private[i].participants.length; j++) {
+      messagesData.private[i].participants[j].name = utf8.decode(messagesData.private[i].participants[j].name);
+
       messagesData.private[i].participants[j].nickname = messagesData.private[i].participants[j].name;
       messagesData.private[i].participants[j].nickname_history = [];
       messagesData.private[i].participants[j].active = true;
@@ -147,8 +152,13 @@ function preProcessData() {
 
     part_table = {};
 
-    //set participant nicknames and lookup table
+    //encode name
+    messagesData.group[i].title = utf8.decode(messagesData.group[i].title);
+
+    //set participant nicknames and lookup table and encode names
     for (j = 0; j < messagesData.group[i].participants.length; j++) {
+      messagesData.group[i].participants[j].name = utf8.decode(messagesData.group[i].participants[j].name);
+
       messagesData.group[i].participants[j].nickname = messagesData.group[i].participants[j].name;
       messagesData.group[i].participants[j].nickname_history = [];
       part_table[messagesData.group[i].participants[j].name] = messagesData.group[i].participants[j];
@@ -399,7 +409,7 @@ function contactList() {
   //iterate through private conversations
   for (i = 0; i < messagesData.private.length; i++) {
     cList.push({
-      name: utf8.decode(messagesData.private[i].title),
+      name: messagesData.private[i].title,
       type: 'dm',
       id: messagesData.private[i].thread_path
     });
@@ -407,7 +417,7 @@ function contactList() {
   //iterate through group conversations
   for (i = 0; i < messagesData.group.length; i++) {
     cList.push({
-      name: utf8.decode(messagesData.group[i].title),
+      name: messagesData.group[i].title,
       type: 'group',
       id: messagesData.group[i].thread_path
     });
@@ -504,7 +514,7 @@ function getData(contact, startTime, endTime) {
     }
     tempDate = new Date(foundConvo.messages[0].timestamp_ms);
     data.details.firstTime = tempDate.toLocaleDateString() + ' ' + tempDate.toLocaleTimeString();
-    data.details.title = utf8.decode(foundConvo.title);
+    data.details.title = foundConvo.title;
     data.details.type = foundConvo.thread_type == 'Regular' ? 'DM' : 'Group';
     for (j = 0; j < foundConvo.participants.length; j++) {
       if (foundConvo.participants[j].name == name) {
@@ -686,7 +696,7 @@ function getData(contact, startTime, endTime) {
         }
         if (person.dist[message.fromTitle] == undefined) {
           person.dist[message.fromTitle] = {
-            title: utf8.decode(message.fromTitle),
+            title: message.fromTitle,
             count: 1
           };
         } else {
@@ -882,7 +892,7 @@ function getData(contact, startTime, endTime) {
       });
       j = 0;
       while (j < 150 && j < finalWordsArray.length) {
-        if (stopWords.includes(finalWordsArray[j].text) || finalWordsArray[j].text == "") {
+        if (stopWords.includes(finalWordsArray[j].text)) {
           finalWordsArray.splice(j, 1);
         } else {
           j++;
@@ -1304,7 +1314,7 @@ function processYear(year) {
   });
   j = 0;
   while (j < 100 && j < finalWordsArray.length) {
-    if (stopWords.includes(finalWordsArray[j].text) || finalWordsArray[j].text == "") {
+    if (stopWords.includes(finalWordsArray[j].text)) {
       finalWordsArray.splice(j, 1);
     } else {
       j++;

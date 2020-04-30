@@ -239,7 +239,7 @@ function typeChart(ctx, data, label) {
 function wordCloud(words) {
   let wordlist = [];
   for (var i = 0; i < words.length; i++) {
-    wordlist.push([words[i].text, words[i].size / 20]);
+    wordlist.push([words[i].text, words[i].size / (words[0].size/150)]);
   }
   WordCloud(document.getElementById('wordCloud'), {
     list: wordlist,
