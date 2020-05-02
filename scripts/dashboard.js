@@ -36,7 +36,7 @@ function dashGraphs(data) {
     avg, std,
     msgTotal = 0,
     partiSelectHtml = ''
-    activeHtml = '',
+  activeHtml = '',
     partiListHtml = '',
     rctToHtml = '',
     rctFromHtml = '';
@@ -89,7 +89,7 @@ function dashGraphs(data) {
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
 
-    for (j = 0; j < window.messageTypeTotal.length; j++){
+    for (j = 0; j < window.messageTypeTotal.length; j++) {
       window.messageTypeTotal[j] += data.participants[i].msgType[j];
     }
 
@@ -380,12 +380,14 @@ function dashGraphs(data) {
 
 function msgWordsSelect(index) {
   let htmlStr = '';
-  for (var i = 0; i < window.dashData.participants[index].wordCount.length; i++) {
-    htmlStr += "<li>" + window.dashData.participants[index].wordCount[i].text +
-                ' <span class="count"> ' + window.dashData.participants[index].wordCount[i].size + '</span>' +
-                '</li>'
+  for (var i = 0; window.dashData.participants[index].wordCount != undefined && i < window.dashData.participants[index].wordCount.length; i++) {
+    if (window.dashData.participants[index].wordCount[i] != undefined) {
+      htmlStr += "<li>" + window.dashData.participants[index].wordCount[i].text +
+        ' <span class="count"> ' + window.dashData.participants[index].wordCount[i].size + '</span>' +
+        '</li>'
+    }
   }
-  document.getElementById('wordsList').innerHTML = htmlStr;
+  document.getElementById('wordsList').innerHTML = (htmlStr != ''? htmlStr: "No messages sent in this time range.");
 }
 
 function msgTypeSelect(index) {
@@ -521,11 +523,31 @@ function timeChart(ctx, data, label, yAxis) {
         bodyFontFamily: "'Muli', sans-serif",
         bodyFontSize: 12,
         bodyAlign: 'center',
-        bodySpacing: 4
+        bodySpacing: 4,
+        intersect: false
       },
       plugins: {
         datalabels: {
           display: false,
+        },
+        crosshair: {
+          line: {
+            color: '#222', // crosshair line color
+            width: 1 // crosshair line width
+          },
+          sync: {
+            enabled: false
+          },
+          zoom: {
+            enabled: false
+          },
+          callbacks: {
+            beforeZoom: function(start, end) { // called before zoom, return false to prevent zoom
+              return false;
+            },
+            afterZoom: function(start, end) { // called after zoom
+            }
+          }
         }
       }
     }
@@ -591,11 +613,31 @@ function lineChart(ctx, data, label, stack, dateUnit) {
         bodyFontFamily: "'Muli', sans-serif",
         bodyFontSize: 12,
         bodyAlign: 'center',
-        bodySpacing: 4
+        bodySpacing: 4,
+        intersect: false
       },
       plugins: {
         datalabels: {
           display: false,
+        },
+        crosshair: {
+          line: {
+            color: '#222', // crosshair line color
+            width: 1 // crosshair line width
+          },
+          sync: {
+            enabled: false
+          },
+          zoom: {
+            enabled: false
+          },
+          callbacks: {
+            beforeZoom: function(start, end) { // called before zoom, return false to prevent zoom
+              return false;
+            },
+            afterZoom: function(start, end) { // called after zoom
+            }
+          }
         }
       }
     }
@@ -617,6 +659,7 @@ function vertBarChart(ctx, data, label, yAxis) {
         duration: 0 // general animation time
       },
       scales: {
+        xAxes: [],
         yAxes: [{
           ticks: {
             min: 0
@@ -644,7 +687,8 @@ function vertBarChart(ctx, data, label, yAxis) {
       plugins: {
         datalabels: {
           display: false,
-        }
+        },
+        crosshair: false
       }
     }
   });
@@ -699,7 +743,8 @@ function pieChart(ctx, data, label, legendBox) {
             return percentage;
           },
           color: '#fff'
-        }
+        },
+        crosshair: false
       }
     }
   });
@@ -750,7 +795,8 @@ function smallPieChart(ctx, data, label, legendBox) {
             return percentage;
           },
           color: '#fff'
-        }
+        },
+        crosshair: false
       }
     }
   });
@@ -798,7 +844,8 @@ function stackedBar(ctx, data) {
       plugins: {
         datalabels: {
           display: false,
-        }
+        },
+        crosshair: false
       }
     }
   });

@@ -197,7 +197,8 @@ function hourChart(ctx, data) {
       plugins: {
         datalabels: {
           display: false,
-        }
+        },
+        crosshair: false
       }
     }
   });
@@ -229,7 +230,8 @@ function typeChart(ctx, data, label) {
       plugins: {
         datalabels: {
           display: false,
-        }
+        },
+        crosshair: false
       }
     }
   });
