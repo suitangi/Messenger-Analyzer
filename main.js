@@ -95,7 +95,9 @@ function preProcessData() {
       messagesData.private[i].participants[j].name = utf8.decode(messagesData.private[i].participants[j].name);
 
       messagesData.private[i].participants[j].nickname = messagesData.private[i].participants[j].name;
-      messagesData.private[i].participants[j].nickname_history = [];
+      messagesData.private[i].participants[j].nickname_history = [{
+        name: messagesData.private[i].participants[j].name
+      }];
       messagesData.private[i].participants[j].active = true;
     }
 
@@ -160,7 +162,9 @@ function preProcessData() {
       messagesData.group[i].participants[j].name = utf8.decode(messagesData.group[i].participants[j].name);
 
       messagesData.group[i].participants[j].nickname = messagesData.group[i].participants[j].name;
-      messagesData.group[i].participants[j].nickname_history = [];
+      messagesData.group[i].participants[j].nickname_history = [{
+        name: messagesData.group[i].participants[j].name
+      }];
       part_table[messagesData.group[i].participants[j].name] = messagesData.group[i].participants[j];
     }
 
@@ -174,7 +178,9 @@ function preProcessData() {
         messagesData.group[i].participants.push({
           name: message.sender_name,
           nickname: message.sender_name,
-          nickname_history: [],
+          nickname_history: [{
+            name: message.sender_name
+          }],
           active: false
         });
         part_table[message.sender_name] = messagesData.group[i].participants[messagesData.group[i].participants.length - 1];
@@ -198,7 +204,9 @@ function preProcessData() {
             messagesData.group[i].participants.push({
               name: tempName,
               nickname: tempName,
-              nickname_history: [],
+              nickname_history: [{
+                name: tempName
+              }],
               active: false
             });
             part_table[tempName] = messagesData.group[i].participants[messagesData.group[i].participants.length - 1];
@@ -516,12 +524,35 @@ function getData(contact, startTime, endTime) {
     data.details.firstTime = tempDate.toLocaleDateString() + ' ' + tempDate.toLocaleTimeString();
     data.details.title = foundConvo.title;
     data.details.type = foundConvo.thread_type == 'Regular' ? 'DM' : 'Group';
+
+    //if time range is all, set the restrict the time range to only when conversation was active
+    if (startTime == 0 && endTime == 0) {
+      tempDate = new Date(foundConvo.messages[0].timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      startTime = tempDate2.getTime();
+      tempDate = new Date(foundConvo.messages[foundConvo.messages.length - 1].timestamp_ms);
+      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
+      endTime = tempDate2.getTime() + 86399999; //inclusive day
+    }
+
+    //load the participants and info
+    let tempNmList = [];
     for (j = 0; j < foundConvo.participants.length; j++) {
+      tempNmList = [];
+      for (k = 0; k < foundConvo.participants[j].nickname_history.length; k++) {
+        if (foundConvo.participants[j].nickname_history[k].time > startTime &&
+          foundConvo.participants[j].nickname_history[k].time < endTime) {
+            tempNmList.push(foundConvo.participants[j].nickname_history[k]);
+              if (tempNmList.length == 0 && k != 0) {
+                tempNmList.push(foundConvo.participants[j].nickname_history[k - 1]);
+              }
+          }
+      }
       if (foundConvo.participants[j].name == name) {
         data.participants.unshift({
           name: foundConvo.participants[j].name,
           nickname: foundConvo.participants[j].nickname,
-          nickname_history: foundConvo.participants[j].nickname_history,
+          nickname_history: [...tempNmList],
           msgTime: [],
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
@@ -536,7 +567,7 @@ function getData(contact, startTime, endTime) {
         data.participants.push({
           name: foundConvo.participants[j].name,
           nickname: foundConvo.participants[j].nickname,
-          nickname_history: foundConvo.participants[j].nickname_history,
+          nickname_history: [...tempNmList],
           msgTime: [],
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
@@ -552,14 +583,6 @@ function getData(contact, startTime, endTime) {
     for (j = 0; j < data.participants.length; j++) {
       part_table[data.participants[j].name] = data.participants[j];
       data.participants[j].index = j;
-    }
-    if (startTime == 0 && endTime == 0) {
-      tempDate = new Date(foundConvo.messages[0].timestamp_ms);
-      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
-      startTime = tempDate2.getTime();
-      tempDate = new Date(foundConvo.messages[foundConvo.messages.length - 1].timestamp_ms);
-      tempDate2 = new Date(tempDate.getYear() + 1900, tempDate.getMonth(), tempDate.getDate()); //round down to nearest day
-      endTime = tempDate2.getTime() + 86399999; //inclusive day
     }
     for (j = 0; j < foundConvo.messages.length; j++) {
       if (foundConvo.messages[j].timestamp_ms > startTime &&

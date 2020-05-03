@@ -702,6 +702,65 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
+.item16 {
+  grid-area: 9 / 5 / 11 / 5;
+  height: calc(24vw + 50px) !important;
+}
+
+#namelist {
+  list-style-type: none;
+  font-size: 16px;
+  padding-left: 15px;
+  margin-top: 30px;
+  overflow-y: auto;
+  height: 90%;
+}
+
+#namelist li {
+  margin-top: 8px;
+}
+
+#namelist .nickDate {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.nickDate {
+  display: inline-block;
+  position: relative;
+}
+.nickDate:before,
+.nickDate:after {
+  content: "";
+  position: absolute;
+  height: 9px;
+  border-bottom: 2px solid #eee;
+  top: 0;
+  width: 90%;
+}
+.nickDate:before {
+  right: 100%;
+  margin-right: 8px;
+}
+.nickDate:after {
+  left: 100%;
+  margin-left: 8px;
+}
+
+#namelist .nickname {
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+#namelist .nickSender {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
 .dashChart {
   width: calc(2*(100vw - 60px)/5);
   position: relative;
@@ -756,6 +815,7 @@ body::-webkit-scrollbar {
 }
 
 #participantList::-webkit-scrollbar,
+#namelist::-webkit-scrollbar,
 #wordsList::-webkit-scrollbar {
   width: 6px;
   background: #FFF;
@@ -763,11 +823,13 @@ body::-webkit-scrollbar {
 }
 
 #participantList:hover::-webkit-scrollbar-thumb,
+#namelist:hover::-webkit-scrollbar-thumb,
 #wordsList:hover::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
 }
 
 #participantList::-webkit-scrollbar-thumb,
+#namelist:hover::-webkit-scrollbar-thumb,
 #wordsList::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0);
   border-radius: 4px;

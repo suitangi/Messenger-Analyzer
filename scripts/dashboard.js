@@ -364,6 +364,7 @@ function dashGraphs(data) {
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
+    document.getElementById('nameSelect').innerHTML = partiSelectHtml;
     let distCount = [],
       distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
@@ -374,8 +375,24 @@ function dashGraphs(data) {
   }
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
   msgWordsSelect(0);
+  nameHistorySelect(0);
 
   document.getElementById('dash-loading-back').style = "display: none";
+}
+
+function nameHistorySelect(index) {
+  let htmlStr = '', tempDate;
+  for (var i = 0; window.dashData.participants[index].nickname_history != undefined && i < window.dashData.participants[index].nickname_history.length; i++) {
+    htmlStr += '<li>';
+    tempDate = new Date(window.dashData.participants[index].nickname_history[i].time);
+    htmlStr += '<div class="nickDate"><strong>' + tempDate.toLocaleDateString() + '</strong></div>';
+    htmlStr += '<div class="nickname">' + window.dashData.participants[index].nickname_history[i].name + '</div>';
+    if (window.dashData.participants[index].nickname_history[i].sender != undefined) {
+      htmlStr += '<div class="nickSender">' + window.dashData.participants[index].nickname_history[i].sender + '</div>';
+    }
+    htmlStr += '</li>';
+  }
+  document.getElementById('namelist').innerHTML = htmlStr;
 }
 
 function msgWordsSelect(index) {
@@ -387,7 +404,7 @@ function msgWordsSelect(index) {
         '</li>'
     }
   }
-  document.getElementById('wordsList').innerHTML = (htmlStr != ''? htmlStr: "No messages sent in this time range.");
+  document.getElementById('wordsList').innerHTML = (htmlStr != '' ? htmlStr : "No messages sent in this time range.");
 }
 
 function msgTypeSelect(index) {

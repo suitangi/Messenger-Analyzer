@@ -303,6 +303,7 @@
           <li><strong>Chat Type: </strong><span id='chatType'></span></li>
           <li><strong>First Message: </strong><span id='firstDate'></span></li>
           <li><strong>Stats Range: </strong><span id='detailDRange'></span></li>
+        </ol>
       </div>
       <div class="item4">
         Participants
@@ -411,6 +412,13 @@
         <div class="dashChart">
           <canvas id="reactToDistChart"></canvas>
         </div>
+      </div>
+      <div class="item16">
+        Names:
+        <select id="nameSelect" class="dashSelect" onchange="nameHistorySelect(this.selectedIndex);">
+        </select>
+        <ol id="namelist">
+        </ol>
       </div>
     </div>
   </div>
