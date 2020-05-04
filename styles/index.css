@@ -707,7 +707,7 @@ body::-webkit-scrollbar {
   height: calc(24vw + 50px) !important;
 }
 
-#namelist {
+#nicknamelist {
   list-style-type: none;
   font-size: 16px;
   padding-left: 15px;
@@ -716,11 +716,11 @@ body::-webkit-scrollbar {
   height: 90%;
 }
 
-#namelist li {
+#nicknamelist li {
   margin-top: 8px;
 }
 
-#namelist .nickDate {
+#nicknamelist .nickDate {
   text-align: center;
   margin-top: 20px;
 }
@@ -747,15 +747,16 @@ body::-webkit-scrollbar {
   margin-left: 8px;
 }
 
-#namelist .nickname {
+#nicknamelist .nickname {
   text-align: center;
   width: 100%;
   margin-top: 20px;
 }
 
-#namelist .nickSender {
+#nicknamelist .nickSender {
   width: 100%;
   text-align: center;
+  overflow-wrap: break-word;
   font-size: 14px;
   color: #aaa;
   margin-top: 4px;
@@ -815,7 +816,7 @@ body::-webkit-scrollbar {
 }
 
 #participantList::-webkit-scrollbar,
-#namelist::-webkit-scrollbar,
+#nicknamelist::-webkit-scrollbar,
 #wordsList::-webkit-scrollbar {
   width: 6px;
   background: #FFF;
@@ -823,13 +824,13 @@ body::-webkit-scrollbar {
 }
 
 #participantList:hover::-webkit-scrollbar-thumb,
-#namelist:hover::-webkit-scrollbar-thumb,
+#nicknamelist:hover::-webkit-scrollbar-thumb,
 #wordsList:hover::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
 }
 
 #participantList::-webkit-scrollbar-thumb,
-#namelist:hover::-webkit-scrollbar-thumb,
+#nicknamelist:hover::-webkit-scrollbar-thumb,
 #wordsList::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0);
   border-radius: 4px;

@@ -35,11 +35,12 @@ function dashGraphs(data) {
     dev = [],
     avg, std,
     msgTotal = 0,
-    partiSelectHtml = ''
-  activeHtml = '',
+    partiSelectHtml = '',
+    activeHtml = '',
     partiListHtml = '',
     rctToHtml = '',
-    rctFromHtml = '';
+    rctFromHtml = '',
+    nickHtml = '';
 
   window.names = [];
   window.activeNames = [];
@@ -86,6 +87,7 @@ function dashGraphs(data) {
 
   for (i = 0; i < data.participants.length; i++) {
     partiSelectHtml += '<option>' + data.participants[i].name + '</option>';
+    nickHtml += '<option>' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
 
@@ -318,6 +320,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
+    document.getElementById('nicknameSelect').innerHTML = nickHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -364,7 +367,8 @@ function dashGraphs(data) {
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
-    document.getElementById('nameSelect').innerHTML = partiSelectHtml;
+    document.getElementById('nicknameSelect').innerHTML = nickHtml;
+    console.log(nickHtml);
     let distCount = [],
       distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
@@ -381,7 +385,8 @@ function dashGraphs(data) {
 }
 
 function nameHistorySelect(index) {
-  let htmlStr = '', tempDate;
+  let htmlStr = '',
+    tempDate;
   for (var i = 0; window.dashData.participants[index].nickname_history != undefined && i < window.dashData.participants[index].nickname_history.length; i++) {
     htmlStr += '<li>';
     tempDate = new Date(window.dashData.participants[index].nickname_history[i].time);
@@ -392,7 +397,7 @@ function nameHistorySelect(index) {
     }
     htmlStr += '</li>';
   }
-  document.getElementById('namelist').innerHTML = htmlStr;
+  document.getElementById('nicknamelist').innerHTML = htmlStr;
 }
 
 function msgWordsSelect(index) {
