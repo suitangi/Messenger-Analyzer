@@ -320,7 +320,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
-    document.getElementById('nicknameSelect').innerHTML = nickHtml;
+    document.getElementById('nicknameSelect').innerHTML = '<option>Group</option>' + nickHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -340,6 +340,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
+    document.getElementById('nicknameSelect').innerHTML = nickHtml;
   } else {
     window.reactToType = [data.participants[0].rctCount, data.participants[2].rctCount];
     window.reactFromType = [data.participants[1].rctCount, data.participants[3].rctCount];
@@ -367,8 +368,6 @@ function dashGraphs(data) {
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
-    document.getElementById('nicknameSelect').innerHTML = nickHtml;
-    console.log(nickHtml);
     let distCount = [],
       distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
@@ -386,14 +385,24 @@ function dashGraphs(data) {
 
 function nameHistorySelect(index) {
   let htmlStr = '',
-    tempDate;
-  for (var i = 0; window.dashData.participants[index].nickname_history != undefined && i < window.dashData.participants[index].nickname_history.length; i++) {
+    tempDate, list;
+  if (window.dashData.details.type == 'Group') {
+    if (index == 0){
+      list = window.dashData.title_history;
+    } else {
+      index -= 1;
+      list = window.dashData.participants[index].nickname_history;
+    }
+  } else {
+    list = window.dashData.participants[index].nickname_history;
+  }
+  for (var i = 0; list != undefined && i < list.length; i++) {
     htmlStr += '<li>';
-    tempDate = new Date(window.dashData.participants[index].nickname_history[i].time);
+    tempDate = new Date(list[i].time);
     htmlStr += '<div class="nickDate"><strong>' + tempDate.toLocaleDateString() + '</strong></div>';
-    htmlStr += '<div class="nickname">' + window.dashData.participants[index].nickname_history[i].name + '</div>';
-    if (window.dashData.participants[index].nickname_history[i].sender != undefined) {
-      htmlStr += '<div class="nickSender">' + window.dashData.participants[index].nickname_history[i].sender + '</div>';
+    htmlStr += '<div class="nickname">' + list[i].name + '</div>';
+    if (list[i].sender != undefined) {
+      htmlStr += '<div class="nickSender">' + list[i].sender + '</div>';
     }
     htmlStr += '</li>';
   }

@@ -383,14 +383,16 @@ function processData() {
         } else if ((message.content.startsWith(nickname + ' named the group ') && message.type == 'Generic') ||
           (message.content.startsWith('You named the group ') && message.type == 'Generic')) {
           messagesData.group[i].title_history.push({
-            title: message.content.substring(message.content.search(' named the group ') + 17, message.content.length - ((message.content.substring(message.content.length - 1) == '.') ? 1 : 0)),
-            actor: message.sender_name
+            name: message.content.substring(message.content.search(' named the group ') + 17, message.content.length - ((message.content.substring(message.content.length - 1) == '.') ? 1 : 0)),
+            sender: message.sender_name,
+            time: message.timestamp_ms
           });
           message.type = "Group_Name";
         } else if (message.content == (nickname + ' removed the group name.') && message.type == 'Generic') {
           messagesData.group[i].title_history.push({
-            title: "",
-            actor: message.sender_name
+            name: "",
+            sender: message.sender_name,
+            time: message.timestamp_ms
           });
           message.type = "Group_Name";
         } else if (message.content.startsWith(nickname + ' set the emoji to ') && message.content.endsWith('.') && message.type == 'Generic') {
@@ -524,6 +526,11 @@ function getData(contact, startTime, endTime) {
     data.details.firstTime = tempDate.toLocaleDateString() + ' ' + tempDate.toLocaleTimeString();
     data.details.title = foundConvo.title;
     data.details.type = foundConvo.thread_type == 'Regular' ? 'DM' : 'Group';
+
+    //set up group chaat title history
+    if (data.details.type == 'Group'){
+      data.title_history = foundConvo.title_history;
+    }
 
     //if time range is all, set the restrict the time range to only when conversation was active
     if (startTime == 0 && endTime == 0) {

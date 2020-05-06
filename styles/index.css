@@ -605,6 +605,7 @@ body::-webkit-scrollbar {
 #dash-loading span {
   left: 50%;
   position: absolute;
+  white-space: nowrap;
   transform: translateX(-50%);
 }
 
@@ -705,6 +706,7 @@ body::-webkit-scrollbar {
 .item16 {
   grid-area: 9 / 5 / 11 / 5;
   height: calc(24vw + 50px) !important;
+  max-width: calc(20vw - 12px);
 }
 
 #nicknamelist {
@@ -751,12 +753,12 @@ body::-webkit-scrollbar {
   text-align: center;
   width: 100%;
   margin-top: 20px;
+  overflow-wrap: break-word;
 }
 
 #nicknamelist .nickSender {
   width: 100%;
   text-align: center;
-  overflow-wrap: break-word;
   font-size: 14px;
   color: #aaa;
   margin-top: 4px;
