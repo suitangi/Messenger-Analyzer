@@ -40,7 +40,8 @@ function dashGraphs(data) {
     partiListHtml = '',
     rctToHtml = '',
     rctFromHtml = '',
-    nickHtml = '';
+    nickHtml = '',
+    wordTotalSelectHtml = '';
 
   window.names = [];
   window.activeNames = [];
@@ -90,6 +91,9 @@ function dashGraphs(data) {
     nickHtml += '<option>' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
+    if (i % 2 == 0) {
+      wordTotalSelectHtml += '<option>' + data.participants[i].name + '</option>';
+    }
 
     for (j = 0; j < window.messageTypeTotal.length; j++) {
       window.messageTypeTotal[j] += data.participants[i].msgType[j];
@@ -298,7 +302,6 @@ function dashGraphs(data) {
   document.getElementById("reactFromDistSelect").selectedIndex = 0;
   document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = '<option>Total</option>' + partiSelectHtml;
-  document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
   document.getElementById('chatType').innerText = data.details.type;
@@ -321,6 +324,7 @@ function dashGraphs(data) {
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = '<option>Group</option>' + nickHtml;
+    document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -341,6 +345,7 @@ function dashGraphs(data) {
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = nickHtml;
+    document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
   } else {
     window.reactToType = [data.participants[0].rctCount, data.participants[2].rctCount];
     window.reactFromType = [data.participants[1].rctCount, data.participants[3].rctCount];
@@ -368,6 +373,7 @@ function dashGraphs(data) {
     document.getElementById('messageProxSelect').style = "";
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
+    document.getElementById('messageWordsSelect').innerHTML = wordTotalSelectHtml;
     let distCount = [],
       distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
@@ -411,6 +417,9 @@ function nameHistorySelect(index) {
 
 function msgWordsSelect(index) {
   let htmlStr = '';
+  if (index == 1 && !(window.dashData.details.type == 'Group' || window.dashData.details.type == 'DM')) {
+    index = 2
+  }
   for (var i = 0; window.dashData.participants[index].wordCount != undefined && i < window.dashData.participants[index].wordCount.length; i++) {
     if (window.dashData.participants[index].wordCount[i] != undefined) {
       htmlStr += "<li>" + window.dashData.participants[index].wordCount[i].text +
