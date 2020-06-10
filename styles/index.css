@@ -832,7 +832,7 @@ body::-webkit-scrollbar {
 }
 
 #participantList::-webkit-scrollbar-thumb,
-#nicknamelist:hover::-webkit-scrollbar-thumb,
+#nicknamelist::-webkit-scrollbar-thumb,
 #wordsList::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0);
   border-radius: 4px;
