@@ -490,11 +490,12 @@ body::-webkit-scrollbar {
   padding: 0;
   margin: 0;
   overflow: scroll;
-  top: 83px;
+  top: 82px;
   max-height: 25vh;
   width: calc(20vw - 15px);
   position: fixed;
   left: 60px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 #convoList::-webkit-scrollbar {

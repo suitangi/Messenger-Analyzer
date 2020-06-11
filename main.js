@@ -281,6 +281,17 @@ function processData() {
       //encode all emojis and filter messages
       if (message.content != undefined && message.content.length != 0) {
         nickname = messagesData.private[i].participants[0].nickname;
+        if (message.type == "Generic") {
+          if (message.photos != undefined) {
+            message.type = "Photo";
+          } else if (message.gifs != undefined) {
+            message.type = "Gif";
+          } else if (message.videos != undefined) {
+            message.type = "Video";
+          } else if (message.sticker != undefined) {
+            message.type = "Sticker";
+          }
+        }
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content == 'You called ' + nickname + '.' && message.type == 'Generic') ||
           (message.content == nickname + ' called you.' && message.type == 'Generic') ||
@@ -341,6 +352,17 @@ function processData() {
       message = messagesData.group[i].messages[j];
       //encode all emojis
       nickname = messagesData.group[i].nickname_translate[message.sender_name];
+      if (message.type == "Generic") {
+        if (message.photos != undefined) {
+          message.type = "Photo";
+        } else if (message.gifs != undefined) {
+          message.type = "Gif";
+        } else if (message.videos != undefined) {
+          message.type = "Video";
+        } else if (message.sticker != undefined) {
+          message.type = "Sticker";
+        }
+      }
       if (message.content != undefined && message.content.length != 0) {
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content == (nickname + ' started a video chat.') && message.type == 'Generic') ||
@@ -482,7 +504,8 @@ function getData(contact, startTime, endTime) {
         active: true,
         hourCount: [...activeTime],
         dist: {},
-        rctCount: [0, 0, 0, 0, 0, 0, 0, 0]
+        rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
+        favSticker: {}
       });
       if (i % 2 == 0) {
         data.participants[i].wordCount = {};
@@ -568,7 +591,8 @@ function getData(contact, startTime, endTime) {
           hourCount: [...activeTime],
           react: {},
           reactFrom: {},
-          wordCount: {}
+          wordCount: {},
+          favSticker: {}
         });
       } else {
         data.participants.push({
@@ -583,7 +607,8 @@ function getData(contact, startTime, endTime) {
           hourCount: [...activeTime],
           react: {},
           reactFrom: {},
-          wordCount: {}
+          wordCount: {},
+          favSticker: {}
         });
       }
     }
@@ -866,22 +891,20 @@ function getData(contact, startTime, endTime) {
       person.msgTime[person.msgTime.length - 1] += 1;
 
       //message type
-      if (message.type == "Generic") {
-        if (message.photos != undefined) {
-          person.msgType[1] += message.photos.length;
-        } else if (message.gifs != undefined) {
-          person.msgType[3] += 1;
-        } else if (message.videos != undefined) {
-          person.msgType[4] += 1;
-        } else if (message.sticker != undefined) {
-          person.msgType[5] += 1;
-        } else {
-          person.msgType[0] += 1;
-        }
+      if (message.type == "Photo") {
+        person.msgType[1] += message.photos.length;
+      } else if (message.type == "Gif") {
+        person.msgType[3] += 1;
+      } else if (message.type == "Video") {
+        person.msgType[4] += 1;
+      } else if (message.type == "Sticker") {
+        person.msgType[5] += 1;
       } else if (message.type == "Share" && message.share != undefined) {
         if (message.share.link != undefined) {
           person.msgType[2] += 1;
         }
+      } else {
+        person.msgType[0] += 1;
       }
 
       //get the time active
@@ -1066,22 +1089,20 @@ function processYear(year) {
           hourCount[d.getHours()] += 1;
 
           //get message type
-          if (message.type == "Generic") {
-            if (message.photos != undefined) {
-              typeCount[1] += message.photos.length;
-            } else if (message.gifs != undefined) {
-              typeCount[3] += 1;
-            } else if (message.videos != undefined) {
-              typeCount[4] += 1;
-            } else if (message.sticker != undefined) {
-              typeCount[5] += 1;
-            } else {
-              typeCount[0] += 1;
-            }
+          if (message.type == "Photo") {
+            typeCount[1] += message.photos.length;
+          } else if (message.type == "Gif") {
+            typeCount[3] += 1;
+          } else if (message.type == "Video") {
+            typeCount[4] += 1;
+          } else if (message.type == "Sticker") {
+            typeCount[5] += 1;
           } else if (message.type == "Share" && message.share != undefined) {
             if (message.share.link != undefined) {
               typeCount[2] += 1;
             }
+          } else {
+            typeCount[0] += 1;
           }
         } else { //for received messages
           receivedCount += 1;
@@ -1193,20 +1214,20 @@ function processYear(year) {
           hourCount[d.getHours()] += 1;
 
           //get messaage type
-          if (message.type == "Generic") {
-            if (message.photos != undefined) {
-              typeCount[1] += message.photos.length;
-            } else if (message.gifs != undefined) {
-              typeCount[3] += 1;
-            } else if (message.videos != undefined) {
-              typeCount[4] += 1;
-            } else if (message.sticker != undefined) {
-              typeCount[5] += 1;
-            } else {
-              typeCount[0] += 1;
+          if (message.type == "Photo") {
+            typeCount[1] += message.photos.length;
+          } else if (message.type == "Gif") {
+            typeCount[3] += 1;
+          } else if (message.type == "Video") {
+            typeCount[4] += 1;
+          } else if (message.type == "Sticker") {
+            typeCount[5] += 1;
+          } else if (message.type == "Share" && message.share != undefined) {
+            if (message.share.link != undefined) {
+              typeCount[2] += 1;
             }
-          } else if (message.type == "Share" && message.share) {
-            typeCount[2] += 1;
+          } else {
+            typeCount[0] += 1;
           }
         } else {
           receivedCount += 1;
