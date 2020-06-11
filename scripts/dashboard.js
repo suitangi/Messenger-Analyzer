@@ -88,7 +88,6 @@ function dashGraphs(data) {
 
   for (i = 0; i < data.participants.length; i++) {
     partiSelectHtml += '<option>' + data.participants[i].name + '</option>';
-    nickHtml += '<option>' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
     if (i % 2 == 0) {
@@ -106,6 +105,7 @@ function dashGraphs(data) {
     }
 
     if (data.details.type != "N/A") {
+      nickHtml += '<option>' + data.participants[i].name + ' (' + data.participants[i].nickname_history.length + ')</option>';
       if (data.participants[i].react.length != 0) {
         rctToHtml += '<option value="' + i + '">' + data.participants[i].name + '</option>';
         window.reactToType.push([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -323,7 +323,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
-    document.getElementById('nicknameSelect').innerHTML = '<option>Group</option>' + nickHtml;
+    document.getElementById('nicknameSelect').innerHTML = '<option>Group (' + data.title_history.length + ')</option>' + nickHtml;
     document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
@@ -411,6 +411,9 @@ function nameHistorySelect(index) {
       htmlStr += '<div class="nickSender">' + list[i].sender + '</div>';
     }
     htmlStr += '</li>';
+  }
+  if (htmlStr == '') {
+    htmlStr = '<div>No names to display</div>';
   }
   document.getElementById('nicknamelist').innerHTML = htmlStr;
 }

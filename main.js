@@ -1387,11 +1387,29 @@ function ready() {
   mainWindow.webContents.send('loading', 'done');
 }
 
-function findConvo(title) {
+function findFile(filename) {
 
+  //recur
+  function findDir(filePath) {
+    fs.readdir(filePath, (er, files) => {
+      if (er) throw er;
+      files.forEach(function(file){
+        var aPath = filePath + '/' + file;
+        if (fs.istatSync(aPath).isDirectory()) {
+          findDir(aPath);
+        } else {
+          if (aPath.endsWith(filename)) {
+            return aPath;
+          }
+        }
+      });
+    });
+  }
+  return findDir(global.startDir);
 }
 
 function setupMessages(startPath) {
+  global.startDir = startPath;
   global.messagesData = {}
   messagesData.private = []
   messagesData.group = []
