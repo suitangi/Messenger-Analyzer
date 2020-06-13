@@ -193,14 +193,14 @@ function preProcessData() {
         if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
             message.content.includes(' set your nickname to ') ||
             message.content.includes(' set her own nickname to ') ||
-            message.content.includes(' set his own nickname to '))
-            && message.type == 'Generic' && message.content.endsWith('.')) {
+            message.content.includes(' set his own nickname to ')) &&
+          message.type == 'Generic' && message.content.endsWith('.')) {
           if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
             regx = /(?<= set the nickname for )(.+?)(?= to )/g;
             tempName = message.content.match(regx)[0];
-          } else if (message.content.includes(' set her own nickname to ')){
+          } else if (message.content.includes(' set her own nickname to ')) {
             tempName = message.sender_name;
-          } else if (message.content.includes(' set his own nickname to ')){
+          } else if (message.content.includes(' set his own nickname to ')) {
             tempName = message.sender_name;
           } else if (message.content.includes(' set your nickname to ')) {
             tempName = name;
@@ -960,7 +960,7 @@ function getData(contact, startTime, endTime) {
         max.count = data.participants[i].stickerCount[stick];
       }
     }
-    max.sticker = findFile(max.sticker);
+    max.sticker = findSticker(max.sticker);
     data.participants[i].favSticker = max;
   }
 
@@ -1416,32 +1416,17 @@ function ready() {
   mainWindow.webContents.send('loading', 'done');
 }
 
-function findFile(filename) {
-  let result;
-  //recur
-  function fromDir(startPath, filter) {
+function findSticker(stickername) {
+  var filePath;
+  var files = fs.readdirSync(global.startDir)
 
-    //console.log('Starting from dir '+startPath+'/');
-
-    if (!fs.existsSync(startPath)) {
-      console.log("no dir ", startPath);
-      return;
+  files.forEach(function(file) {
+    var aPath = global.startDir + '/' + file;
+    if (fs.existsSync(aPath + '/' + stickername)) {
+      filePath = aPath + '/' + stickername;
     }
-
-    var files = fs.readdirSync(startPath);
-    for (var i = 0; i < files.length; i++) {
-      var filename = path.join(startPath, files[i]);
-      var stat = fs.lstatSync(filename);
-      if (stat.isDirectory()) {
-        fromDir(filename, filter); //recurse
-      } else if (filename.indexOf(filter) >= 0) {
-        console.log('-- found: ', filename);
-        result = filename;
-      };
-    };
-  };
-  fromDir(global.startDir, filename);
-  return result;
+  });
+  return filePath;
 }
 
 function setupMessages(startPath) {
