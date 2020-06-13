@@ -160,7 +160,7 @@ function preProcessData() {
     //set participant nicknames and lookup table and encode names
     for (j = 0; j < messagesData.group[i].participants.length; j++) {
       messagesData.group[i].participants[j].name = utf8.decode(messagesData.group[i].participants[j].name);
-
+      messagesData.group[i].participants[j].active = true;
       messagesData.group[i].participants[j].nickname = messagesData.group[i].participants[j].name;
       messagesData.group[i].participants[j].nickname_history = [{
         name: messagesData.group[i].participants[j].name
@@ -175,6 +175,7 @@ function preProcessData() {
       message = messagesData.group[i].messages[j];
 
       if (part_table[message.sender_name] == undefined) {
+        console.log(message);
         messagesData.group[i].participants.push({
           name: message.sender_name,
           nickname: message.sender_name,
@@ -186,7 +187,6 @@ function preProcessData() {
         part_table[message.sender_name] = messagesData.group[i].participants[messagesData.group[i].participants.length - 1];
       }
 
-      //encode all emojis
       if (message.content != undefined && message.content.length != 0) {
         message.content = utf8.decode(message.content);
         message.content = message.content.replace(/’/g, '\'');
@@ -571,7 +571,7 @@ function getData(contact, startTime, endTime) {
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
           msgCount: 0,
-          active: true,
+          active: foundConvo.participants[j].active,
           hourCount: [...activeTime],
           react: {},
           reactFrom: {},
@@ -587,7 +587,7 @@ function getData(contact, startTime, endTime) {
           msgPct: [],
           msgType: [0, 0, 0, 0, 0, 0],
           msgCount: 0,
-          active: true,
+          active: foundConvo.participants[j].active,
           hourCount: [...activeTime],
           react: {},
           reactFrom: {},
@@ -1417,7 +1417,7 @@ function ready() {
 }
 
 function findSticker(stickername) {
-  var filePath;
+  var filePath = '';
   var files = fs.readdirSync(global.startDir)
 
   files.forEach(function(file) {

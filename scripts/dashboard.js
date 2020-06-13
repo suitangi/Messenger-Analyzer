@@ -88,7 +88,7 @@ function dashGraphs(data) {
 
   for (i = 0; i < data.participants.length; i++) {
     partiSelectHtml += '<option>' + data.participants[i].name + '</option>';
-    partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">  (Inactive)</span>' : '') + '</li>';
+    partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">   (Inactive)</span>' : '') + '</li>';
     msgTotal += data.participants[i].msgCount;
     if (i % 2 == 0) {
       wordTotalSelectHtml += '<option>' + data.participants[i].name + '</option>';
@@ -325,6 +325,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = '<option>Group (' + data.title_history.length + ')</option>' + nickHtml;
     document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
+    document.getElementById('stickerSelect').innerHTML = partiSelectHtml;
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -346,6 +347,7 @@ function dashGraphs(data) {
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = nickHtml;
     document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
+    document.getElementById('stickerSelect').innerHTML = partiSelectHtml;
   } else {
     window.reactToType = [data.participants[0].rctCount, data.participants[2].rctCount];
     window.reactFromType = [data.participants[1].rctCount, data.participants[3].rctCount];
@@ -374,6 +376,7 @@ function dashGraphs(data) {
     document.getElementById('msgProxTitle').innerText = "Message Distribution for ";
     document.getElementById('messageProxSelect').innerHTML = partiSelectHtml;
     document.getElementById('messageWordsSelect').innerHTML = wordTotalSelectHtml;
+    document.getElementById('stickerSelect').innerHTML = wordTotalSelectHtml;
     let distCount = [],
       distNames = [];
     for (i = 0; i < data.participants[0].dist.length; i++) {
@@ -385,8 +388,21 @@ function dashGraphs(data) {
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
   msgWordsSelect(0);
   nameHistorySelect(0);
-
+  stickerSelect(0);
   document.getElementById('dash-loading-back').style = "display: none";
+}
+
+function stickerSelect(index) {
+  let htmlStr = '';
+  if (index == 1 && window.dashData.details.type == 'N/A') {
+    index = 2
+  }
+  if (window.dashData.participants[index].favSticker.sticker != ''){
+    htmlStr = '<img src="' + window.dashData.participants[index].favSticker.sticker  + '" style="max-width:100%"></img><br><div>Sent: ' +
+      window.dashData.participants[index].favSticker.count + ' times</div>';
+  }
+
+  document.getElementById('stickerImg').innerHTML = (htmlStr != '' ? htmlStr : "No fav sticker in this time range.");
 }
 
 function nameHistorySelect(index) {

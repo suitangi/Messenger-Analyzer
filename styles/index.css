@@ -716,6 +716,12 @@ body::-webkit-scrollbar {
   max-width: calc(20vw - 12px);
 }
 
+#stickerImg {
+  max-width: 40%;
+  transform: translate(50%);
+  margin-top: 10px;
+}
+
 #nicknamelist {
   list-style-type: none;
   font-size: 16px;
