@@ -190,12 +190,18 @@ function preProcessData() {
       if (message.content != undefined && message.content.length != 0) {
         message.content = utf8.decode(message.content);
         message.content = message.content.replace(/’/g, '\'');
-
         if (((message.content.includes(' set the nickname for ') && message.content.includes(' to ')) ||
-            message.content.includes(' set your nickname to ')) && message.type == 'Generic' && message.content.endsWith('.')) {
+            message.content.includes(' set your nickname to ') ||
+            message.content.includes(' set her own nickname to ') ||
+            message.content.includes(' set his own nickname to '))
+            && message.type == 'Generic' && message.content.endsWith('.')) {
           if (message.content.includes(' set the nickname for ') && message.content.includes(' to ')) {
             regx = /(?<= set the nickname for )(.+?)(?= to )/g;
             tempName = message.content.match(regx)[0];
+          } else if (message.content.includes(' set her own nickname to ')){
+            tempName = message.sender_name;
+          } else if (message.content.includes(' set his own nickname to ')){
+            tempName = message.sender_name;
           } else if (message.content.includes(' set your nickname to ')) {
             tempName = name;
           }
@@ -281,17 +287,6 @@ function processData() {
       //encode all emojis and filter messages
       if (message.content != undefined && message.content.length != 0) {
         nickname = messagesData.private[i].participants[0].nickname;
-        if (message.type == "Generic") {
-          if (message.photos != undefined) {
-            message.type = "Photo";
-          } else if (message.gifs != undefined) {
-            message.type = "Gif";
-          } else if (message.videos != undefined) {
-            message.type = "Video";
-          } else if (message.sticker != undefined) {
-            message.type = "Sticker";
-          }
-        }
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content == 'You called ' + nickname + '.' && message.type == 'Generic') ||
           (message.content == nickname + ' called you.' && message.type == 'Generic') ||
@@ -352,17 +347,6 @@ function processData() {
       message = messagesData.group[i].messages[j];
       //encode all emojis
       nickname = messagesData.group[i].nickname_translate[message.sender_name];
-      if (message.type == "Generic") {
-        if (message.photos != undefined) {
-          message.type = "Photo";
-        } else if (message.gifs != undefined) {
-          message.type = "Gif";
-        } else if (message.videos != undefined) {
-          message.type = "Video";
-        } else if (message.sticker != undefined) {
-          message.type = "Sticker";
-        }
-      }
       if (message.content != undefined && message.content.length != 0) {
         if ((message.content == 'The video chat ended.' && message.type == 'Generic') ||
           (message.content == (nickname + ' started a video chat.') && message.type == 'Generic') ||
@@ -505,7 +489,7 @@ function getData(contact, startTime, endTime) {
         hourCount: [...activeTime],
         dist: {},
         rctCount: [0, 0, 0, 0, 0, 0, 0, 0],
-        favSticker: {}
+        stickerCount: {}
       });
       if (i % 2 == 0) {
         data.participants[i].wordCount = {};
@@ -592,7 +576,7 @@ function getData(contact, startTime, endTime) {
           react: {},
           reactFrom: {},
           wordCount: {},
-          favSticker: {}
+          stickerCount: {}
         });
       } else {
         data.participants.push({
@@ -608,7 +592,7 @@ function getData(contact, startTime, endTime) {
           react: {},
           reactFrom: {},
           wordCount: {},
-          favSticker: {}
+          stickerCount: {}
         });
       }
     }
@@ -891,20 +875,27 @@ function getData(contact, startTime, endTime) {
       person.msgTime[person.msgTime.length - 1] += 1;
 
       //message type
-      if (message.type == "Photo") {
-        person.msgType[1] += message.photos.length;
-      } else if (message.type == "Gif") {
-        person.msgType[3] += 1;
-      } else if (message.type == "Video") {
-        person.msgType[4] += 1;
-      } else if (message.type == "Sticker") {
-        person.msgType[5] += 1;
+      if (message.type == "Generic") {
+        if (message.photos != undefined) {
+          person.msgType[1] += message.photos.length;
+        } else if (message.gifs != undefined) {
+          person.msgType[3] += 1;
+        } else if (message.videos != undefined) {
+          person.msgType[4] += 1;
+        } else if (message.sticker != undefined) {
+          person.msgType[5] += 1;
+          if (person.stickerCount[message.sticker.uri] == undefined) {
+            person.stickerCount[message.sticker.uri] = 1;
+          } else {
+            person.stickerCount[message.sticker.uri] += 1;
+          }
+        } else {
+          person.msgType[0] += 1;
+        }
       } else if (message.type == "Share" && message.share != undefined) {
         if (message.share.link != undefined) {
           person.msgType[2] += 1;
         }
-      } else {
-        person.msgType[0] += 1;
       }
 
       //get the time active
@@ -957,6 +948,20 @@ function getData(contact, startTime, endTime) {
       finalWordsArray.length = 150;
       data.participants[i].wordCount = finalWordsArray;
     }
+
+    //get most used sticker
+    let max = {
+      sticker: "",
+      count: 0
+    };
+    for (const stick in data.participants[i].stickerCount) {
+      if (data.participants[i].stickerCount[stick] > max.count) {
+        max.sticker = stick;
+        max.count = data.participants[i].stickerCount[stick];
+      }
+    }
+    max.sticker = findFile(max.sticker);
+    data.participants[i].favSticker = max;
   }
 
   //format data for message distribution
@@ -980,6 +985,7 @@ function getData(contact, startTime, endTime) {
     for (i = 0; i < data.participants.length; i++) {
       reactTo = Object.values(data.participants[i].react);
       data.participants[i].react = reactTo;
+      //reactions calculations
       for (k = 0; k < data.participants[i].react.length; k++) {
         for (j = 0; j < data.participants.length; j++) {
           if (data.participants[j].name == data.participants[i].react[k].name) {
@@ -1089,20 +1095,22 @@ function processYear(year) {
           hourCount[d.getHours()] += 1;
 
           //get message type
-          if (message.type == "Photo") {
-            typeCount[1] += message.photos.length;
-          } else if (message.type == "Gif") {
-            typeCount[3] += 1;
-          } else if (message.type == "Video") {
-            typeCount[4] += 1;
-          } else if (message.type == "Sticker") {
-            typeCount[5] += 1;
+          if (message.type == "Generic") {
+            if (message.photos != undefined) {
+              typeCount[1] += message.photos.length;
+            } else if (message.gifs != undefined) {
+              typeCount[3] += 1;
+            } else if (message.videos != undefined) {
+              typeCount[4] += 1;
+            } else if (message.sticker != undefined) {
+              typeCount[5] += 1;
+            } else {
+              typeCount[0] += 1;
+            }
           } else if (message.type == "Share" && message.share != undefined) {
             if (message.share.link != undefined) {
               typeCount[2] += 1;
             }
-          } else {
-            typeCount[0] += 1;
           }
         } else { //for received messages
           receivedCount += 1;
@@ -1214,20 +1222,20 @@ function processYear(year) {
           hourCount[d.getHours()] += 1;
 
           //get messaage type
-          if (message.type == "Photo") {
-            typeCount[1] += message.photos.length;
-          } else if (message.type == "Gif") {
-            typeCount[3] += 1;
-          } else if (message.type == "Video") {
-            typeCount[4] += 1;
-          } else if (message.type == "Sticker") {
-            typeCount[5] += 1;
-          } else if (message.type == "Share" && message.share != undefined) {
-            if (message.share.link != undefined) {
-              typeCount[2] += 1;
+          if (message.type == "Generic") {
+            if (message.photos != undefined) {
+              typeCount[1] += message.photos.length;
+            } else if (message.gifs != undefined) {
+              typeCount[3] += 1;
+            } else if (message.videos != undefined) {
+              typeCount[4] += 1;
+            } else if (message.sticker != undefined) {
+              typeCount[5] += 1;
+            } else {
+              typeCount[0] += 1;
             }
-          } else {
-            typeCount[0] += 1;
+          } else if (message.type == "Share" && message.share) {
+            typeCount[2] += 1;
           }
         } else {
           receivedCount += 1;
@@ -1409,24 +1417,31 @@ function ready() {
 }
 
 function findFile(filename) {
-
+  let result;
   //recur
-  function findDir(filePath) {
-    fs.readdir(filePath, (er, files) => {
-      if (er) throw er;
-      files.forEach(function(file){
-        var aPath = filePath + '/' + file;
-        if (fs.istatSync(aPath).isDirectory()) {
-          findDir(aPath);
-        } else {
-          if (aPath.endsWith(filename)) {
-            return aPath;
-          }
-        }
-      });
-    });
-  }
-  return findDir(global.startDir);
+  function fromDir(startPath, filter) {
+
+    //console.log('Starting from dir '+startPath+'/');
+
+    if (!fs.existsSync(startPath)) {
+      console.log("no dir ", startPath);
+      return;
+    }
+
+    var files = fs.readdirSync(startPath);
+    for (var i = 0; i < files.length; i++) {
+      var filename = path.join(startPath, files[i]);
+      var stat = fs.lstatSync(filename);
+      if (stat.isDirectory()) {
+        fromDir(filename, filter); //recurse
+      } else if (filename.indexOf(filter) >= 0) {
+        console.log('-- found: ', filename);
+        result = filename;
+      };
+    };
+  };
+  fromDir(global.startDir, filename);
+  return result;
 }
 
 function setupMessages(startPath) {

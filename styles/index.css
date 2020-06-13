@@ -710,6 +710,12 @@ body::-webkit-scrollbar {
   max-width: calc(20vw - 12px);
 }
 
+.item17 {
+  grid-area: 8 / 5 / 9 / 5;
+  height: 12vw !important;
+  max-width: calc(20vw - 12px);
+}
+
 #nicknamelist {
   list-style-type: none;
   font-size: 16px;
@@ -732,6 +738,7 @@ body::-webkit-scrollbar {
   display: inline-block;
   position: relative;
 }
+
 .nickDate:before,
 .nickDate:after {
   content: "";
@@ -741,10 +748,12 @@ body::-webkit-scrollbar {
   top: 0;
   width: 90%;
 }
+
 .nickDate:before {
   right: 100%;
   margin-right: 8px;
 }
+
 .nickDate:after {
   left: 100%;
   margin-left: 8px;
