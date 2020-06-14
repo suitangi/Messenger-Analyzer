@@ -30,11 +30,9 @@ function hexToRgb(hex, alpha) {
 function dashGraphs(data) {
   let i, h, m, j, k,
     msgTime = [],
-    msgSent = [],
     msgPct = [],
     dev = [],
     avg, std,
-    msgTotal = 0,
     partiSelectHtml = '',
     activeHtml = '',
     partiListHtml = '',
@@ -89,7 +87,6 @@ function dashGraphs(data) {
   for (i = 0; i < data.participants.length; i++) {
     partiSelectHtml += '<option>' + data.participants[i].name + '</option>';
     partiListHtml += '<li>' + data.participants[i].name + ((!data.participants[i].active) ? '<span class="removed">   (Inactive)</span>' : '') + '</li>';
-    msgTotal += data.participants[i].msgCount;
     if (i % 2 == 0) {
       wordTotalSelectHtml += '<option>' + data.participants[i].name + '</option>';
     }
@@ -219,7 +216,6 @@ function dashGraphs(data) {
       pointHoverRadius: 2,
       hidden: true
     });
-    msgSent.push(data.participants[i].msgCount);
 
     if (data.details.type == 'Group') {
       if (data.participants[i].proximity != undefined) {
@@ -288,7 +284,7 @@ function dashGraphs(data) {
   if (window.msgProx) {
     window.msgProx.destroy();
   }
-  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names, true);
+
   window.msgType = pieChart(document.getElementById('msgTypePie'), window.messageTypeTotal, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers'], true);
   window.msgTime = lineChart(document.getElementById('msgLine'), msgTime, data.timeLabel, false, data.dateUnit);
   window.msgPct = lineChart(document.getElementById('msgPctLine'), msgPct, data.timeLabel, true, data.dateUnit);
@@ -300,7 +296,6 @@ function dashGraphs(data) {
   document.getElementById("reactFromTypeSelect").selectedIndex = 0;
   document.getElementById("reactToDistSelect").selectedIndex = 0;
   document.getElementById("reactFromDistSelect").selectedIndex = 0;
-  document.getElementById('msgTotal').innerText = ' (' + msgTotal + ' Total)';
   document.getElementById('messageTypeSelect').innerHTML = '<option>Total</option>' + partiSelectHtml;
   document.getElementById('participantList').innerHTML = partiListHtml;
   document.getElementById('chatTitle').innerText = data.details.title;
@@ -389,7 +384,30 @@ function dashGraphs(data) {
   msgWordsSelect(0);
   nameHistorySelect(0);
   stickerSelect(0);
+  msgTotalSelect(0);
   document.getElementById('dash-loading-back').style = "display: none";
+}
+
+function msgTotalSelect(index) {
+  if (window.msgSent != undefined) {
+    window.msgSent.destroy();
+  }
+  let msgTotal = 0,
+    msgSent = [];
+  if (index == 0) {
+    for (i = 0; i < window.dashData.participants.length; i++) {
+      msgTotal += window.dashData.participants[i].msgCount;
+      msgSent.push(window.dashData.participants[i].msgCount);
+    }
+  } else {
+    index -= 1;
+    for (i = 0; i < window.dashData.participants.length; i++) {
+      msgTotal += window.dashData.participants[i].msgType[index];
+      msgSent.push(window.dashData.participants[i].msgType[index]);
+    }
+  }
+  window.msgSent = pieChart(document.getElementById('msgSentPie'), msgSent, window.names, true);
+  document.getElementById('msgTotal').innerText = ' (' + msgTotal + ')';
 }
 
 function stickerSelect(index) {

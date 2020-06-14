@@ -960,7 +960,9 @@ function getData(contact, startTime, endTime) {
         max.count = data.participants[i].stickerCount[stick];
       }
     }
-    max.sticker = findSticker(max.sticker);
+    if (max.sticker != ''){
+      max.sticker = findSticker(max.sticker);
+    }
     data.participants[i].favSticker = max;
   }
 

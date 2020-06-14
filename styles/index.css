@@ -718,8 +718,10 @@ body::-webkit-scrollbar {
 
 #stickerImg {
   max-width: 40%;
-  transform: translate(50%);
   margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 15px;
 }
 
 #nicknamelist {

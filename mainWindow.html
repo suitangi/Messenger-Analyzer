@@ -282,7 +282,15 @@
 
     <div class="grid-container">
       <div class="item1">
-        Messages Sent
+        <select id="msgTotalSelect" class="dashSelect" onchange="msgTotalSelect(this.selectedIndex);">
+          <option value=0>Total Messages</option>
+          <option value=1>Text</option>
+          <option value=2>Photos</option>
+          <option value=3>Links</option>
+          <option value=4>Gifs</option>
+          <option value=5>Videos</option>
+          <option value=6>Stickers</option>
+        </select> Sent
         <span id="msgTotal"></span>
         <div class="dashChart">
           <canvas id="msgSentPie"></canvas>
