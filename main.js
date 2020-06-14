@@ -839,7 +839,7 @@ function getData(contact, startTime, endTime) {
 
 
       //if group and active contact, calculate message proximity
-      if (data.details.type == 'Group' && person.active) {
+      if (data.details.type == 'Group') {
         for (i = 0; i < data.participants.length; i++) {
           if (i != foundIndex) {
             if (person.proximity[i].before && data.participants[i].proximity[foundIndex].distance != undefined) {

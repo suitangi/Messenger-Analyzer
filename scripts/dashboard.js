@@ -421,7 +421,7 @@ function stickerSelect(index) {
       window.dashData.participants[index].favSticker.count + ' times</div>';
   }
 
-  document.getElementById('stickerImg').innerHTML = (htmlStr != '' ? htmlStr : "No fav sticker in this time range.");
+  document.getElementById('stickerImg').innerHTML = (htmlStr != '' ? htmlStr : "<br>No stickers sent in this time range.");
 }
 
 function nameHistorySelect(index) {
