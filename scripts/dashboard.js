@@ -385,6 +385,7 @@ function dashGraphs(data) {
   nameHistorySelect(0);
   stickerSelect(0);
   msgTotalSelect(0);
+  document.getElementById('msgTotalSelect').value = 0;
   document.getElementById('dash-loading-back').style = "display: none";
 }
 
