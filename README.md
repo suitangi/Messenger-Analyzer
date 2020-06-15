@@ -30,6 +30,7 @@ The code is not pretty, but it works. There are a number of things that probably
 
 ## Functionality
 ### Messenger 2019 Journey
+![Journey Gif](https://i.imgur.com/tuD8luW.gif)
 A overview of simple data visualizations and numbers for the user's use of Messenger in the year of 2019.
 Click 'Load' and load in the directory created in the "Setting up your Data" section.
 Use the arrow keys on the keyboard or the clickable arrows on the left side to navigate.
