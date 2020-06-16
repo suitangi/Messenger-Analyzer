@@ -1,12 +1,9 @@
 # Messenger Analyzer
 
-## Download Data from Facebook
-See [here](https://suitangi.github.io/Messenger-Analyzer/DownloadData).
-
-## Usage
+## Downloads
 There are a couple of ways to use this software.
 
-### Using the source code and Node.js
+### Using Node.js
 Clone this repository
 ```
 git clone https://github.com/suitangi/Messenger-Analyzer.git
@@ -23,7 +20,9 @@ npm start
 ### Using the compiled versions
 Windows version here
 
-## Functionality
+## Download Data from Facebook
+See [here](https://suitangi.github.io/Messenger-Analyzer/DownloadData).
+
 
 ### Messenger 2019 Journey
 ![Journey Gif](https://i.imgur.com/tuD8luW.gif)
