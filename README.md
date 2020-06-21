@@ -43,15 +43,12 @@ Provides more comprehensive data by two parameters: the contact (can be groups) 
 The code is not pretty, but it works. There are a number of things that probably should be more optimized, that will come as I finish more functionalities.
 
 ## Libraries Used
-##### JS
 - chart.js
-- moment.js
+- moment
 - daterangepicker.js
 - jQuery
-- wordcloud2.js
-- odometer.js
-
-##### Node
+- wordCloud
+- odometer
 - electron
 - fs
 - utf8
