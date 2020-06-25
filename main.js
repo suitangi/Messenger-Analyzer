@@ -44,21 +44,65 @@ app.on('ready', function() {
   ipcMain.on('load-directory', (event, arg) => {
     setupMessages(arg);
   });
+  ipcMain.on('dashboard-open', (event, arg) => {
+    dashWindow = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true
+      },
+      width: 1536,
+      height: 848,
+      minWidth: 1024,
+      minHeight: 565,
+      frame: false,
+      x: 5,
+      y: 5,
+    });
+    dashWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'dashboard.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+  });
   ipcMain.on('dashboard', (event, arg) => {
-    mainWindow.webContents.send('dashboard', getData(arg[0], arg[1], arg[2]));
+    if (arg == 'ready') {
+      contactList();
+      getData('', 0, 0);
+    } else {
+      getData(arg[0], arg[1], arg[2]);
+    }
   });
   ipcMain.on('close-me', (evt, arg) => {
-    app.quit();
+    if (arg == "main"){
+      app.quit();
+    } else {
+      let win;
+      if (arg == "dash") {
+        win = dashWindow;
+      }
+      win.close();
+    }
   });
   ipcMain.on('maximize-me', (evt, arg) => {
-    if (mainWindow.isMaximized()) {
-      mainWindow.restore();
+    let win;
+    if (arg == "main") {
+      win = mainWindow;
+    } else if (arg == "dash") {
+      win = dashWindow;
+    }
+    if (win.isMaximized()) {
+      win.restore();
     } else {
-      mainWindow.maximize();
+      win.maximize();
     }
   });
   ipcMain.on('minimize-me', (evt, arg) => {
-    mainWindow.minimize();
+    let win;
+    if (arg == "main") {
+      win = mainWindow;
+    } else if (arg == "dash") {
+      win = dashWindow;
+    }
+    win.minimize();
   });
 });
 
@@ -418,7 +462,7 @@ function processData() {
 }
 
 //function to get contact list
-function contactList() {
+async function contactList() {
   let cList = [],
     i;
   //iterate through private conversations
@@ -438,11 +482,13 @@ function contactList() {
     });
   }
   console.log("Contact list loaded");
-  return cList.sort((a, b) => (a.name > b.name) ? 1 : -1)
+
+  let result = cList.sort((a, b) => (a.name > b.name) ? 1 : -1);
+  dashWindow.webContents.send('contacts', result);
 }
 
 //process request for data
-function getData(contact, startTime, endTime) {
+async function getData(contact, startTime, endTime) {
   console.log("Loading data for: " + contact + ", " + startTime + ", " + endTime);
   let messages = [],
     timeLabel = [],
@@ -1010,11 +1056,11 @@ function getData(contact, startTime, endTime) {
 
 
   console.log("Dashboard data loaded for: " + contact + ", " + startTime + ", " + endTime);
-  return data;
+  dashWindow.webContents.send('dashboard', data);
 }
 
 //process data for a year
-function processYear(year) {
+async function processYear(year) {
 
   //initialize variabless
   let privateCount = 0,
@@ -1407,13 +1453,12 @@ function processYear(year) {
   messagesData['year_' + year].lostConnections = topPercentageLost;
   messagesData['year_' + year].newFriends = newFriends;
   messagesData['year_' + year].wordCount = finalWordsArray;
+  mainWindow.webContents.send('2019data', messagesData['year_' + year]);
 }
 
 
 function ready() {
-  mainWindow.webContents.send('2019data', messagesData.year_2019);
-  mainWindow.webContents.send('contacts', contactList());
-  mainWindow.webContents.send('dashboardStart', getData('', 0, 0));
+  processYear(2019);
   mainWindow.webContents.send('loading', 'done');
 }
 
@@ -1484,7 +1529,6 @@ function setupMessages(startPath) {
               console.log('Done loading files');
               preProcessData();
               processData();
-              processYear(2019);
               ready();
             }
           });

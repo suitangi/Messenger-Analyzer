@@ -1,3 +1,33 @@
+//requires
+const {
+  dialog
+} = require('electron').remote
+
+const {
+  ipcRenderer
+} = require('electron')
+
+const shell = require('electron').shell;
+
+//helper functions
+//escape a string for html
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+//escape a string for javascript
+function escapeJs(unsafe) {
+  return unsafe
+    .replace(/\\/g, "\\")
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'");
+}
+
 window.graphColors = [
   '#214f91',
   '#6b5899',
@@ -416,8 +446,8 @@ function stickerSelect(index) {
   if (index == 1 && window.dashData.details.type == 'N/A') {
     index = 2
   }
-  if (window.dashData.participants[index].favSticker.sticker != ''){
-    htmlStr = '<img src="' + window.dashData.participants[index].favSticker.sticker  + '" style="max-width:100%"></img><br><div>Sent: ' +
+  if (window.dashData.participants[index].favSticker.sticker != '') {
+    htmlStr = '<img src="' + window.dashData.participants[index].favSticker.sticker + '" style="max-width:100%"></img><br><div>Sent: ' +
       window.dashData.participants[index].favSticker.count + ' times</div>';
   }
 
@@ -428,7 +458,7 @@ function nameHistorySelect(index) {
   let htmlStr = '',
     tempDate, list;
   if (window.dashData.details.type == 'Group') {
-    if (index == 0){
+    if (index == 0) {
       list = window.dashData.title_history;
     } else {
       index -= 1;
@@ -933,4 +963,153 @@ function allButOne(arr, index) {
   return arr.filter(function(value, arrIndex) {
     return index !== arrIndex;
   });
+}
+
+//document ready script
+$(document).ready(function() {
+  //sets the date range picker for data dashboard
+  $('#dateRange').daterangepicker({
+    "showDropdowns": true,
+    "minYear": 2000,
+    "linkedCalendars": false,
+    "showCustomRangeLabel": false,
+    "opens": "center",
+    "autoUpdateInput": false,
+    "locale": {
+      "cancelLabel": 'Clear'
+    }
+  }, function(start, end, label) {
+    console.log('New date range selected: ' + start + ' to ' + end);
+    window.date = {
+      start: start._d.getTime(),
+      end: end._d.getTime()
+    };
+  });
+
+  $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+    $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+  });
+
+  $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+    $(this).val('');
+    window.date = {
+      start: 0,
+      end: 0
+    };
+  });
+  ipcRenderer.on('dashboard', (event, arg) => {
+    console.log(arg);
+    window.dashData = arg;
+    dashGraphs(arg);
+  });
+  ipcRenderer.on('contacts', (event, arg) => {
+    window.contactList = arg;
+    let htmlStr = '',
+      i, name;
+    for (i = 0; i < arg.length; i++) {
+      name = arg[i].name;
+      if (name != '') {
+        htmlStr += '<li><a href="#" onclick="convoClick(\'' +
+          escapeJs(arg[i].id) +
+          '\');">' +
+          name +
+          '</a>';
+        if (arg[i].type == 'dm') {
+          htmlStr += '<div class="dmTag">DM</div>'
+        }
+        htmlStr += '</li>';
+      }
+    }
+    document.getElementById('convoList').innerHTML = htmlStr;
+  });
+
+  document.getElementById('convoSearch').addEventListener('focus', function() {
+    document.getElementById('convoList').style = "";
+  });
+  document.getElementById('convoSearch').addEventListener('blur', function() {
+    setTimeout(function() {
+      document.getElementById('convoList').style = "display: none";
+    }, 100);
+  });
+  Chart.defaults.scale.gridLines.display = true;
+  Chart.defaults.scale.ticks.display = true;
+  ipcRenderer.send('dashboard', 'ready');
+  document.getElementById('daterangelabel').innerText = "All Time";
+  document.getElementById('convonamelabel').innerText = "All conversations";
+  document.getElementById('dash-loading-back').style = "";
+  console.log('Dashboard opened');
+});
+
+//function submit the dashboard search form
+function dashSubmit() {
+  if ($('#dateRange').val() == "") {
+    window.date = {
+      start: 0,
+      end: 0
+    };
+    document.getElementById('daterangelabel').innerText = "All Time";
+  } else {
+    let tempD1, tempD2;
+    tempD1 = new Date(window.date.start);
+    tempD2 = new Date(window.date.end);
+    document.getElementById('daterangelabel').innerText = tempD1.toLocaleDateString() + " to " + tempD2.toLocaleDateString();
+  }
+  if ($('#convoSearch').val() == "") {
+    window.dashConvo = "";
+    ipcRenderer.send('dashboard', ['', window.date.start, window.date.end]);
+    document.getElementById('convonamelabel').innerText = "All conversations";
+  } else {
+    if (window.dashConvo == "") {
+      for (var i = 0; i < window.contactList.length; i++) {
+        if ($('#convoSearch').val() == window.contactList[i].name) {
+          window.dashConvo = window.contactList[i];
+          break;
+        }
+      }
+    }
+    if (window.dashConvo == "") {
+      window.alert('No such conversation found, please check your inputs');
+      return;
+    } else {
+      ipcRenderer.send('dashboard', [window.dashConvo.id, window.date.start, window.date.end]);
+      document.getElementById('convonamelabel').innerText = window.dashConvo.name;
+    }
+  }
+
+  document.getElementById('dash-loading-back').style = "";
+}
+
+//function to update convo seaerch
+function updateConvoSearch() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('convoSearch');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("convoList");
+  li = ul.getElementsByTagName('li');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+    a = li[i].getElementsByTagName("a")[0];
+    txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
+// function handler for clicking on convo list
+function convoClick(contactId) {
+  let contact;
+  for (var i = 0; i < window.contactList.length; i++) {
+    if (contactId == window.contactList[i].id) {
+      window.dashConvo = window.contactList[i];
+      break;
+    }
+  }
+  contact = window.dashConvo.name;
+  console.log("Convo clicked: " + contact);
+  $('#convoSearch').val(contact);
 }

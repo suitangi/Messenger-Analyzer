@@ -27,7 +27,6 @@
     window.daterangepicker = require('daterangepicker');
   </script>
   <script type="text/javascript" src="scripts/plugins.min.js"></script>
-  <script type="text/javascript" src="scripts/dashboard.js"></script>
   <script type="text/javascript" src="scripts/index.js"></script>
 
   <script>
@@ -39,9 +38,9 @@
 
   <div id="header">
     <div id="optionWrapper">
-      <div class="option" id="minimize" onclick="ipcRenderer.send('minimize-me')">—</div>
-      <div class="option" id="maximize" onclick="ipcRenderer.send('maximize-me')">🗖</div>
-      <div class="option" id="exit" onclick="ipcRenderer.send('close-me')">🞩</div>
+      <div class="option" id="minimize" onclick="ipcRenderer.send('minimize-me', 'main')">—</div>
+      <div class="option" id="maximize" onclick="ipcRenderer.send('maximize-me', 'main')">🗖</div>
+      <div class="option" id="exit" onclick="ipcRenderer.send('close-me', 'main')">🞩</div>
     </div>
   </div>
 
@@ -261,180 +260,7 @@
 
   </div> <!-- end of year-in-review -->
 
-  <div id="data-dashboard">
-    <div id="dashboard-header">
-      <input type="text" id="convoSearch" onkeyup="updateConvoSearch()" placeholder=" Search for conversations">
-      <ul id="convoList" style="display: none;">
-      </ul>
 
-      <input type="text" id="dateRange" placeholder="Select date range" />
-
-      <button id="convoSearchButton" class="button" onclick="dashSubmit()"><img src="img/search.svg"></button>
-    </div>
-
-    <div id="dash-loading-back" style="display: none;">
-      <div id="dash-loading">
-        <span id="convonamelabel">convo name</span><br>
-        <span id="daterangelabel">date range</span><br>
-        <div class="loader"></div>
-      </div>
-    </div>
-
-    <div class="grid-container">
-      <div class="item1">
-        <select id="msgTotalSelect" class="dashSelect" onchange="msgTotalSelect(this.selectedIndex);">
-          <option value=0>Total Messages</option>
-          <option value=1>Text</option>
-          <option value=2>Photos</option>
-          <option value=3>Links</option>
-          <option value=4>Gifs</option>
-          <option value=5>Videos</option>
-          <option value=6>Stickers</option>
-        </select> Sent
-        <span id="msgTotal"></span>
-        <div class="dashChart">
-          <canvas id="msgSentPie"></canvas>
-        </div>
-      </div>
-      <div class="item2">
-        Message Types for
-        <select id="messageTypeSelect" class="dashSelect" onchange="msgTypeSelect(this.selectedIndex);">
-        </select>
-        <div class="dashChart">
-          <canvas id="msgTypePie"></canvas>
-        </div>
-      </div>
-      <div class="item3">
-        Details
-        <ol>
-          <li><strong>Chat Title: </strong><span id='chatTitle'></span></li>
-          <li><strong>Chat Type: </strong><span id='chatType'></span></li>
-          <li><strong>First Message: </strong><span id='firstDate'></span></li>
-          <li><strong>Stats Range: </strong><span id='detailDRange'></span></li>
-        </ol>
-      </div>
-      <div class="item4">
-        Participants
-        <ul id="participantList">
-        </ul>
-      </div>
-      <div class="item5">
-        Messages over Time
-        <div class="dashChart">
-          <canvas id="msgLine"></canvas>
-        </div>
-      </div>
-      <div class="item6">
-        % Messages over Time
-        <div class="dashChart">
-          <canvas id="msgPctLine"></canvas>
-        </div>
-      </div>
-      <div class="item7">Stats</div>
-      <div class="item8">
-        Active Time in a Day by
-        <select id="messageActiveSelect" class="dashSelect" onchange="msgActiveSelect(this.selectedIndex);">
-          <option value=0>Absolute Count</option>
-          <option value=1>Deviation from Avg</option>
-        </select>
-        <div class="dashChart">
-          <canvas id="msgActiveTime"></canvas>
-        </div>
-      </div>
-      <div class="item9">
-        <span id="msgProxTitle">Message Proximity for </span>
-        <select id="messageProxSelect" class="dashSelect" onchange="msgProxSelect(this.selectedIndex);">
-        </select>
-        <div class="dashChart">
-          <canvas id="msgProxResp"></canvas>
-        </div>
-      </div>
-      <div class="item10">
-        <select id="messageWordsSelect" class="dashSelect" onchange="msgWordsSelect(this.selectedIndex);">
-        </select>'s Words
-        <ol id="wordsList">
-        </ol>
-      </div>
-      <div class="item11">
-        <span id="reactToTitle">Reactions to</span>
-        <select id="reactToSelect" class="dashSelect" onchange="rctToSelect(this.selectedIndex);">
-        </select>
-        <span id="reactToTypeSpan">(
-          <select id="reactToTypeSelect" class="dashSelect" onchange="rctToTypeSelect(this.selectedIndex);">
-            <option value=0>People</option>
-            <option value=1>Type</option>
-          </select>
-          )</span>
-        <div class="dashChart">
-          <canvas id="reactToChart"></canvas>
-        </div>
-      </div>
-      <div class="item12">
-        <span id="reactFromTitle">Reactions from</span>
-        <select id="reactFromSelect" class="dashSelect" onchange="rctFromSelect(this.selectedIndex);">
-        </select>
-        <span id="reactFromTypeSpan">(
-          <select id="reactFromTypeSelect" class="dashSelect" onchange="rctFromTypeSelect(this.selectedIndex);">
-            <option value=0>People</option>
-            <option value=1>Type</option>
-          </select>
-          ) </span>
-        <div class="dashChart">
-          <canvas id="reactFromChart"></canvas>
-        </div>
-      </div>
-      <div class="item13">
-        Reactions Totals
-        <div class="smalldashChart">
-          <canvas id="reactTotalChart"></canvas>
-        </div>
-      </div>
-      <div class="item14">
-        Total Sent Distribution of
-        <select id="reactFromDistSelect" class="dashSelect" onchange="rctFromDistSelect(this.selectedIndex);">
-          <option value=0>😍</option>
-          <option value=1>❤️</option>
-          <option value=2>😆</option>
-          <option value=3>😮</option>
-          <option value=4>😢</option>
-          <option value=5>😠</option>
-          <option value=6>👍</option>
-          <option value=7>👎</option>
-        </select>
-        <div class="dashChart">
-          <canvas id="reactFromDistChart"></canvas>
-        </div>
-      </div>
-      <div class="item15">
-        Total Received Distribution of
-        <select id="reactToDistSelect" class="dashSelect" onchange="rctToDistSelect(this.selectedIndex);">
-          <option value=0>😍</option>
-          <option value=1>❤️</option>
-          <option value=2>😆</option>
-          <option value=3>😮</option>
-          <option value=4>😢</option>
-          <option value=5>😠</option>
-          <option value=6>👍</option>
-          <option value=7>👎</option>
-        </select>
-        <div class="dashChart">
-          <canvas id="reactToDistChart"></canvas>
-        </div>
-      </div>
-      <div class="item16">
-        Names:
-        <select id="nicknameSelect" class="dashSelect" onchange="nameHistorySelect(this.selectedIndex);">
-        </select>
-        <ol id="nicknamelist">
-        </ol>
-      </div>
-      <div class="item17">
-        <select id="stickerSelect" class="dashSelect" onchange="stickerSelect(this.selectedIndex);">
-        </select>'s Fav sticker
-        <div id="stickerImg"></div>
-      </div>
-    </div>
-  </div>
 </body>
 
 </html>
