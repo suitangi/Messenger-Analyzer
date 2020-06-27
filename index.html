@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <title>Your Messenger Journey</title>
+  <meta charset='utf-8'>
+  <link href="styles/index.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Muli:300,400|Source+Sans+Pro&display=swap" rel="stylesheet">
+
+
+  <script>
+    if (typeof module === 'object') {
+      window.module = module;
+      module = undefined;
+    }
+    window.$ = window.jQuery = require("jQuery");
+    window.Chart = require('chart.js');
+  </script>
+  <script type="text/javascript" src="scripts/plugins.min.js"></script>
+  <script type="text/javascript" src="scripts/index.js"></script>
+
+  <script>
+    if (window.module) module = window.module;
+  </script>
+</head>
+
+<body style="overflow:hidden;">
+
+  <div id="header">
+    <div id="optionWrapper">
+      <div class="option" id="minimize" onclick="ipcRenderer.send('minimize-me', 'main')">—</div>
+      <div class="option" id="maximize" onclick="ipcRenderer.send('maximize-me', 'main')">🗖</div>
+      <div class="option" id="exit" onclick="ipcRenderer.send('close-me', 'main')">🞩</div>
+    </div>
+  </div>
+
+  <div id="begin" class="section">
+    <div id="gradi">
+      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+        <div class="maintitle fade-in-top">
+          Messenger Analyzer
+        </div>
+        <br>
+        <button id="loadbutton" class="fade-in-bottom button" onclick="loadDirectory()">
+          Load Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="section">
+    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+      <div id="loadingsign" class="maintitle">
+        Loading Messages
+      </div>
+      <div class="sk-folding-cube">
+        <div class="sk-cube1 sk-cube"></div>
+        <div class="sk-cube2 sk-cube"></div>
+        <div class="sk-cube4 sk-cube"></div>
+        <div class="sk-cube3 sk-cube"></div>
+      </div>
+      <br><br><br><br><br><br>
+      <div class="suppText" id="loadAlert">
+        This may take some time
+      </div>
+
+    </div>
+  </div>
+
+  <div id="menu" class="section">
+    <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
+      <div class="maintitle" data-anime="fade-top">
+
+      </div>
+    </div>
+  </div>
+
+
+</html>

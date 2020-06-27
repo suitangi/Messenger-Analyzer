@@ -1,3 +1,23 @@
+#messages::-webkit-scrollbar {
+  width: 6px;
+  background: #FFF;
+  border-radius: 0px 6px 6px 0px;
+}
+
+#messages:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+#messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0);
+  border-radius: 4px;
+}
+
+#messages::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -72,7 +92,49 @@ body::-webkit-scrollbar {
   top: 0;
 }
 
-/* main Menu*/
+/* section control styling */
+#year-review {
+  display: inline;
+}
+
+#control {
+  position: fixed;
+  width: 1vh;
+  top: 50%;
+  left: 2%;
+  transform: translateY(-50%);
+  z-index: 6;
+  transition: opacity 1s ease-in-out;
+  user-select: none;
+}
+
+.arrow {
+  border: solid white;
+  border-width: 0 4px 4px 0;
+  opacity: 0.1;
+  display: inline-block;
+  padding: 1vh;
+  cursor: pointer;
+  transition: opacity 0.5s;
+  user-select: none;
+}
+
+.arrow:hover {
+  opacity: 0.8;
+  transition: opacity 0.25s;
+}
+
+.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+
+.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+/* sections and content styling */
 .section {
   width: 100%;
   height: 100%;
@@ -81,15 +143,7 @@ body::-webkit-scrollbar {
 
 #begin {
   background: #0f6dab;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 100%;
-  animation: gradient 15s ease infinite;
-}
-
-#gradi {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(69, 48, 89, 0) 0%, rgba(35, 6, 128, 1) 100%);
+  background: linear-gradient(#0f81ab, #230680);
 }
 
 #loading {
@@ -101,6 +155,66 @@ body::-webkit-scrollbar {
   opacity: 0;
 }
 
+#sec1 {
+  background: #230680;
+  background: linear-gradient(#230680, #7e0680);
+}
+
+#sec2 {
+  background: #7e0680;
+  background: linear-gradient(#7e0680, #800629);
+}
+
+#sec3 {
+  background: #800629;
+  background: linear-gradient(#800629, #94600c);
+}
+
+#sec4 {
+  background: #94600c;
+  background: linear-gradient(#94600c, #bed400);
+}
+
+#sec5 {
+  background: #bed400;
+  background: linear-gradient(#bed400, #54940c);
+}
+
+#sec6 {
+  background: #54940c;
+  background: linear-gradient(#54940c, #1dc79d);
+}
+
+#sec7 {
+  background: #1dc79d;
+  background: linear-gradient(#1dc79d, #00c3cf);
+}
+
+#sec8 {
+  background: #00c3cf;
+  background: linear-gradient(#00c3cf, #007de0);
+}
+
+#sec9 {
+  background: #007de0;
+  background: linear-gradient(#007de0, #e0009f);
+}
+
+#sec10 {
+  background: #e0009f;
+  background: linear-gradient(#e0009f, #e0de00);
+}
+
+#sec11 {
+  background: #e0de00;
+  background: linear-gradient(#e0de00, #4fdb82);
+}
+
+#sec12 {
+  background: #8ae000;
+  background: linear-gradient(#4fdb82, #5f94c9);
+}
+
 .maintitle {
   font-size: calc(36px + 1.2vw);
   text-align: center;
@@ -110,28 +224,39 @@ body::-webkit-scrollbar {
   user-select: none;
 }
 
-.suppText {
-  font-size: calc(22px + .7vw);
-  text-align: center;
-  color: white;
-  font-weight: 300;
-  font-family: 'Muli', sans-serif;
-  user-select: none;
+.bigChart {
+  position: relative;
+  top: 8vh;
+  left: 17vw;
+  width: 66vw;
 }
 
-#loadAlert {
-  opacity: 0;
+.odometer {
+  position: relative;
+  top: -4px;
 }
 
 #loadbutton {
   margin-top: 100px;
 }
 
+#convoButton {
+  margin-top: 50px;
+}
+
+#dashButton {
+  margin-top: 100px;
+  background-color: #00918f;
+}
+
+#dashButton:hover {
+  background-color: #1fa3a1;
+}
+
 .button {
-  background-color: #eee;
-  box-shadow: 2px 3px rgba(0, 0, 0, 0.3);
+  background-color: #0f6dab;
   border: none;
-  color: #222;
+  color: white;
   padding: 15px 32px;
   text-align: center;
   font-family: 'Muli', sans-serif;
@@ -147,30 +272,135 @@ body::-webkit-scrollbar {
 }
 
 .button:hover {
-  background-color: #ddd;
+  background-color: #1481c9;
 }
 
+#begin:focus,
+.section:focus,
 .button:focus {
   outline: none;
 }
 
-.to-animate {
-  opacity: 0;
+#wordCloud span {
+  user-select: none;
+}
+
+/* Conversation styles */
+#messagesContainer {
+  background-color: rgba(0, 0, 0, 0);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 7;
+  transition: background-color 0.5s ease-in-out;
+}
+
+#messages {
+  position: absolute;
+  top: 2vh;
+  left: 25vw;
+  height: 96vh;
+  width: 50vw;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  font: 16px/1.3 sans-serif;
+  overflow: auto;
+  padding: 0;
+  border-radius: 6px;
+  background: linear-gradient(rgb(255, 143, 178) 0%, rgb(167, 151, 255) 50%, rgb(0, 229, 255) 100%);
+}
+
+#messages:after {
+  content: '';
+  background: white;
+  flex: 1;
+  pointer-events: none;
+}
+
+#messages li {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row-reverse;
+  overflow: hidden;
+  border-style: solid;
+  border-color: white;
+  border-width: 2px 16px 2px 8px;
+  flex: 0 0 auto;
+}
+
+#messages li a {
+  color: #fff;
+}
+
+#messages li.mine {
+  flex-direction: row;
+  border-right-width: 8px;
+  border-left-width: 16px;
+}
+
+#messages li:first-child {
+  border-top-width: 10px;
+}
+
+#messages li:last-child {
+  border-bottom-width: 10px;
+}
+
+#messages li:before {
+  content: '';
+  flex: 1;
+  background: white;
+  pointer-events: none;
+}
+
+#messages li span {
+  background: #eee;
+  padding: 8px 12px 8px 12px;
+  position: relative;
+  max-width: 45vw;
+  overflow-wrap: break-word;
+}
+
+#messages li img {
+  max-width: 30vw;
+  border-radius: 1.5vw;
+}
+
+#messages li span:before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  bottom: -8px;
+  right: -8px;
+  border: 8px solid white;
+  border-radius: 25px;
+  pointer-events: none;
+}
+
+#messages li img:before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  bottom: -8px;
+  right: -8px;
+  border: 8px solid white;
+  border-radius: 25px;
+  pointer-events: none;
+}
+
+#messages li.mine span {
+  background: none;
+  color: white;
 }
 
 /* animations */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+.to-animate {
+  opacity: 0;
 }
 
 .fade-in-top {

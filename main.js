@@ -31,7 +31,7 @@ app.on('ready', function() {
   });
   // Load html into window
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'mainWindow.html'),
+    pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }));
@@ -54,8 +54,8 @@ app.on('ready', function() {
       minWidth: 1024,
       minHeight: 565,
       frame: false,
-      x: 5,
-      y: 5,
+      x: 100,
+      y: 100,
     });
     dashWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'dashboard.html'),
@@ -922,7 +922,13 @@ async function getData(contact, startTime, endTime) {
       //message type
       if (message.type == "Generic") {
         if (message.photos != undefined) {
-          person.msgType[1] += message.photos.length;
+          for (let photo = 0; photo < message.photos.length; photo++){
+            if (message.photos[photo].uri.includes('.gif')){
+              person.msgType[3] += 1;
+            } else {
+              person.msgType[1] += 1;
+            }
+          }
         } else if (message.gifs != undefined) {
           person.msgType[3] += 1;
         } else if (message.videos != undefined) {
@@ -1144,7 +1150,13 @@ async function processYear(year) {
           //get message type
           if (message.type == "Generic") {
             if (message.photos != undefined) {
-              typeCount[1] += message.photos.length;
+              for (let photo = 0; photo < message.photos.length; photo++){
+                if (message.photos[photo].uri.includes('.gif')){
+                  typeCount[3] += 1;
+                } else {
+                  typeCount[1] += 1;
+                }
+              }
             } else if (message.gifs != undefined) {
               typeCount[3] += 1;
             } else if (message.videos != undefined) {
@@ -1271,7 +1283,13 @@ async function processYear(year) {
           //get messaage type
           if (message.type == "Generic") {
             if (message.photos != undefined) {
-              typeCount[1] += message.photos.length;
+              for (let photo = 0; photo < message.photos.length; photo++){
+                if (message.photos[photo].uri.includes('.gif')){
+                  typeCount[3] += 1;
+                } else {
+                  typeCount[1] += 1;
+                }
+              }
             } else if (message.gifs != undefined) {
               typeCount[3] += 1;
             } else if (message.videos != undefined) {
@@ -1458,7 +1476,7 @@ async function processYear(year) {
 
 
 function ready() {
-  processYear(2019);
+  // processYear(2019);
   mainWindow.webContents.send('loading', 'done');
 }
 

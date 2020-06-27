@@ -967,6 +967,12 @@ function allButOne(arr, index) {
 
 //document ready script
 $(document).ready(function() {
+  window.date = {
+    start: 0,
+    end: 0
+  };
+  window.dashConvo = "";
+
   //sets the date range picker for data dashboard
   $('#dateRange').daterangepicker({
     "showDropdowns": true,
