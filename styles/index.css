@@ -46,7 +46,7 @@ body::-webkit-scrollbar {
 }
 
 .option:hover {
-  opacity: 0.9 !important;
+  opacity: 0.95 !important;
 }
 
 #exit {
@@ -94,7 +94,7 @@ body::-webkit-scrollbar {
 
 #loading {
   background: rgb(163, 191, 221);
-  background: linear-gradient(0deg, rgba(163, 191, 221, 1) 0%, rgba(98, 157, 179, 1) 100%);
+  background: linear-gradient(0deg, rgba(147, 173, 201, 1) 0%, rgba(98, 157, 179, 1) 100%);
 }
 
 #loadingsign {
@@ -103,7 +103,17 @@ body::-webkit-scrollbar {
 
 #menu {
   background: rgb(255, 255, 255);
-  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 85%, rgba(163, 191, 221, 1) 99%);
+  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 75%, rgba(147, 173, 201, 1) 99%);
+}
+
+#menuTitle {
+  font-size: calc(36px + 2.5vw);
+  text-align: center;
+  color: white;
+  font-weight: 300;
+  font-family: 'Muli', sans-serif;
+  padding-top: 5vh;
+  user-select: none;
 }
 
 .maintitle {
@@ -161,14 +171,10 @@ body::-webkit-scrollbar {
   display: block !important;
 }
 
-.menu-years:first-child {
-  padding-top: 20px !important;
-}
-
 .menu-years {
   font-size: calc(18px + 0.5vw);
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 15px;
+  padding-bottom: 5px;
   padding-right: 6px;
   padding-left: 6px;
   display: inline-block;
