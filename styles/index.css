@@ -81,24 +81,29 @@ body::-webkit-scrollbar {
 
 #begin {
   background: #0f6dab;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 100%;
+  background: linear-gradient(-45deg, #eedf52, #e73c7e, #23a6d5, #23d549);
+  background-size: 500% 100%;
   animation: gradient 15s ease infinite;
 }
 
 #gradi {
   width: 100%;
   height: 100%;
-  background: linear-gradient(180deg, rgba(69, 48, 89, 0) 0%, rgba(35, 6, 128, 1) 100%);
+  background: linear-gradient(180deg, rgba(69, 48, 89, 0) 0%, rgba(98, 157, 179, 1) 100%);
 }
 
 #loading {
-  background: rgb(35, 6, 128);
-  background: linear-gradient(0deg, rgba(35, 6, 128, 1) 0%, rgba(19, 8, 70, 1) 18%, rgba(8, 2, 52, 1) 50%, rgba(19, 8, 70, 1) 82%, rgba(35, 6, 128, 1) 100%);
+  background: rgb(163, 191, 221);
+  background: linear-gradient(0deg, rgba(163, 191, 221, 1) 0%, rgba(98, 157, 179, 1) 100%);
 }
 
 #loadingsign {
   opacity: 0;
+}
+
+#menu {
+  background: rgb(255, 255, 255);
+  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 85%, rgba(163, 191, 221, 1) 99%);
 }
 
 .maintitle {
@@ -119,6 +124,79 @@ body::-webkit-scrollbar {
   user-select: none;
 }
 
+.menuOption {
+  font-size: calc(36px + 1.2vw);
+  text-align: center;
+  color: black;
+  font-weight: 300;
+  font-family: 'Muli', sans-serif;
+  user-select: none;
+  background: -webkit-linear-gradient(45deg, #23a6d5, #23d549, #eedf52, #e73c7e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 500% 100%;
+  cursor: pointer;
+  padding-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 50%;
+}
+
+.menuOption:hover {
+  animation: gradient 8s ease infinite;
+}
+
+.menuHover {
+  font-size: calc(18px + 0.5vw);
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: black;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.4s ease-out;
+  padding-top: 10px;
+}
+
+.menuOption:hover .menuHover {
+  height: max(15vh, 13vw) !important;
+  display: block !important;
+}
+
+.menu-years:first-child {
+  padding-top: 20px !important;
+}
+
+.menu-years {
+  font-size: calc(18px + 0.5vw);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 6px;
+  padding-left: 6px;
+  display: inline-block;
+  border-color: rgba(0, 0, 0, 1);
+  border-radius: 1em;
+  border: 2px;
+  position: relative;
+}
+
+.menu-years:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 51%;
+  right: 51%;
+  bottom: 0;
+  background: linear-gradient(45deg, #eedf52, #e73c7e, #23a6d5, #23d549);
+  background-size: 500% 100%;
+  animation: gradient 8s ease infinite;
+  height: 2px;
+  transition: all .2s ease-out;
+}
+
+.menu-years:hover:before {
+  left: 5%;
+  right: 5%;
+}
+
 #loadAlert {
   opacity: 0;
 }
@@ -128,7 +206,7 @@ body::-webkit-scrollbar {
 }
 
 .button {
-  background-color: #eee;
+  background-color: rgba(255, 255, 255, 0.6);
   box-shadow: 2px 3px rgba(0, 0, 0, 0.3);
   border: none;
   color: #222;
@@ -143,11 +221,12 @@ body::-webkit-scrollbar {
   cursor: pointer;
   border-radius: 30px;
   user-select: none;
-  transition: background-color 0.25s ease;
+  transition: background-color 1s ease;
 }
 
 .button:hover {
-  background-color: #ddd;
+  background-color: #fff;
+  transition: background-color .4s ease;
 }
 
 .button:focus {

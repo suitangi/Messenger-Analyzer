@@ -11,7 +11,8 @@ const {
   ipcMain
 } = electron;
 
-let mainWindow;
+let mainWindow, dashWindow;
+let yearWindows = {};
 
 const stopWords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "ill", "i'm", "im", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "r", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "u", "ur", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "https://www", "<", ">", ""];
 
@@ -41,29 +42,79 @@ app.on('ready', function() {
   //Insert menu
   Menu.setApplicationMenu(mainMenu);
 
-  ipcMain.on('load-directory', (event, arg) => {
+  ipcMain.on('load-directory', (evt, arg) => {
     setupMessages(arg);
   });
   ipcMain.on('dashboard-open', (event, arg) => {
-    dashWindow = new BrowserWindow({
-      webPreferences: {
-        nodeIntegration: true
-      },
-      width: 1536,
-      height: 848,
-      minWidth: 1024,
-      minHeight: 565,
-      frame: false,
-      x: 100,
-      y: 100,
-    });
-    dashWindow.loadURL(url.format({
-      pathname: path.join(__dirname, 'dashboard.html'),
-      protocol: 'file:',
-      slashes: true
-    }));
+    if (dashWindow != undefined) {
+      dashWindow.focus();
+    } else {
+      dashWindow = new BrowserWindow({
+        webPreferences: {
+          nodeIntegration: true
+        },
+        width: 1536,
+        height: 848,
+        minWidth: 1024,
+        minHeight: 565,
+        frame: false,
+        x: 100,
+        y: 100,
+      });
+      dashWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'dashboard.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
+      dashWindow.on('closed', () => {
+        console.log('Dashboard closed');
+        dashWindow = undefined;
+      });
+    }
   });
-  ipcMain.on('dashboard', (event, arg) => {
+  ipcMain.on('year-open', (evt, arg) => {
+    let year = arg;
+    if (yearWindows[year] != undefined) {
+      yearWindows[year].focus();
+    } else {
+      yearWindows[year] = new BrowserWindow({
+        webPreferences: {
+          nodeIntegration: true
+        },
+        width: 1536,
+        height: 848,
+        minWidth: 1024,
+        minHeight: 565,
+        frame: false,
+        x: 100,
+        y: 100,
+      });
+      yearWindows[year].loadURL(url.format({
+        pathname: path.join(__dirname, 'journey.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
+    }
+  });
+  ipcMain.on('journey-close', (evt, arg) => {
+    console.log(arg + ' Journey Closed');
+    yearWindows[arg] = undefined;
+  });
+  ipcMain.on('journey', (evt, arg) => {
+    if (arg == 'ready') {
+      Object.keys(yearWindows).forEach(year => {
+        if (yearWindows[year] != undefined && evt.sender == yearWindows[year].webContents) {
+          yearWindows[year].webContents.send('loading', year);
+          if (messagesData['year_' + year] == undefined) {
+            processYear(year);
+          } else {
+            yearWindows[year].webContents.send('yearData', messagesData['year_' + year]);
+          }
+        }
+      });
+    }
+  });
+  ipcMain.on('dashboard', (evt, arg) => {
     if (arg == 'ready') {
       contactList();
       getData('', 0, 0);
@@ -72,12 +123,18 @@ app.on('ready', function() {
     }
   });
   ipcMain.on('close-me', (evt, arg) => {
-    if (arg == "main"){
+    if (arg == "main") {
       app.quit();
     } else {
       let win;
       if (arg == "dash") {
         win = dashWindow;
+      } else if (arg == "journey") {
+        Object.keys(yearWindows).forEach(year => {
+          if (yearWindows[year] != undefined && evt.sender == yearWindows[year].webContents) {
+            win = yearWindows[year];
+          }
+        });
       }
       win.close();
     }
@@ -88,6 +145,12 @@ app.on('ready', function() {
       win = mainWindow;
     } else if (arg == "dash") {
       win = dashWindow;
+    } else if (arg == 'journey') {
+      Object.keys(yearWindows).forEach(year => {
+        if (yearWindows[year] != undefined && evt.sender == yearWindows[year].webContents) {
+          win = yearWindows[year];
+        }
+      });
     }
     if (win.isMaximized()) {
       win.restore();
@@ -101,6 +164,12 @@ app.on('ready', function() {
       win = mainWindow;
     } else if (arg == "dash") {
       win = dashWindow;
+    } else if (arg == 'journey') {
+      Object.keys(yearWindows).forEach(year => {
+        if (yearWindows[year] != undefined && evt.sender == yearWindows[year].webContents) {
+          win = yearWindows[year];
+        }
+      });
     }
     win.minimize();
   });
@@ -922,8 +991,8 @@ async function getData(contact, startTime, endTime) {
       //message type
       if (message.type == "Generic") {
         if (message.photos != undefined) {
-          for (let photo = 0; photo < message.photos.length; photo++){
-            if (message.photos[photo].uri.includes('.gif')){
+          for (let photo = 0; photo < message.photos.length; photo++) {
+            if (message.photos[photo].uri.includes('.gif')) {
               person.msgType[3] += 1;
             } else {
               person.msgType[1] += 1;
@@ -1068,6 +1137,9 @@ async function getData(contact, startTime, endTime) {
 //process data for a year
 async function processYear(year) {
 
+  //initialize the data
+  messagesData['year_' + year] = {};
+
   //initialize variabless
   let privateCount = 0,
     groupCount = 0,
@@ -1110,8 +1182,6 @@ async function processYear(year) {
     });
   }
 
-  messagesData['year_' + year] = {};
-
   //get the name of the user
   name = messagesData.user_name;
 
@@ -1150,8 +1220,8 @@ async function processYear(year) {
           //get message type
           if (message.type == "Generic") {
             if (message.photos != undefined) {
-              for (let photo = 0; photo < message.photos.length; photo++){
-                if (message.photos[photo].uri.includes('.gif')){
+              for (let photo = 0; photo < message.photos.length; photo++) {
+                if (message.photos[photo].uri.includes('.gif')) {
                   typeCount[3] += 1;
                 } else {
                   typeCount[1] += 1;
@@ -1283,8 +1353,8 @@ async function processYear(year) {
           //get messaage type
           if (message.type == "Generic") {
             if (message.photos != undefined) {
-              for (let photo = 0; photo < message.photos.length; photo++){
-                if (message.photos[photo].uri.includes('.gif')){
+              for (let photo = 0; photo < message.photos.length; photo++) {
+                if (message.photos[photo].uri.includes('.gif')) {
                   typeCount[3] += 1;
                 } else {
                   typeCount[1] += 1;
@@ -1471,12 +1541,11 @@ async function processYear(year) {
   messagesData['year_' + year].lostConnections = topPercentageLost;
   messagesData['year_' + year].newFriends = newFriends;
   messagesData['year_' + year].wordCount = finalWordsArray;
-  mainWindow.webContents.send('2019data', messagesData['year_' + year]);
+  yearWindows[year].webContents.send('yearData', messagesData['year_' + year]);
 }
 
 
 function ready() {
-  // processYear(2019);
   mainWindow.webContents.send('loading', 'done');
 }
 

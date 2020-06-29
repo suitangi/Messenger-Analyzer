@@ -69,8 +69,31 @@
 
   <div id="menu" class="section">
     <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-      <div class="maintitle" data-anime="fade-top">
-
+      <div class="menuOption" data-anime="fade-top">
+        Yearly Journeys
+        <div class="menuHover">
+          Retrace your jouney on messenger in past years
+          <br><br style="font-size: 12px;">
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2019);">2019</div>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2018);">2018</div>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2017);">2017</div>
+          <br>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2016);">2016</div>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2015);">2015</div>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2014);">2014</div>
+        </div>
+      </div>
+      <div class="menuOption" data-anime="fade-top" onclick="ipcRenderer.send('dashboard-open');">
+        Data Dashboard
+        <div class="menuHover">
+          Provides comprehensive data <br>
+          and graphs based on the <br>
+          contact and date range
+        </div>
+      </div>
+      <div class="menuOption" data-anime="fade-top">
+        About
+        <div class="menuHover">About this software</div>
       </div>
     </div>
   </div>

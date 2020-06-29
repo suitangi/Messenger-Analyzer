@@ -94,6 +94,7 @@ body::-webkit-scrollbar {
 .button:hover {
   background-color: #1481c9;
 }
+
 .button:focus {
   outline: none;
 }
@@ -543,7 +544,6 @@ body::-webkit-scrollbar {
 }
 
 /* load animations */
-
 .loader,
 .loader:before,
 .loader:after {

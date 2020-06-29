@@ -97,7 +97,7 @@ function scrollTo(element) {
     document.getElementsByTagName("body")[0].style = "overflow:hidden;";
   });
   window.currentSection = element;
-  if (element == '#begin' || element == '#loading') {
+  if (element == '#begin') {
     document.getElementById('control').style = "opacity: 0;";
     window.hideControl = setTimeout(function() {
       document.getElementById('control').style = "display: none;";
@@ -134,19 +134,19 @@ function updateAnimates() {
         } else if (el.attr("data-anime") == "cloud") {
           document.getElementById("wordCloud").innerHTML = "";
           setTimeout(function() {
-            wordCloud(data_2019.wordCount);
+            wordCloud(year_data.wordCount);
           }, 800);
         } else if (el.attr("data-anime") == "chart") {
           //different charts need to be initialized accordingly
           switch (el.attr('id')) {
             case 'hourChart':
-              hourChart(el.get(), data_2019.hourlyCount);
+              hourChart(el.get(), year_data.hourlyCount);
               break;
             case 'typeChart':
-              typeChart(el.get(), data_2019.typeCount, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
+              typeChart(el.get(), year_data.typeCount, ['Texts', 'Photos', 'Links', 'Gifs', 'Videos', 'Stickers']);
               break;
             case 'reactChart':
-              typeChart(el.get(), data_2019.reactType, ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'])
+              typeChart(el.get(), year_data.reactType, ['😍', '❤️', '😆', '😮', '😢', '😠', '👍', '👎'])
           }
         }
         el.removeClass("to-animate");
@@ -241,7 +241,7 @@ function typeChart(ctx, data, label) {
 function wordCloud(words) {
   let wordlist = [];
   for (var i = 0; i < words.length; i++) {
-    wordlist.push([words[i].text, words[i].size / (words[0].size/150)]);
+    wordlist.push([words[i].text, words[i].size / (words[0].size / 150)]);
   }
   WordCloud(document.getElementById('wordCloud'), {
     list: wordlist,
@@ -279,73 +279,73 @@ function closeConvo() {
 //load in all the interesting facts
 function loadFacts() {
   $('.thisYear').each(function(i, el) {
-    el.innerText = data_2019.year;
+    el.innerText = year_data.year;
   });
 
-  $('#msg_total').attr('data-number', data_2019.messageCount);
-  $('#rcd_total').attr('data-number', data_2019.receivedCount);
-  $('#rct_total').attr('data-number', data_2019.reactCount);
-  $('#rct_max').attr('data-number', Math.floor(Math.max(...data_2019.reactType) / data_2019.reactCount * 100));
-  $('#msgType_max').attr('data-number', Math.floor(Math.max(...data_2019.typeCount) / data_2019.messageCount * 100));
+  $('#msg_total').attr('data-number', year_data.messageCount);
+  $('#rcd_total').attr('data-number', year_data.receivedCount);
+  $('#rct_total').attr('data-number', year_data.reactCount);
+  $('#rct_max').attr('data-number', Math.floor(Math.max(...year_data.reactType) / year_data.reactCount * 100));
+  $('#msgType_max').attr('data-number', Math.floor(Math.max(...year_data.typeCount) / year_data.messageCount * 100));
 
   //show the reaction most used
   var reactSrc = ['love', 'heart', 'grin', 'surprised', 'sad', 'angry', 'thumbsup', 'thumbsdown'];
-  $('#mostRct').attr('src', 'img/' + reactSrc[indexOfMax(data_2019.reactType)] + '.png');
+  $('#mostRct').attr('src', 'img/' + reactSrc[indexOfMax(year_data.reactType)] + '.png');
 
   //show the most common messaage type
   var msgTypes = ['texts', 'photos', 'links', 'gifs', 'videos'];
-  $('#mostMsgType').text(msgTypes[indexOfMax(data_2019.typeCount)]);
+  $('#mostMsgType').text(msgTypes[indexOfMax(year_data.typeCount)]);
 
   //show the most active times
   var timePeriods = ['12 - 1AM', '1 - 2AM', '2 - 3AM', '3 - 4AM', '4 - 5AM', '5 - 6AM', '6 - 7AM', '7 - 8AM', '8 - 9AM', '9 - 10AM', '10 - 11AM', '11AM - 12PM',
     '12 - 1PM', '1 - 2PM', '2 - 3PM', '3 - 4PM', '4 - 5PM', '5 - 6PM', '6 - 7PM', '7 - 8PM', '8 - 9PM', '9 - 10PM', '10 - 11PM', '11PM - 12AM'
   ];
-  $('#mostActiveTime').text(timePeriods[indexOfMax(data_2019.hourlyCount)]);
-  $('#leastActiveTime').text(timePeriods[indexOfMin(data_2019.hourlyCount)]);
+  $('#mostActiveTime').text(timePeriods[indexOfMax(year_data.hourlyCount)]);
+  $('#leastActiveTime').text(timePeriods[indexOfMin(year_data.hourlyCount)]);
 
   //top contacts aand groups
-  $('#topContact').text(data_2019.topPrivateOut.name);
-  $('#topContactMsgCount').attr('data-number', data_2019.topPrivateOut.count);
-  $('#topContactPercent').attr('data-number', Math.floor(data_2019.topPrivateOut.count / data_2019.privateCount * 100));
+  $('#topContact').text(year_data.topPrivateOut.name);
+  $('#topContactMsgCount').attr('data-number', year_data.topPrivateOut.count);
+  $('#topContactPercent').attr('data-number', Math.floor(year_data.topPrivateOut.count / year_data.privateCount * 100));
 
-  $('#topContactIn').text(data_2019.topPrivateIn.name);
-  if (data_2019.topPrivateIn.name == data_2019.topPrivateOut.name) {
+  $('#topContactIn').text(year_data.topPrivateIn.name);
+  if (year_data.topPrivateIn.name == year_data.topPrivateOut.name) {
     $('#also').attr('style', '');
   }
-  $('#topContactInMsgCount').attr('data-number', data_2019.topPrivateIn.count);
-  $('#topContactInPercent').attr('data-number', Math.floor(data_2019.topPrivateIn.count / data_2019.receivedCountPrivate * 100));
+  $('#topContactInMsgCount').attr('data-number', year_data.topPrivateIn.count);
+  $('#topContactInPercent').attr('data-number', Math.floor(year_data.topPrivateIn.count / year_data.receivedCountPrivate * 100));
 
-  if (data_2019.topGroupIn.name == data_2019.topGroupOut.name) {
+  if (year_data.topGroupIn.name == year_data.topGroupOut.name) {
     $('#multigroup0').text(' was');
     $('#multigroup').attr('style', 'display: none;');
     $('#multigroup1').attr('style', 'display: none;');
     $('#multigroup2').attr('style', 'display: none;');
   } else {
-    $('#topGroup2').text(data_2019.topGroupIn.name);
+    $('#topGroup2').text(year_data.topGroupIn.name);
   }
-  $('#topGroup1').text(data_2019.topGroupOut.name);
-  $('#topGroupInCount').attr('data-number', data_2019.topGroupIn.count);
-  $('#topGroupOutCount').attr('data-number', data_2019.topGroupOut.count);
+  $('#topGroup1').text(year_data.topGroupOut.name);
+  $('#topGroupInCount').attr('data-number', year_data.topGroupIn.count);
+  $('#topGroupOutCount').attr('data-number', year_data.topGroupOut.count);
 
   //deep conversation
-  $('#deepTalkName').text(data_2019.deepTalk.name);
-  tempD = new Date(data_2019.deepTalk.messages[0].timestamp_ms);
+  $('#deepTalkName').text(year_data.deepTalk.name);
+  tempD = new Date(year_data.deepTalk.messages[0].timestamp_ms);
   $('#deepTalkDate').text(tempD.toDateString());
   $('#deepTalkTime').text(tempD.toLocaleTimeString());
-  $('#deepTalkCount').attr('data-number', data_2019.deepTalk.count);
-  $('#deepTalkHours').attr('data-number', Math.ceil(data_2019.deepTalk.timeElapsed));
-  if (Math.ceil(data_2019.deepTalk.timeElapsed) == 1) {
+  $('#deepTalkCount').attr('data-number', year_data.deepTalk.count);
+  $('#deepTalkHours').attr('data-number', Math.ceil(year_data.deepTalk.timeElapsed));
+  if (Math.ceil(year_data.deepTalk.timeElapsed) == 1) {
     $('#hoursPlural').attr('style', 'display: none;');
   }
 
   //load the messages into the convo
   let htmlStr = "",
-    messages = data_2019.deepTalk.messages;
+    messages = year_data.deepTalk.messages;
   for (m = 0; m < messages.length; m++) {
     if (messages[m].type == 'Generic') {
-      tempD = new Date(data_2019.deepTalk.messages[m].timestamp_ms);
+      tempD = new Date(year_data.deepTalk.messages[m].timestamp_ms);
       htmlStr += '<li ';
-      htmlStr += ((messages[m].sender_name != data_2019.deepTalk.name) ? 'class="mine"' : '');
+      htmlStr += ((messages[m].sender_name != year_data.deepTalk.name) ? 'class="mine"' : '');
       htmlStr += ' data-date="' + tempD.toLocaleTimeString() + '"><span>';
       if (messages[m].content != undefined) {
         htmlStr += messages[m].content + '</span></li>';
@@ -359,9 +359,9 @@ function loadFacts() {
         htmlStr += messages[m].sender_name + " sent a sticker.</span></li>"
       }
     } else if (messages[m].type == 'Share') {
-      tempD = new Date(data_2019.deepTalk.messages[m].timestamp_ms);
+      tempD = new Date(year_data.deepTalk.messages[m].timestamp_ms);
       htmlStr += '<li ';
-      htmlStr += ((messages[m].sender_name != data_2019.deepTalk.name) ? 'class="mine"' : '');
+      htmlStr += ((messages[m].sender_name != year_data.deepTalk.name) ? 'class="mine"' : '');
       htmlStr += ' data-date="' + tempD.toLocaleTimeString() + '"><span>';
       linkContent = "";
       if (messages[m].content != undefined) {
@@ -386,19 +386,19 @@ function loadFacts() {
   document.getElementById('messages').innerHTML = htmlStr;
 
   //lost contacts
-  $('#lost1').text(data_2019.lostConnections[0].name);
-  $('#lost2').text(data_2019.lostConnections[1].name);
-  $('#lost3').text(data_2019.lostConnections[2].name);
-  $('#lost1-1').text(data_2019.lostConnections[0].name);
-  $('#lostCount').attr('data-number', data_2019.lostConnections[0].percentage);
+  $('#lost1').text(year_data.lostConnections[0].name);
+  $('#lost2').text(year_data.lostConnections[1].name);
+  $('#lost3').text(year_data.lostConnections[2].name);
+  $('#lost1-1').text(year_data.lostConnections[0].name);
+  $('#lostCount').attr('data-number', year_data.lostConnections[0].percentage);
 
   //new friends
-  $('#friend1').text(data_2019.newFriends[0].name);
-  $('#friend2').text(data_2019.newFriends[1].name);
-  $('#friend3').text(data_2019.newFriends[2].name);
-  $('#friendCount1').attr('data-number', data_2019.newFriends[0].difference);
-  $('#friendCount2').attr('data-number', data_2019.newFriends[1].difference);
-  $('#friendCount3').attr('data-number', data_2019.newFriends[2].difference);
+  $('#friend1').text(year_data.newFriends[0].name);
+  $('#friend2').text(year_data.newFriends[1].name);
+  $('#friend3').text(year_data.newFriends[2].name);
+  $('#friendCount1').attr('data-number', year_data.newFriends[0].difference);
+  $('#friendCount2').attr('data-number', year_data.newFriends[1].difference);
+  $('#friendCount3').attr('data-number', year_data.newFriends[2].difference);
 
 }
 
@@ -422,12 +422,8 @@ function startDashboard() {
 //doc start scripting
 $(document).ready(function() {
   updateAnimates();
-
+  ipcRenderer.send('journey', 'ready');
   window.lastSection = "#sec12";
-
-  setTimeout(function() {
-    document.getElementById("year_text").innerHTML = 2019;
-  }, 200);
 
   //disable native electron windows opening external links
   $(document).on('click', 'a[href^="http"]', function(event) {
@@ -439,14 +435,10 @@ $(document).ready(function() {
   document.addEventListener('keyup', (e) => {
     if (e.code === "ArrowUp") {
       e.preventDefault();
-      if (window.currentSection != "#loading") {
-        scrollUp();
-      }
+      scrollUp();
     } else if (e.code === "ArrowDown") {
       e.preventDefault();
-      if (window.currentSection != "#loading") {
-        scrollDown();
-      }
+      scrollDown();
     }
   });
 
@@ -464,36 +456,26 @@ $(document).ready(function() {
 
   //listens for done loading signal
   ipcRenderer.on('loading', (event, arg) => {
-    if (arg == 'done') {
-      scrollTo("#sec1");
-      updateAnimates();
-      setTimeout(function() {
-        document.getElementById("loading").remove();
-        document.getElementById("control").style = "opacity: 1";
-        document.getElementById("loadbutton").innerText = "Retrace the Journey";
-        document.getElementById("loadbutton").onclick = function() {
-          scrollTo('#sec1');
-        }
-      }, 1200);
-    } else if (arg == 'parsing') {
-      $('#loadingsign').removeClass('tracking-in-expand');
-      $('#loadingsign').addClass('tracking-out-contract');
-      setTimeout(function() {
-        $('#loadingsign').text('Parsing Messages');
-        $('#loadingsign').removeClass('tracking-out-contract');
-        $('#loadingsign').addClass('tracking-in-expand');
-      }, 700);
-    }
+    window.year = arg;
+    document.getElementById("year_text").innerHTML = arg;
+    console.log('This window is for year: ' + arg);
   });
-  ipcRenderer.on('2019data', (event, arg) => {
-    window.data_2019 = arg;
+  ipcRenderer.on('yearData', (event, arg) => {
+    window.year_data = arg;
     console.log("Done loading");
     console.log(arg);
+    $('#loadbutton').click(function() {
+      scrollTo('#sec1');
+    });
+    $('#loadbutton').text('Retrace my Journey')
     loadFacts();
   });
 
   Chart.defaults.scale.gridLines.display = false;
   Chart.defaults.scale.ticks.display = false;
 
+  window.onbeforeunload = (e) => {
+    ipcRenderer.send('journey-close', window.year);
+  }
 
 });

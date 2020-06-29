@@ -79,9 +79,7 @@ $(document).ready(function() {
     if (arg == 'done') {
       scrollTo("#menu");
       updateAnimates();
-      setTimeout(function() {
-        document.getElementById("loading").remove();
-      }, 1200);
+      setTimeout(function() {}, 1200);
     } else if (arg == 'parsing') {
       $('#loadingsign').removeClass('tracking-in-expand');
       $('#loadingsign').addClass('tracking-out-contract');
