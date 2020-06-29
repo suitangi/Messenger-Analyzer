@@ -36,6 +36,9 @@ app.on('ready', function() {
     protocol: 'file:',
     slashes: true
   }));
+  mainWindow.on('closed', () => {
+    app.quit();
+  });
 
   //Build menu from template
   const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);

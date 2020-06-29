@@ -423,7 +423,7 @@ function startDashboard() {
 $(document).ready(function() {
   updateAnimates();
   ipcRenderer.send('journey', 'ready');
-  window.lastSection = "#sec12";
+  window.lastSection = "#sec11";
 
   //disable native electron windows opening external links
   $(document).on('click', 'a[href^="http"]', function(event) {

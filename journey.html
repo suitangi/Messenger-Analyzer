@@ -18,11 +18,11 @@
       format: 'd'
     }
 
-    window.$ = window.jQuery = require("jQuery");
+    window.$ = window.jQuery = require("jquery");
     window.moment = require('moment');
     window.Chart = require('chart.js');
     window.odometer = require('odometer');
-    window.WordCloud = require('wordCloud');
+    window.WordCloud = require('wordcloud');
     window.daterangepicker = require('daterangepicker');
   </script>
   <script type="text/javascript" src="scripts/plugins.min.js"></script>
@@ -222,19 +222,6 @@
       </div>
       <div style="position: relative; bottom: 0%; left: 10%; height: 80vh; width: 80vw;">
         <div id="wordCloud" class="to-animate" data-anime="cloud" style="width: 80vw; height: 70vh; top: 15%"></div>
-      </div>
-    </div>
-
-    <div id="sec12" class="section">
-      <div style="position:relative; top:50%; left:50%; transform:translate(-50%, -50%);">
-        <div class="maintitle to-animate" data-anime="fade-top">
-          This is it for your Messenger <span class="odometer to-animate" data-anime="odo" data-number="2019">0</span> journey.<br>
-          What will next year bring? <br><br>
-          <span style="font-size: calc(20px + 1vw);">For more advanced data analytics,<br> continue to the data dashboard.</span>
-        </div>
-        <button id="dashButton" class="to-animate button" onclick="startDashboard()" data-anime="fade-bottom">
-          Data Dashboard
-        </button>
       </div>
     </div>
 
