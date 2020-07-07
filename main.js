@@ -612,6 +612,9 @@ async function getData(contact, startTime, endTime) {
         data.participants[i].wordCount = {};
       }
     }
+    //start the timeline for firstMessages
+    data.timeline = [];
+
     //get the messages and add them to the messages list
     for (i = 0; i < messagesData.private.length; i++) {
       for (j = 0; j < messagesData.private[i].messages.length; j++) {
@@ -622,6 +625,11 @@ async function getData(contact, startTime, endTime) {
           messages[messages.length - 1].fromType = 'DM';
         }
       }
+      data.timeline.push({
+        contact: messagesData.private[i].title,
+        timestamp_ms: messagesData.private[i].messages[0].timestamp_ms,
+        type: 'dm'
+      });
     }
     for (i = 0; i < messagesData.group.length; i++) {
       for (j = 0; j < messagesData.group[i].messages.length; j++) {
@@ -632,7 +640,14 @@ async function getData(contact, startTime, endTime) {
           messages[messages.length - 1].fromType = 'Group';
         }
       }
+      data.timeline.push({
+        contact: messagesData.group[i].title,
+        timestamp_ms: messagesData.group[i].messages[0].timestamp_ms,
+        type: 'group'
+      });
     }
+    //sort the timelines by time
+    data.timeline.sort((a, b) => (a.timestamp_ms > b.timestamp_ms) ? 1 : -1);
   } else { //process for just the requested conversation
     //find the conversation and add participants to list
     let foundConvo;

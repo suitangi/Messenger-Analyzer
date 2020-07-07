@@ -344,13 +344,16 @@ function dashGraphs(data) {
     window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
     document.getElementById('reactFromTypeSpan').style = "";
     document.getElementById('reactToTypeSpan').style = "";
+    document.getElementById('nicknameSelect').style = "";
     document.getElementById('reactToTitle').innerText = "Reactions to ";
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
+    document.getElementById('nicknameTitle').innerText = "Name: ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = '<option>Group (' + data.title_history.length + ')</option>' + nickHtml;
     document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
     document.getElementById('stickerSelect').innerHTML = partiSelectHtml;
+    nameHistorySelect(0);
   } else if (data.details.type == 'DM') {
     document.getElementById('messageProxSelect').style = "Display: none";
     document.getElementById('msgProxTitle').innerText = "Average Response Time";
@@ -366,13 +369,16 @@ function dashGraphs(data) {
     window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
     document.getElementById('reactFromTypeSpan').style = "display: none;";
     document.getElementById('reactToTypeSpan').style = "display: none;";
+    document.getElementById('nicknameSelect').style = "";
     document.getElementById('reactToTitle').innerText = "Reactions to ";
     document.getElementById('reactFromTitle').innerText = "Reactions from ";
+    document.getElementById('nicknameTitle').innerText = "Name: ";
     document.getElementById('reactToSelect').innerHTML = rctToHtml;
     document.getElementById('reactFromSelect').innerHTML = rctFromHtml;
     document.getElementById('nicknameSelect').innerHTML = nickHtml;
     document.getElementById('messageWordsSelect').innerHTML = partiSelectHtml;
     document.getElementById('stickerSelect').innerHTML = partiSelectHtml;
+    nameHistorySelect(0);
   } else {
     window.reactToType = [data.participants[0].rctCount, data.participants[2].rctCount];
     window.reactFromType = [data.participants[1].rctCount, data.participants[3].rctCount];
@@ -393,8 +399,10 @@ function dashGraphs(data) {
     window.reactFromDist = pieChart(document.getElementById('reactFromDistChart'), window.reactFromDistData[0].data, window.reactFromDistData[0].label, false);
     document.getElementById('reactToTitle').innerText = "Reactions sent in ";
     document.getElementById('reactFromTitle').innerText = "Reactions received in ";
+    document.getElementById('nicknameTitle').innerText = "First Msg Timeline: ";
     document.getElementById('reactFromTypeSpan').style = "display: none;";
     document.getElementById('reactToTypeSpan').style = "display: none;";
+    document.getElementById('nicknameSelect').style = "display: none;";
     document.getElementById('reactToSelect').innerHTML = '<option value=0>DM</option> <option value=1>Group</option>';
     document.getElementById('reactFromSelect').innerHTML = '<option value=0>DM</option> <option value=1>Group</option>';
     document.getElementById('messageProxSelect').style = "";
@@ -408,11 +416,19 @@ function dashGraphs(data) {
       distCount.push(data.participants[0].dist[i].count);
       distNames.push(data.participants[0].dist[i].title);
     }
+    let tlHtml = '<div class="timeline">', tempDate;
+    for (i = 0; i < data.timeline.length; i++) {
+      tempDate = new Date(data.timeline[i].timestamp_ms);
+      tlHtml += '<div class="tlContainer ' + data.timeline[i].type + '"><div class="content"><h4>'
+        + data.timeline[i].contact + '</h4><p>' + tempDate.toLocaleDateString() + '</p></div></div>';
+    }
+    tlHtml += '</div>';
+    // console.log(tlHtml);
+    document.getElementById('nicknamelist').innerHTML = tlHtml;
     window.msgProx = pieChart(document.getElementById('msgProxResp'), distCount, distNames, true);
   }
   window.reactTotal = smallPieChart(document.getElementById('reactTotalChart'), window.reactTotals, window.reactions, false);
   msgWordsSelect(0);
-  nameHistorySelect(0);
   stickerSelect(0);
   msgTotalSelect(0);
   document.getElementById('msgTotalSelect').value = 0;

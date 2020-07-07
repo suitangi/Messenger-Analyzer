@@ -394,13 +394,13 @@ body::-webkit-scrollbar {
 .item16 {
   grid-area: 9 / 5 / 11 / 5;
   height: calc(24vw + 50px) !important;
-  max-width: calc(20vw - 12px);
+  max-width: calc(20vw - 3px);
 }
 
 .item17 {
   grid-area: 8 / 5 / 9 / 5;
   height: 12vw !important;
-  max-width: calc(20vw - 12px);
+  max-width: calc(20vw - 3px);
 }
 
 #stickerImg {
@@ -415,7 +415,6 @@ body::-webkit-scrollbar {
   list-style-type: none;
   font-size: 16px;
   padding-left: 15px;
-  margin-top: 30px;
   overflow-y: auto;
   height: 90%;
 }
@@ -541,6 +540,84 @@ body::-webkit-scrollbar {
 #wordsList::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0);
   border-radius: 4px;
+}
+
+/* for the timeline */
+.timeline {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.timeline::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  background-color: #eee;
+  top: 0;
+  bottom: 0;
+  left: calc(5% - 4px);
+  margin-left: -3px;
+}
+
+.tlContainer {
+  padding-top: 10px;
+  padding-left: 20px;
+  position: relative;
+  background-color: inherit;
+  width: 80%;
+  left: 5%;
+}
+
+.tlContainer::after {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-color: #eee;
+  border: 3px solid #a0bbdb;
+  top: 20px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.tlContainer.group::after {
+  border-color: #dbc2a0 !important;
+}
+
+.tlContainer::before {
+  content: " ";
+  height: 0;
+  position: absolute;
+  top: 22px;
+  width: 0;
+  z-index: 1;
+  left: 10px;
+  border: medium solid #eee;
+  border-width: 10px 10px 10px 0;
+  border-color: transparent #eee transparent transparent;
+}
+
+.tlContainer::after {
+  left: -16px;
+}
+
+.content {
+  padding: 20px 30px;
+  color: #444;
+  background-color: #eee;
+  position: relative;
+  border-radius: 6px;
+}
+
+.content h4 {
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.content p {
+  margin-top: 5px;
+  margin-bottom: 0px;
 }
 
 /* load animations */
