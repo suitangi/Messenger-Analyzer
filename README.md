@@ -24,7 +24,7 @@ then run it
 ```
 npm start
 ```
-
+![Main Menu](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/Main.png)
 ![Main Menu](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/MainMenu.png)
 
 ## Functionality
