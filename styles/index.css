@@ -103,7 +103,7 @@ body::-webkit-scrollbar {
 
 #menu {
   background: rgb(255, 255, 255);
-  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 75%, rgba(147, 173, 201, 1) 99%);
+  background: linear-gradient(0deg, rgba(255, 255, 255, 1) 65%, rgba(147, 173, 201, 1) 99%);
 }
 
 #menuTitle {

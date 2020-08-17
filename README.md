@@ -1,14 +1,14 @@
 # Messenger Analyzer
 Current Functionality:
-- 2019 Messenger Journey
+- Yearly Messenger Journey
 - Data dashboard
 
-Hopefully Future Functionality:
-- Message query
+Future Functionality:
+- Message Query
 - Media Browser
-- Conversation browser
+- Conversation Viewer
 
-## Download Data from Facebook
+## Downloading Data from Facebook
 See [here](https://suitangi.github.io/Messenger-Analyzer/DownloadData).
 
 ## Usage
@@ -25,12 +25,12 @@ then run it
 npm start
 ```
 
-## Functionality
-### Messenger 2019 Journey
-![Journey Gif](https://i.imgur.com/tuD8luW.gif)
+![Main Menu](https://raw.githubusercontent.com/suitangi/Messenger-Analyzer/master/docs/img/MainMenu.png)
 
-A overview of simple data visualizations and numbers for the user's use of Messenger in the year of 2019.
-Click 'Load' and load in the directory created in the "Setting up your Data" section.
+## Functionality
+### Messenger Yearly Journey
+
+A overview of simple data visualizations and numbers for the user's use of Messenger in the chosen year.
 Use the arrow keys on the keyboard or the clickable arrows on the left side to navigate.
 
 ### Data Dashboard
@@ -42,15 +42,5 @@ Provides more comprehensive data by two parameters: the contact (can be groups) 
 ## Disclaimer
 The code is not pretty, but it works. There are a number of things that probably should be more optimized, that will come as I finish more functionalities.
 
-## Libraries Used
-- chart.js
-- moment
-- daterangepicker.js
-- jQuery
-- wordCloud
-- odometer
-- electron
-- fs
-- utf8
-- path
-- url
+## Dependencies
+See [Dependencies](https://github.com/suitangi/Messenger-Analyzer/network/dependencies)
