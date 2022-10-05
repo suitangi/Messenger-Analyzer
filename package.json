@@ -12,7 +12,7 @@
     "chart.js": "^2.9.4",
     "daterangepicker": "^3.1.0",
     "electron": "^15.5.5",
-    "electron-packager": "^14.2.1",
+    "electron-packager": "^16.0.0",
     "jquery": "^3.5.1",
     "moment": "^2.29.4",
     "odometer": "^0.4.8",
