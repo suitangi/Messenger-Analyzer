@@ -1,3 +1,44 @@
+## 2022 Remaster to do list
+
+### Main Menu
+- Include older years journeys
+- Redesigned main menu
+
+### Yearly Journeys
+- Figure out a way to do older years
+- Deal with all reaction types
+- Use fb emoji
+
+### Data Dashboard
+- DM's sentiment analysis
+- Deal with all reaction types on the front end
+- Tooltip description to explain stats
+- Smarter date ranges
+
+### Message browser/media browser
+- Message query with attributes (think Discord search)
+- Media browser means better media backend structure
+
+### Data Manager
+- Loading from disk (better directory management can help)
+- Merge directories and better directory management (https://github.com/binocarlos/merge-dirs)
+- Some tests and validation
+- Simple updates (only need to download new data)
+  - Show last updated
+
+### Data Processing
+- Deal with unsent messages
+- Optimizations
+  - Cache data dashboard loads (json files)
+- Deal with all reaction types
+
+### Misc.
+- Better docs
+- Rebuild website
+- Better Tutorials
+- Anonymous mode for docs
+
+
 # Messenger Analyzer
 Current Functionality:
 - Yearly Messenger Journey
