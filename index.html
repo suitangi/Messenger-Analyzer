@@ -75,13 +75,13 @@
         <div class="menuHover">
           Retrace your jouney on messenger in past years
           <br><br style="font-size: 12px;">
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2021);">2021</div>
+          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2020);">2020</div>
           <div class="menu-years" onclick="ipcRenderer.send('year-open', 2019);">2019</div>
+          <br>
           <div class="menu-years" onclick="ipcRenderer.send('year-open', 2018);">2018</div>
           <div class="menu-years" onclick="ipcRenderer.send('year-open', 2017);">2017</div>
-          <br>
           <div class="menu-years" onclick="ipcRenderer.send('year-open', 2016);">2016</div>
-          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2015);">2015</div>
-          <div class="menu-years" onclick="ipcRenderer.send('year-open', 2014);">2014</div>
         </div>
       </div>
       <div class="menuOption" data-anime="fade-top" onclick="ipcRenderer.send('dashboard-open');">

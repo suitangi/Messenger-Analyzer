@@ -247,7 +247,7 @@ function wordCloud(words) {
     list: wordlist,
     color: '#fff',
     backgroundColor: 'rgba(0, 0, 0, 0)',
-    fontFamily: 'Times, serif',
+    fontFamily: 'Muli, sans-serif',
     wait: 10,
     gridSize: 15,
     rotateRatio: 0.2,

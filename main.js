@@ -932,6 +932,20 @@ async function getData(contact, startTime, endTime) {
           });
         }
         if (message.reactions != undefined) {
+
+          //test function
+          if (contact != "") {
+            if (message.reactions.length >= 5) {
+              rrr = "";
+              ddd = new Date(message.timestamp_ms);
+              rrr += message.sender_name + ", " + ddd.toString() + ", " + message.reactions.length + ', "' + message.content + '"';
+              console.log(rrr);
+            }
+          }
+
+          //end test function
+
+
           for (i = 0; i < message.reactions.length; i++) {
             if (person.react[message.reactions[i].actor] == undefined) {
               person.react[message.reactions[i].actor] = {
@@ -1632,6 +1646,7 @@ function setupMessages(startPath) {
             cbCount -= 1;
             if (cbCount == 0) {
               console.log('Done loading files');
+
               preProcessData();
               processData();
               ready();
