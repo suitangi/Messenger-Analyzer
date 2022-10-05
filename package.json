@@ -9,12 +9,12 @@
   "author": "Ignatius Liu",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "daterangepicker": "^3.1.0",
-    "electron": "^8.3.3",
+    "electron": "^13.6.6",
     "electron-packager": "^14.2.1",
     "jquery": "^3.5.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.2",
     "odometer": "^0.4.8",
     "utf8": "^3.0.0",
     "wordcloud": "^1.1.1"
