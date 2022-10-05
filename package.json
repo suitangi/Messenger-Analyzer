@@ -14,7 +14,7 @@
     "electron": "^15.5.5",
     "electron-packager": "^14.2.1",
     "jquery": "^3.5.1",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "odometer": "^0.4.8",
     "utf8": "^3.0.0",
     "wordcloud": "^1.1.1"
