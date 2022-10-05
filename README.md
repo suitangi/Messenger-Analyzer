@@ -7,7 +7,7 @@
 ### Yearly Journeys
 - Figure out a way to do older years
 - Deal with all reaction types
-- Use fb emoji
+- Use fb emoji (https://www.npmjs.com/package/emoji-datasource-facebook)
 
 ### Data Dashboard
 - DM's sentiment analysis
