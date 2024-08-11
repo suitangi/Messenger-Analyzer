@@ -1,5 +1,8 @@
 ## 2022 Remaster to do list
 
+- Migrate off of Electron; browser based, can just use Express
+- Allow different platforms
+
 ### Main Menu
 - Include older years journeys
 - Redesigned main menu
@@ -36,7 +39,7 @@
 - Better docs
 - Rebuild website
 - Better Tutorials
-- Anonymous mode for docs
+- Lorem Ipsum mode for docs
 
 
 # Messenger Analyzer
